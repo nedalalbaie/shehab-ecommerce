@@ -2,7 +2,7 @@ type Product = {
   id: number
   name: string
   description: string
-  inventory_level: number
+  inventory: number
   image1_path: string
   image2_path: string
   image3_path: string
@@ -10,8 +10,10 @@ type Product = {
   price: number
   sub_category_id: number
   product_code: string
-  gender: number
   hex_codes: string
+  market_id: number
+  minimum_sale: number
+  selling_method: 'single-item' | 'package'
 }
 
 type AddProductRequest = Omit<Product, 'id' | 'image1_path' | 'image2_path' | 'image3_path' | 'image4_path'> & {

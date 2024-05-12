@@ -8,7 +8,7 @@ import type { List } from '@/core/models/list'
 const getProducts = (params: PaginationParams): Promise<List<Product[]>> => {
   return apiClient
     .addon(queryString)
-    .url('/show-all-prodcuts')
+    .url('/products')
     .query(params)
     .get()
     .notFound(() => ({

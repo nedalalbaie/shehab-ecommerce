@@ -11,6 +11,8 @@ import couponsRoutes from '@/coupons/coupons.routes'
 import discountsRoutes from '@/discounts/discounts.routes'
 import subCategoriesRoutes from '@/subCategories/subCategories.routes'
 import billsRoutes from '@/bills/bills.routes'
+import marketsRoutes from '@/markets/markets.routes'
+import mainCategoriesRoutes from '@/mainCategories/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,12 +28,20 @@ const router = createRouter({
       redirect: '/products',
       children: [
         {
+          path: 'markets',
+          children: marketsRoutes
+        },
+        {
           path: 'products',
           children: productsRoutes
         },
         {
           path: 'categories',
           children: categoriesRoutes
+        },
+        {
+          path: 'mainCategories',
+          children: mainCategoriesRoutes
         },
         {
           path: 'subCategories',

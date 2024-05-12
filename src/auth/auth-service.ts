@@ -6,7 +6,7 @@ import router from '@/router'
 
 const login = (payLoad: LoginPayload): Promise<AuthResponse> => {
   return apiClient
-    .url('/auth/login')
+    .url('/auth/login-admin')
     .post(payLoad)
     .json()
     .then((response) => {
@@ -17,7 +17,7 @@ const login = (payLoad: LoginPayload): Promise<AuthResponse> => {
 
 const logout = (): Promise<void> => {
   return apiClient
-  .url('/auth/logout')
+  .url('/auth/logout-admin')
   .post({token: authStore.auth})
   .json()
   .then(() => {

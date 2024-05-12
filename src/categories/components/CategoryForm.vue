@@ -19,6 +19,30 @@
         placeholder="التفاصيل"
         :error-messages="errors.description"
       />
+
+      <v-autocomplete
+        v-model="cat_zero_id"
+        :hide-no-data="false"
+        item-title="name"
+        item-value="id"
+        :items="mainCategories.data.value"
+        :loading="props.isLoading"
+        hide-selected
+        label="التصنيفات الأساسية"
+        placeholder="التصنيفات الأساسية"
+        variant="outlined"
+        color="primary"
+        auto-select-first
+        :error-messages="errors.cat_zero_id"
+      >
+        <template #no-data>
+          <v-list-item>
+            <v-list-item-title>
+              لا توجد نتائج
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+      </v-autocomplete>
     </div>
 
     <div>
@@ -52,11 +76,13 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm, useField } from 'vee-validate'
-import { object, string, } from 'zod'
+import { number, object, string, } from 'zod'
 import type { AddCategoryRequest, Category } from "../models/Category"
 import { computed, ref, watchEffect } from "vue"
 import ImageUpload from "@/core/components/ImageUpload.vue"
 import { pathToFile } from '@/core/helpers/pathToFile'
+import { useQuery } from '@tanstack/vue-query'
+import { getMainCategories } from '@/mainCategories/mainCategories-service'
 
 type CategoryForm = AddCategoryRequest
 
@@ -77,6 +103,7 @@ const validationSchema = toTypedSchema(
   object({
     name: editMode.value ? string() : string().min(1, 'يجب إدخال إسم التصنيف '),
     description: editMode.value ? string() : string().min(1, 'يجب إدخال التفاصيل  '),
+    cat_zero_id: number().min(1, 'يجب إدخال التصنيف الأب  '),
   })
 )
 
@@ -86,6 +113,16 @@ const { handleSubmit, errors, meta, setValues } = useForm({
 
 const { value: name } = useField<string>('name')
 const { value: description } = useField<string>('description')
+const { value: cat_zero_id } = useField<number>('cat_zero_id')
+
+const listParams = ref({
+  page: 1,
+  limit: 50,
+})
+const mainCategories = useQuery({
+  queryKey: ['main-categories', listParams],
+  queryFn: () => getMainCategories(listParams.value)
+})
 
 watchEffect(() => {
   if (props.category) {
