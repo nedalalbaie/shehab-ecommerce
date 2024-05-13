@@ -1,7 +1,18 @@
 <template>
-  <h1 class="text-2xl font-medium ">
-    تعديل تصنيف
-  </h1>
+  <div class="flex justify-between ">
+    <h1 class="text-2xl font-medium ">
+      تعديل تصنيف 
+    </h1>
+    <v-btn
+      :to="{ name: 'categories' }"
+      variant="outlined"
+      color="primary"
+      size="large"
+      :append-icon="mdiArrowLeft"
+    >
+      الرجوع الى التصنيفات 
+    </v-btn>
+  </div>
   <CategoryForm
     :is-loading="patchCategoryMutation.isPending.value"
     :category="category.data.value"
@@ -10,6 +21,7 @@
 </template> 
 
 <script setup lang="ts">
+import { mdiArrowLeft } from "@mdi/js";
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import router from "@/router";
 import { getCategory, editCategory } from '../services/categories-service';

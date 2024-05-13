@@ -13,7 +13,6 @@
       <v-text-field
         v-model="owner_name"
         label="إسم مالك المحل"
-        type="number"
         variant="outlined"
         color="primary"
         placeholder="إسم مالك المحل"
@@ -28,6 +27,19 @@
         color="primary"
         placeholder="نسبة الهاتف"
         :error-messages="errors.phone_number"
+      />
+    </div>
+
+    <div class="lg:w-1/2 mt-12 lg:mt-0">
+      <iframe
+        class="w- h-[25rem]"
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3711.3809451652833!2d39.19203125090872!3d21.531954875714302!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x15c3cfd4906639d9%3A0x3885f685a367999f!2z2YXYudmH2K8g2LPZgdix2KfYoSDYp9mE2LnZhNmFINmE2YTYqtiv2LHZitio!5e0!3m2!1sen!2sly!4v1677401828377!5m2!1sen!2sly"
+        width="600"
+        height="450"
+        style="border:0;"
+        allowfullscreen="true"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
       />
     </div>
 
@@ -48,10 +60,9 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
-import { object, string, number, date } from 'zod';
+import { object, string, number } from 'zod';
 import type { Market, MarketFormRequest } from "../models/market";
 import { computed, watchEffect } from "vue";
-import { formatToDatePicker, fromatDatePickerToDate } from '@/core/helpers/format-date';
 
 const props = defineProps<{
     isLoading: boolean,
@@ -68,11 +79,17 @@ const validationSchema = toTypedSchema(
         market_name: string().min(1, 'يجب إدخال  إسم المحل '),
         owner_name: string().min(1, 'يجب إدخال إسم مالك المحل  '),
         phone_number: string().min(1, 'يجب إدخال رقم الهاتف  '),
+        active_market: number(),
+        authenticated: number(),
     })
 );
 
 const { handleSubmit, errors, meta, setValues } = useForm({
-    validationSchema
+    validationSchema , 
+    initialValues: {
+      active_market: 1,
+      authenticated: 1,
+    }
 });
 
 const { value: market_name } = useField<string>('market_name');
@@ -88,12 +105,9 @@ watchEffect(() => {
 })
 
 const submit = handleSubmit(values => {
-    emit("submit", {
-      ...values,
-      active_market: 1,
-      authenticated: 1,
-      location_link: ""
-    })
+   console.log(values);
+   
+    // emit("submit", values)
 })
 
 </script>

@@ -1,7 +1,18 @@
 <template>
-  <h1 class="text-2xl font-medium ">
-    تعديل كوبون 
-  </h1>
+  <div class="flex justify-between ">
+    <h1 class="text-2xl font-medium ">
+      تعديل كوبون 
+    </h1>
+    <v-btn
+      :to="{ name: 'coupons' }"
+      variant="outlined"
+      color="primary"
+      size="large"
+      :append-icon="mdiArrowLeft"
+    >
+      الرجوع الى الكوبونات 
+    </v-btn>
+  </div>
   <CouponForm
     :is-loading="patchCouponMutation.isPending.value"
     :coupon="coupon.data.value"
@@ -10,6 +21,7 @@
 </template>
       
   <script setup lang="ts">
+  import { mdiArrowLeft } from "@mdi/js";
   import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
   import { editCoupon, getCoupon } from "../coupons-service"
   import router from "@/router";

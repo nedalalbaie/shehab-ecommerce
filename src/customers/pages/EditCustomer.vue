@@ -1,10 +1,21 @@
 <template>
-  <h1 class="text-2xl font-medium bg-gray-100 w-fit p-2 rounded-md">
-    <span>عبد الرحمن محمد  - </span>
-    <span>
-      تعديل
-    </span>
-  </h1>
+  <div class="flex justify-between">
+    <h1 class="text-2xl font-medium bg-gray-100 w-fit p-2 rounded-md">
+      <span>عبد الرحمن محمد  - </span>
+      <span>
+        تعديل
+      </span>
+    </h1>
+    <v-btn
+      :to="{ name: 'customers' }"
+      variant="outlined"
+      color="primary"
+      size="large"
+      :append-icon="mdiArrowLeft"
+    >
+      الرجوع الى الزبائن 
+    </v-btn>
+  </div>
   <CustomerForm
     :is-loading="patchCustomer.isPending.value"
     :customer="customer.data.value"
@@ -13,6 +24,7 @@
 </template>
     
 <script setup lang="ts">
+import { mdiArrowLeft } from "@mdi/js";
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { editCustomer, getCustomer } from "../customers-service"
 import router from "@/router";

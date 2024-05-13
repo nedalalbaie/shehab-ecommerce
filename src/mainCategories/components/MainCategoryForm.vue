@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="submit">
-    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-2 mt-6">
+    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-2 mt-7">
       <v-text-field
         v-model="name"
         label="إسم التصنيف"

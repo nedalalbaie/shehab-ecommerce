@@ -1,7 +1,18 @@
 <template>
-  <h1 class="text-2xl font-medium ">
-    تعديل بيانات التخفيض
-  </h1>
+  <div class="flex justify-between">
+    <h1 class="text-2xl font-medium ">
+      تعديل بيانات التخفيض
+    </h1>
+    <v-btn
+      :to="{ name: 'discounts' }"
+      variant="outlined"
+      color="primary"
+      size="large"
+      :append-icon="mdiArrowLeft"
+    >
+      الرجوع إلى التخفيضات
+    </v-btn>
+  </div>
   <DiscountForm
     :is-loading="patchDiscountMutation.isPending.value"
     :discount="discount.data.value"
@@ -10,6 +21,7 @@
 </template>
       
 <script setup lang="ts">
+import { mdiArrowLeft } from '@mdi/js'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { editDiscount, getDiscount } from "../discounts-service"
 import router from "@/router";

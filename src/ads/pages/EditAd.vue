@@ -1,7 +1,18 @@
 <template>
-  <h1 class="text-2xl font-medium ">
-    تعديل إعلان 
-  </h1>
+  <div class="flex justify-between ">
+    <h1 class="text-2xl font-medium ">
+      تعديل الإعلان 
+    </h1>
+    <v-btn
+      :to="{ name: 'ads' }"
+      variant="outlined"
+      color="primary"
+      size="large"
+      :append-icon="mdiArrowLeft"
+    >
+      الرجوع الى الإعلانات 
+    </v-btn>
+  </div>
   <AdsForm
     :ad="ad.data.value"
     :is-loading="patchAdMutation.isPending.value"
@@ -9,6 +20,7 @@
   />
 </template>
 <script setup lang="ts">
+import { mdiArrowLeft } from "@mdi/js";
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import router from "@/router";
 import { getAd, patchAd } from "../ads-service"
