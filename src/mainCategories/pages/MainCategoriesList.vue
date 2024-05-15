@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-[calc(100vh-80px)] flex flex-col">
     <h1 class="text-3xl">
-      التصنيفات الأساسية
+      التصنيفات الرئيسية
       <span v-if="mainCategories.data.value?.length! > 0">( {{ mainCategories.data.value?.length }} )</span>
     </h1>
     <div class="md:flex items-center justify-between mt-6">

@@ -6,17 +6,17 @@
     </h1>
     <div
       ref="upperElement"
-      class="flex items-center mt-6"
-      :class="products.data.value?.data.length === 0 ? 'justify-end' : 'justify-between'"
+      class="flex justify-between items-center mt-6"
     >
       <div
-        v-if="products.data.value?.data.length !== 0"
-        class="flex justify-between items-center bg-[#FCF2EA] rounded-xl py-1 px-4"
+        class="flex justify-between items-center bg-[#FCF2EA] border  rounded-xl py-1 px-4"
       >
         <input
+          v-model="searchValue"
           placeholder="إبحث عن منتجات"
           type="text"
           class="w-56 border-none p-2 rounded-lg outline-none transition-all duration-100 placeholder:text-gray-700"
+          @input="handleSearch"
         >
         <SearchIcon custom-style="w-6 h-6" />
       </div>
@@ -42,7 +42,7 @@
     >
       <EmptyData v-if="products.data.value.data.length === 0" />
     
-      <div class="grid grid-cols-productsCards gap-x-4 gap-y-8">
+      <div class="grid grid-cols-productsCards gap-x-6 gap-y-8">
         <div
           v-for="product in products.data.value.data"
           :key="product.id"
@@ -89,25 +89,25 @@
           </div>
           <div class="mt-4 py-1 flex items-center border-b border-gray-700">
             <p class="w-1/5">
-              {{ convertToObject(product.hex_codes).length > 1 ? 'الألوان' : 'اللون' }}
+              {{ product.hex_codes.length > 1 ? 'الألوان' : 'اللون' }}
             </p>
             <div class="w-4/5 flex justify-end gap-1">
               <div
-                v-for="(color, index) in convertToObject(product.hex_codes)"
+                v-for="(color, index) in product.hex_codes"
                 :key="index"
                 class="w-8 h-8 rounded-[50%] shadow-full-white border-2  flex items-end"
-                :style="{ 'background-color': color }"
+                :style="{ 'background-color': `#${color}` }"
               />
             </div>
           </div>
-          <div class="mt-4 flex items-center border-b border-gray-700">
+          <!-- <div class="mt-4 flex items-center border-b border-gray-700">
             <p class="w-1/2">
               الكمية
             </p>
             <p class="w-1/2 text-center">
               {{ product.inventory_level }}
             </p>
-          </div>
+          </div> -->
           <div class="mt-4 flex items-center border-b border-gray-700">
             <p class="w-1/2">
               الحجم
@@ -179,7 +179,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref, watch, watchEffect } from "vue";
 import { getProducts, deleteProduct } from "../products-service"
 import type { PaginationParams } from '@/core/models/pagination-params'
 import SearchIcon from "@/core/components/icons/SearchIcon.vue";
@@ -191,12 +191,13 @@ import LoadingProducts from "../components/LoadingProducts.vue";
 import {
   mdiPlus
 } from '@mdi/js'
+import debounce from "lodash.debounce";
 
-const listParams = ref<PaginationParams>({
+const searchValue = ref('');
+const listParams = ref<PaginationParams & {productName?: string}>({
   page: 1,
   limit: 10,
   productName: undefined,
-  category_id: undefined
 })
 
 const products = useQuery({
@@ -214,9 +215,9 @@ const getBackgroundImage = (url: string) => {
   }
 }
 
-const convertToObject = (hexCodesParam: string) => {
-  return JSON.parse(hexCodesParam) as string[]
-}
+// const convertToObject = (hexCodesParam: string) => {
+//   return JSON.parse(hexCodesParam) as string[]
+// }
 
 const queryClient = useQueryClient()
 const deleteProductMutation = useMutation({
@@ -237,8 +238,21 @@ const dialogQuestion = (productCode: string) => {
   return `حذف المنتج ${productCode}# ?`
 }
 
-watchEffect(() => {
-  
-})
+const handleSearch  = debounce(() => {
+    // if (searchValue.value.trim() === '') {
+    //   return
+    // } else if (searchValue.value.trim().length !== searchValue.value.length) {
+    //   listParams.value.filter = searchValue.value
+    // }
+    listParams.value.productName = searchValue.value
+    
+}, 300)
+
+// watch( searchValue, () => {
+//   if (searchValue.value == null) {
+//     handleSearch()
+//   }
+//   // handleSearch()
+// })
 
 </script>

@@ -80,7 +80,7 @@ const validationSchema = toTypedSchema(
         owner_name: string().min(1, 'يجب إدخال إسم مالك المحل  '),
         phone_number: string().min(1, 'يجب إدخال رقم الهاتف  '),
         active_market: number(),
-        authenticated: number(),
+        location_link: string()
     })
 );
 
@@ -88,7 +88,7 @@ const { handleSubmit, errors, meta, setValues } = useForm({
     validationSchema , 
     initialValues: {
       active_market: 1,
-      authenticated: 1,
+      location_link: "https://www.google.com"
     }
 });
 
@@ -107,7 +107,7 @@ watchEffect(() => {
 const submit = handleSubmit(values => {
    console.log(values);
    
-    // emit("submit", values)
+    emit("submit", values)
 })
 
 </script>

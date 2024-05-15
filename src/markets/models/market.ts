@@ -2,7 +2,6 @@ type Market = {
   id: number
   phone_number: string
   active_market: number
-  authenticated: number
   market_name: string
   owner_name: string
   location_link: string
