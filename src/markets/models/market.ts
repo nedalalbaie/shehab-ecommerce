@@ -1,8 +1,8 @@
 type Market = {
   id: number
-  phone_number: string
+  name: string
+  phone_number: number
   active_market: number
-  market_name: string
   owner_name: string
   location_link: string
 }

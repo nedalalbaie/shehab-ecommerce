@@ -3,7 +3,7 @@ import { type RouteRecordRaw } from 'vue-router'
 const routes: RouteRecordRaw[] = [
   {
     path: '',
-    name: 'markets',
+    name: 'markets-list',
     component: () => import('./pages/MarketsList.vue')
   },
   {
@@ -15,6 +15,11 @@ const routes: RouteRecordRaw[] = [
     path: 'edit/:id',
     name: 'edit-market',
     component: () => import('./pages/EditMarket.vue')
+  },
+  {
+    path: ':id',
+    name: 'market-details',
+    component: () => import('./pages/MarketDetails.vue')
   }
 ]
 

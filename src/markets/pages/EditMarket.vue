@@ -4,7 +4,7 @@
       تعديل محل 
     </h1>
     <v-btn
-      :to="{ name: 'markets' }"
+      :to="{ name: 'markets-list' }"
       variant="outlined"
       color="primary"
       size="large"
@@ -12,12 +12,12 @@
     >
       الرجوع الى المحلات
     </v-btn>
-    <MarketForm
-      :is-loading="patchMarketMutation.isPending.value"
-      :market="market.data.value"
-      @submit="handleSubmit"
-    />
   </div>
+  <MarketForm
+    :is-loading="patchMarketMutation.isPending.value"
+    :market="market.data.value"
+    @submit="handleSubmit"
+  />
 </template>
 
 <script setup lang="ts">
@@ -41,8 +41,8 @@ const queryClient = useQueryClient()
 const patchMarketMutation = useMutation({
   mutationFn: ({ id, body }: { id: number; body: MarketFormRequest }) => editMarket(id, body),
   onSuccess: () => {
-    router.replace({ name: 'coupons' })
-    queryClient.invalidateQueries({ queryKey: ['coupons'] })
+    router.replace({ name: 'markets-list' })
+    queryClient.invalidateQueries({ queryKey: ['markets'] })
   },
   onError: (error) => {
     console.log(error)

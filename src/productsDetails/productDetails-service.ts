@@ -1,16 +1,14 @@
 import apiClient from '@/core/helpers/api-client'
 import queryString from 'wretch/addons/queryString'
 import formData from 'wretch/addons/formData'
-import type { Product, AddProductRequest } from './models/product'
+import type { ProductDetails } from './models/productDetails'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import type { List } from '@/core/models/list'
-import type { ProductStatusChangeBody } from './models/product-status-body'
-import { alertStore } from '@/core/stores/alert.store'
 
-const getProducts = (params: PaginationParams): Promise<List<Product[]>> => {
+const getProductDetails = (params: PaginationParams): Promise<List<ProductDetails[]>> => {
   return apiClient
     .addon(queryString)
-    .url('/products')
+    .url('/details')
     .query(params)
     .get()
     .notFound(() => ({
@@ -24,7 +22,7 @@ const getProduct = (id: number): Promise<Omit<Product , "sub_category_id"> & {ca
   return apiClient.url(`/products/${id}`).get().json()
 }
 
-const postProduct = (body: AddProductRequest): Promise<Product> => {
+const postProduct = (body: ProductDetails): Promise<Product> => {
   return apiClient
     .addon(formData)
     .url('/products')
@@ -50,17 +48,4 @@ const deleteProduct = (id: number) => {
   return apiClient.url(`/products/${id}`).delete().json()
 }
 
-const changeStatus = (body: ProductStatusChangeBody): Promise<void> => {
-  return apiClient
-    .url('/active-prodcut')
-    .post(body)
-    .json((res) => {
-      alertStore.show({
-        message: 'تم تغيير حالة المنتج بنجاح',
-        type: 'info'
-      })
-      return res
-    })
-}
-
-export { getProducts, getProduct, postProduct, editProduct, deleteProduct, changeStatus }
+export { getProducts, getProduct, postProduct, editProduct, deleteProduct }

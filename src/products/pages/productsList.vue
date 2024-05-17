@@ -44,7 +44,7 @@
     
       <div class="grid grid-cols-productsCards gap-x-6 gap-y-8">
         <div
-          v-for="product in products.data.value.data"
+          v-for="(product, index) in products.data.value.data"
           :key="product.id"
           class="bg-white shadow-lg rounded-lg p-4"
         >
@@ -79,22 +79,22 @@
               سرير
             </p>
           </div>
-          <div class="mt-4 flex items-center border-b border-gray-700">
+          <!-- <div class="mt-4 flex items-center border-b border-gray-700">
             <p class="w-1/2">
               الجنس
             </p>
             <p class="w-1/2 text-center">
               --
             </p>
-          </div>
+          </div> -->
           <div class="mt-4 py-1 flex items-center border-b border-gray-700">
             <p class="w-1/5">
               {{ product.hex_codes.length > 1 ? 'الألوان' : 'اللون' }}
             </p>
             <div class="w-4/5 flex justify-end gap-1">
               <div
-                v-for="(color, index) in product.hex_codes"
-                :key="index"
+                v-for="(color, colorIndex) in product.hex_codes"
+                :key="colorIndex"
                 class="w-8 h-8 rounded-[50%] shadow-full-white border-2  flex items-end"
                 :style="{ 'background-color': `#${color}` }"
               />
@@ -108,16 +108,21 @@
               {{ product.inventory_level }}
             </p>
           </div> -->
-          <div class="mt-4 flex items-center border-b border-gray-700">
+          <div class="mt-4 py-1 flex items-center border-b border-gray-700">
             <p class="w-1/2">
-              الحجم
+              الحالة
             </p>
             <p class="w-1/2 text-center">
-              90*110 سم
+              <v-chip
+                size="large"
+                :color="getStatusColor(product.active_product as BaseStatus)"
+              >
+                {{ getStatusLabel(product.active_product as BaseStatus) }}
+              </v-chip>
             </p>
           </div>
-          <div class="flex justify-center gap-4 mt-6 text-white">
-            <v-btn
+          <div class="flex justify-center gap-1 mt-6 text-white">
+            <!-- <v-btn
               rounded="xl"
               variant="elevated"
               color="primary"
@@ -127,21 +132,44 @@
               <template #prepend>
                 <EditIcon />
               </template>
+            </v-btn> -->
+            <v-btn
+              :to="{
+                name: 'market-details',
+                params: { id: product.id },
+              }"
+              variant="tonal"
+              class="mx-1"
+              density="comfortable"
+              icon
+              color="primary"
+            >
+              <v-icon :icon="mdiEye" />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                عرض
+              </v-tooltip>
             </v-btn>
   
             <v-dialog width="500">
               <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
-                  rounded="xl"
-                  variant="elevated"
-                  color="#004C6B"
-                  type="submit"
+                  variant="text"
+                  class="mx-1"
+                  density="comfortable"
+                  icon
+                  color="error"
                 >
-                  إلغاء
-                  <template #prepend>
-                    <DeleteIcon fill="fill-white" />
-                  </template>
+                  <v-icon :icon="mdiDelete" />
+                  <v-tooltip
+                    activator="parent"
+                    location="bottom"
+                  >
+                    حذف
+                  </v-tooltip>
                 </v-btn>
               </template>
   
@@ -171,6 +199,43 @@
                 </v-card>
               </template>
             </v-dialog>
+
+            <v-btn
+              v-if="product.active_product === BASE_STATUS.Activated"
+              :loading="isStatusLoading[index]"
+              variant="tonal"
+              class="mx-1"
+              density="comfortable"
+              icon
+              color="warning"
+              @click="onStatusChange(product.id, BASE_STATUS.Deactivated, index)"
+            >
+              <v-icon :icon="mdiCancel" />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                الغاء التفعيل
+              </v-tooltip>
+            </v-btn>
+            <v-btn
+              v-if="product.active_product === BASE_STATUS.Deactivated"
+              :loading="isStatusLoading[index]"
+              variant="tonal"
+              class="mx-1"
+              density="comfortable"
+              icon
+              color="success"
+              @click="onStatusChange(product.id, BASE_STATUS.Activated, index)"
+            >
+              <v-icon :icon="mdiCheck" />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                إعادة التفعيل
+              </v-tooltip>
+            </v-btn>
           </div>
         </div>
       </div>
@@ -179,20 +244,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, watchEffect } from "vue";
-import { getProducts, deleteProduct } from "../products-service"
+import { ref } from "vue";
+import { getProducts, deleteProduct, changeStatus } from "../products-service"
 import type { PaginationParams } from '@/core/models/pagination-params'
 import SearchIcon from "@/core/components/icons/SearchIcon.vue";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
-import EditIcon from "@/core/components/icons/EditIcon.vue";
-import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
 import EmptyData from "@/core/components/EmptyData.vue";
 import LoadingProducts from "../components/LoadingProducts.vue";
 import {
-  mdiPlus
+  mdiPlus,
+  mdiEye,
+  mdiCancel,
+  mdiCheck,
+  mdiDelete
 } from '@mdi/js'
 import debounce from "lodash.debounce";
+import { type BaseStatus } from "@/core/models/base-status";
+import { BASE_STATUS } from "@/core/models/base-status";
 
+const isStatusLoading = ref<boolean []>([])
 const searchValue = ref('');
 const listParams = ref<PaginationParams & {productName?: string}>({
   page: 1,
@@ -215,9 +285,9 @@ const getBackgroundImage = (url: string) => {
   }
 }
 
-// const convertToObject = (hexCodesParam: string) => {
-//   return JSON.parse(hexCodesParam) as string[]
-// }
+const convertToObject = (hexCodesParam: string) => {
+  return JSON.parse(hexCodesParam) as string[]
+}
 
 const queryClient = useQueryClient()
 const deleteProductMutation = useMutation({
@@ -235,7 +305,7 @@ const onDeleteProduct = (id: number) => {
 }
 
 const dialogQuestion = (productCode: string) => {
-  return `حذف المنتج ${productCode}# ?`
+  return `حذف المنتج ${productCode}# ؟`
 }
 
 const handleSearch  = debounce(() => {
@@ -248,11 +318,20 @@ const handleSearch  = debounce(() => {
     
 }, 300)
 
-// watch( searchValue, () => {
-//   if (searchValue.value == null) {
-//     handleSearch()
-//   }
-//   // handleSearch()
-// })
+const onStatusChange = (productId: number, status: BaseStatus, index: number) => {
+  isStatusLoading.value[index] = true
+
+  changeStatus({id: productId, active_product: status})
+   .then(() => queryClient.invalidateQueries({ queryKey: ['products'] }))
+   .finally(() => isStatusLoading.value[index] = false)
+}
+
+const getStatusColor = (status: BaseStatus) => {
+  return status === BASE_STATUS.Activated ? 'success' : 'error'
+}
+
+const getStatusLabel = (status: BaseStatus) => {
+  return status === BASE_STATUS.Activated ? 'مفعل' : 'غير مفعل'
+}
 
 </script>

@@ -2,7 +2,7 @@
   <div>
     <h1 class="text-3xl">
       التصنيفات الفرعية
-      <span v-if="subCategories.data.value?.length! > 0">( {{ subCategories.data.value?.length }} )</span>
+      <span v-if="subCategories.data.value?.data.length! > 0">( {{ subCategories.data.value?.data.length }} )</span>
     </h1>
     <div class="md:flex items-center justify-between mt-6">
       <div class="flex justify-between items-center bg-[#FCF2EA] rounded-xl py-1 px-4 mb-4 md:mb-0">
@@ -33,10 +33,10 @@
       v-if="subCategories.data.value"
       class="mt-8"
     >
-      <EmptyData v-if="subCategories.data.value.length === 0" />
+      <EmptyData v-if="subCategories.data.value.data.length === 0" />
       <div class="grid grid-cols-3 gap-4">
         <div
-          v-for="category in subCategories.data.value"
+          v-for="category in subCategories.data.value.data"
           :key="category.id"
           class="bg-white rounded-lg px-6 py-3 shadow-md flex flex-col justify-between"
         >
@@ -82,9 +82,7 @@ const storage = import.meta.env.VITE_API_Storage
 
 const listParams = ref<PaginationParams>({
   page: 1,
-  limit: 10,
-  productName: undefined,
-  category_id: undefined 
+  limit: 10
 })
 
 const subCategories = useQuery({

@@ -32,6 +32,20 @@ export default {
         'full-white': '0 0 15px -8px grey',
         'full-dark': '0 0 15px -8px black',
       },
+      keyframes: {
+        "notification-in": {
+          "0% ": { left: "-25rem" },
+          "100%": { left: "8px" },
+        },
+        "notification-out": {
+          "0% ": { left: "8px" },
+          "100%": { left: "-25rem" },
+        },
+      },
+      animation: {
+        "notification-in": "notification-in 350ms ease-in-out forwards",
+        "notification-out": "notification-out 350ms ease-in-out forwards",
+      },
     }
   },
   plugins: [],

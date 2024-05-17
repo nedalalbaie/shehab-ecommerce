@@ -1,6 +1,7 @@
 import router from '@/router'
 import wretch, { type FetchLike, type WretchOptions } from 'wretch'
 import authStore from '../stores/auth.store'
+import { alertStore } from '../stores/alert.store'
 
 function authInterceptor(next: FetchLike) {
   return (url: string, opts: WretchOptions) => {
@@ -27,15 +28,32 @@ const apiClient = wretch(import.meta.env.VITE_API_URL)
       throw new Error(err.message)
     })
       .internalError((err) => {
+        alertStore.show({
+          message: 'حصل خطأ, يرجى المحاولة مرة أخرى',
+          type: 'error'
+        })
         throw new Error(err.message)
       })
       .badRequest((err) => {
+        const response = JSON.parse(err.message)
+        alertStore.show({
+          message: response.message ?? 'قم بتفقد البيانات و المحاولة مرة أخرى',
+          type: 'error'
+        })
         throw new Error(err.message)
       })
       .notFound((err) => {
+        alertStore.show({
+          message: 'لا يوجد, يرجى المحاولة مرة أخرى',
+          type: 'error'
+        })
         throw new Error(err.message)
       })
       .fetchError((err) => {
+        alertStore.show({
+          message: 'حصل خطأ, يرجى المحاولة مرة أخرى',
+          type: 'error'
+        })
         throw new Error(err.message)
       })
       .timeout((err) => console.log(err.status))

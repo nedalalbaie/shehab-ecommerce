@@ -42,55 +42,132 @@
       :loading="markets.isPending.value"
       @update:options="onTableOptionsChange({ page: $event.page, limit: $event.itemsPerPage })"
     >
-      <template #[`item.actions`]="{ item }">
-        <div class="flex gap-2">
+      <template #[`item.status`]="{ value }">
+        <v-chip
+          :color="getStatusColor(value)"
+        >
+          {{ getStatusLabel(value) }}
+        </v-chip>
+      </template>
+
+      <template #[`item.actions`]="{ item, index }">
+        <div class="flex gap-1">
           <v-btn
-            :append-icon="mdiTagEdit"
-            color="grey-darken-2"
-            size="small"
-            variant="elevated"
-            :to="{ name: 'edit-coupon', params: { id: item.id } }"
+            v-if="item.active_market === BASE_STATUS.Activated"
+            :loading="isStatusLoading[index]"
+            variant="tonal"
+            class="mx-1"
+            density="comfortable"
+            icon
+            color="warning"
+            @click="onStatusChange(item.id, BASE_STATUS.Deactivated, index)"
           >
-            تعديل
+            <v-icon :icon="mdiCancel" />
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >
+              الغاء التفعيل
+            </v-tooltip>
+          </v-btn>
+          <v-btn
+            v-if="item.active_market === BASE_STATUS.Deactivated"
+            :loading="isStatusLoading[index]"
+            variant="tonal"
+            class="mx-1"
+            density="comfortable"
+            icon
+            color="success"
+            @click="onStatusChange(item.id, BASE_STATUS.Activated, index)"
+          >
+            <v-icon :icon="mdiCheck" />
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >
+              إعادة التفعيل
+            </v-tooltip>
+          </v-btn>
+
+          <v-btn
+            :to="{
+              name: 'market-details',
+              params: { id: item.id },
+            }"
+            variant="tonal"
+            class="mx-1"
+            density="comfortable"
+            icon
+            color="primary"
+          >
+            <v-icon :icon="mdiEye" />
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >
+              عرض
+            </v-tooltip>
+          </v-btn>
+
+          <v-btn
+            :to="{ name: 'edit-market', params: { id: item.id } }"
+            variant="tonal"
+            class="mx-1"
+            density="comfortable"
+            icon
+            color="grey-darken-2"
+          >
+            <v-icon :icon="mdiTagEdit" />
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >
+              تعديل
+            </v-tooltip>
           </v-btn>
 
           <v-dialog width="500">
             <template #activator="{ props }">
               <v-btn
                 v-bind="props"
-                size="small"
-                variant="elevated"
-                color="#004C6B"
-                type="submit"
+                variant="text"
+                class="mx-1"
+                density="comfortable"
+                icon
+                color="error"
               >
-                حذف
-                <template #prepend>
-                  <DeleteIcon fill="fill-white" />
-                </template>
+                <v-icon :icon="mdiDelete" />
+                <v-tooltip
+                  activator="parent"
+                  location="bottom"
+                >
+                  حذف
+                </v-tooltip>
               </v-btn>
             </template>
-  
+
             <template #default="{ isActive }">
               <v-card
-                :title="dialogQuestion(item.market_name)"
+                :title="dialogQuestion(item.name)"
                 rounded="lg"
                 color="#EFE9F5"
-                style="padding-block: 1.75rem !important ;"
+                style="padding-block: 1.75rem !important "
               >
-                <v-card-text>
-                  سيتم حذف هذه الكوبون بشكل نهائي .
-                </v-card-text>
-  
+                <v-card-text> سيتم حذف هذه المحل بشكل نهائي . </v-card-text>
+
                 <v-card-actions>
                   <v-spacer />
-  
+
                   <v-btn
                     text="لا"
                     @click="isActive.value = false"
                   />
                   <v-btn
                     text="نعم"
-                    @click="isActive.value = false; onDeleteMarket(item.id)"
+                    @click="
+                      isActive.value = false;
+                      onDeleteMarket(item.id)
+                    "
                   />
                 </v-card-actions>
               </v-card>
@@ -102,35 +179,55 @@
   </div>
 </template>
 <script setup lang="ts">
-import {
-  mdiPlus,
-  mdiTagEdit
-} from '@mdi/js'
-import { ref } from "vue";
-import { getMarkets, deleteMarket } from "../markets-service"
+import { mdiPlus, mdiTagEdit, mdiCancel, mdiCheck, mdiEye } from '@mdi/js'
+import { ref } from 'vue'
+import { getMarkets, deleteMarket, changeStatus } from '../markets-service'
 import type { PaginationParams } from '@/core/models/pagination-params'
-import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import debounce from 'lodash.debounce'
-import LoadingSkeleton from "@/core/components/LoadingSkeleton.vue"
-import DeleteIcon from '@/core/components/icons/DeleteIcon.vue';
+import LoadingSkeleton from '@/core/components/LoadingSkeleton.vue'
+// import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
+import { BASE_STATUS, type BaseStatus } from '@/core/models/base-status'
+import { mdiDelete } from '@mdi/js'
 
-const searchValue = ref('');
-const listParams = ref<PaginationParams>({
+const isStatusLoading = ref<boolean []>([])
+const searchValue = ref('')
+const listParams = ref<PaginationParams & { search_value: string }>({
   page: 1,
-  limit: 10
+  limit: 10,
+  search_value: ''
 })
 
 const markets = useQuery({
   queryKey: ['markets', listParams],
-  queryFn: () => getMarkets(listParams.value),
+  queryFn: () => getMarkets(listParams.value, searchValue.value)
 })
 
 const headers = [
-  { title: 'إسم المحل', value: 'market_name', width: '300px', sortable: false, },
+  { title: 'إسم المحل', value: 'name', width: '300px', sortable: false },
   { title: 'إسم مالك المحل', value: 'owner_name', width: '300px', sortable: false },
   { title: 'رقم الهاتف', value: 'phone_number', width: '300px', sortable: false },
-  { title: 'الإجرائات', key: 'actions', width: '300px', sortable: false },
+  { title: 'الحالة', key: 'status', value: 'active_market', width: '300px', sortable: false },
+  { title: 'الإجرائات', key: 'actions', width: '300px', sortable: false }
 ]
+
+const queryClient = useQueryClient()
+
+const onStatusChange = (marketId: number, status: BaseStatus, index: number) => {
+  isStatusLoading.value[index] = true
+  changeStatus({id: marketId, active_market: status})
+   .then(() => queryClient.invalidateQueries({ queryKey: ['markets'] }))
+   .finally(() => isStatusLoading.value[index] = false)
+}
+
+const getStatusColor = (status: BaseStatus) => {
+  return status === BASE_STATUS.Activated ? 'success' : 'error'
+}
+
+const getStatusLabel = (status: BaseStatus) => {
+  return status === BASE_STATUS.Activated ? 'مفعل' : 'غير مفعل'
+}
+
 
 const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   listParams.value = {
@@ -141,10 +238,9 @@ const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
 }
 
 const handleSearch = debounce(() => {
-  listParams.value.productName = searchValue.value
+  listParams.value.search_value = searchValue.value
 }, 300)
 
-const queryClient = useQueryClient()
 const deleteMarketMutation = useMutation({
   mutationFn: deleteMarket,
   onSuccess: () => {
@@ -160,7 +256,7 @@ const onDeleteMarket = (id: number) => {
 }
 
 const dialogQuestion = (productCode: string) => {
-  return `حذف المحل ${productCode}# ?`
+  return `حذف المحل ${productCode}# ؟`
 }
 
 </script>

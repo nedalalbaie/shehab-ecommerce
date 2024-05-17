@@ -3,9 +3,17 @@ import queryString from 'wretch/addons/queryString'
 import formData from 'wretch/addons/formData'
 import type { MainCategory, PostMainCategoryRequest } from './models/mainCategory'
 import type { PaginationParams } from '@/core/models/pagination-params'
+import type { List } from '@/core/models/list'
+import { alertStore } from '@/core/stores/alert.store'
 
-const getMainCategories = (params: PaginationParams): Promise<MainCategory[]> => {
-  return apiClient.addon(queryString).url('/categories-level-zero').query(params).get().json()
+const getMainCategories = (params: PaginationParams, search_value: string): Promise<List<MainCategory[]>> => {
+  let url = ""
+  if (search_value) {
+     url = `/search-level-zero/${search_value}`
+  } else {
+    url = '/categories-level-zero'
+  }
+  return apiClient.addon(queryString).url(url).query(params).get().json()
 }
 
 const getMainCategory = (id: number): Promise<MainCategory> => {
@@ -19,6 +27,10 @@ const addMainCategory = (body: PostMainCategoryRequest): Promise<MainCategory> =
     .formData(body)
     .post()
     .json((res) => {
+      alertStore.show({
+        message: 'تم إضافة التصنيف بنجاح',
+        type: 'success'
+      })
       return res
     })
 }
@@ -38,7 +50,15 @@ const editMainCategory = (id: number, body: PostMainCategoryRequest): Promise<Ma
 }
 
 const deleteMainCategory = (id: number) => {
-  return apiClient.url(`/categories-level-zero/${id}`).delete().json()
+  return apiClient
+    .url(`/categories-level-zero/${id}`)
+    .delete()
+    .json(() => {
+      alertStore.show({
+        message: 'تم حذف التصنيف بنجاح',
+        type: 'info'
+      })
+    })
 }
 
 export { getMainCategories, getMainCategory, addMainCategory, editMainCategory, deleteMainCategory }

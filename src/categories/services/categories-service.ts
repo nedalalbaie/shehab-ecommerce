@@ -3,8 +3,10 @@ import queryString from 'wretch/addons/queryString'
 import formData from 'wretch/addons/formData'
 import type { AddCategoryRequest, Category, EditCategoryRequest } from '../models/Category'
 import type { PaginationParams } from '@/core/models/pagination-params'
+import type { List } from '@/core/models/list'
+import { alertStore } from '@/core/stores/alert.store'
 
-const getCategories = (params: PaginationParams): Promise<Category[]> => {
+const getCategories = (params: PaginationParams): Promise<List<Category[]>> => {
   return apiClient
     .addon(queryString)
     .url('/categories')
@@ -24,6 +26,10 @@ const addCategory = (body: AddCategoryRequest): Promise<Category> => {
     .formData(body)
     .post()
     .json((res) => {
+      alertStore.show({
+        message: "تم إضافة التصنيف بنجاح",
+        type: 'success'
+      })
       return res
     })
 }
@@ -43,7 +49,12 @@ const editCategory = (id: number, body: EditCategoryRequest): Promise<Category> 
 }
 
 const deleteCategory = (id: number) => {
-  return apiClient.url(`/categories/${id}`).delete().json()
+  return apiClient.url(`/categories/${id}`).delete().json(() => {
+    alertStore.show({
+      message: 'تم حذف التصنيف بنجاح',
+      type: 'info'
+    })
+  })
 }
 
 export { getCategories, getCategory, addCategory, editCategory, deleteCategory }

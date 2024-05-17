@@ -4,7 +4,7 @@
       إضافة محل جديد
     </h1>
     <v-btn
-      :to="{ name: 'markets' }"
+      :to="{ name: 'markets-list' }"
       variant="outlined"
       color="primary"
       size="large"
@@ -30,7 +30,7 @@
   const addMarketMutation = useMutation({
     mutationFn: postMarket,
     onSuccess: () => {
-      router.replace({ name: 'cmarketsoupons' })
+      router.replace({ name: 'markets-list' })
       queryClient.invalidateQueries({ queryKey: ['markets'] })
     },
     onError: (error) => {

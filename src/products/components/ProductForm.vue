@@ -15,7 +15,7 @@
         :hide-no-data="false"
         item-title="name"
         item-value="id"
-        :items="subCategories.data.value"
+        :items="subCategories.data.value?.data"
         :loading="subCategories.isPending.value"
         hide-selected
         label="التصنيفات"
@@ -24,6 +24,29 @@
         color="primary"
         auto-select-first
         :error-messages="errors.sub_category_id"
+      >
+        <template #no-data>
+          <v-list-item>
+            <v-list-item-title>
+              لا توجد نتائج
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+      </v-autocomplete>
+
+      <v-autocomplete
+        v-model="selling_method"
+        :hide-no-data="false"
+        item-title="label"
+        item-value="value"
+        :items="sellingMethods"
+        hide-selected
+        label="طريقة الدفع"
+        placeholder="طريقة الدفع"
+        variant="outlined"
+        color="primary"
+        auto-select-first
+        :error-messages="errors.selling_method"
       >
         <template #no-data>
           <v-list-item>
@@ -75,7 +98,18 @@
         :error-messages="errors.description"
       />
 
-      <div>
+      <v-text-field
+        v-model="minimum_quantity"
+        label="القيمة الأدني"
+        type="number"
+        variant="outlined"
+        color="primary"
+        placeholder="القيمة الأدني"
+        :error-messages="errors.minimum_quantity"
+        @input="convertMinimalquantityToNumber"
+      />
+
+      <!-- <div>
         <p class="text-xl mb-4">
           الجنس
         </p>
@@ -99,7 +133,7 @@
             color="primary"
           />
         </v-radio-group>
-      </div>
+      </div> -->
     </div>
 
     <div>
@@ -153,6 +187,7 @@ import { useQuery } from "@tanstack/vue-query";
 import ImageUpload from "@/core/components/ImageUpload.vue"
 import ColorPicker from "../components/ColorPicker.vue"
 import { pathToFile } from '@/core/helpers/pathToFile';
+import { sellingMethods } from "../models/product"
 
 type ProductForm = AddProductRequest
 
@@ -188,12 +223,18 @@ const validationSchema = toTypedSchema(
     sub_category_id: number().min(1, 'يجب إختيار التصنيف'),
     price: number().min(1, 'يجب إدخال السعر'),
     inventory_level: number().min(1, 'يجب إدخال الكمية'),
-    gender: number().min(1, 'يجب إدخال الجنس'),
+    // gender: number().min(1, 'يجب إدخال الجنس'),
+    active_product: number(),
+    selling_method: string().min(1, 'طريقة الدفع مطلوبة'),
+    minimum_quantity: number().min(1, 'القيمة الأدني مطلوبة'),
   })
 );
 
 const { handleSubmit, errors, meta, setValues } = useForm({
-  validationSchema
+  validationSchema, 
+  initialValues: {
+    active_product: 1
+  }
 });
 
 const { value: name } = useField<string>('name');
@@ -203,6 +244,8 @@ const { value: sub_category_id } = useField<number>('sub_category_id');
 const { value: price } = useField<number>('price');
 const { value: inventory_level } = useField<number>('inventory_level');
 const { value: gender } = useField<number>('gender');
+const { value: selling_method } = useField<number>('selling_method');
+const { value: minimum_quantity } = useField<number>('minimum_quantity');
 
 watchEffect(() => {
   if (props.product) {
@@ -225,7 +268,13 @@ const convertQuantityToNumber = () => {
   inventory_level.value = Number(inventory_level.value)
 }
 
+const convertMinimalquantityToNumber = () => {
+  minimum_quantity.value = Number(minimum_quantity.value)
+}
+
 const submit = handleSubmit(values => {
+  console.log(values);
+  
   emit("submit", {
     ...values,
     image1_path: base64Images[0] as File,

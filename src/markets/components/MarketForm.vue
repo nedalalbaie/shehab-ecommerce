@@ -2,12 +2,12 @@
   <form @submit.prevent="submit">
     <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-2 mt-6">
       <v-text-field
-        v-model="market_name"
+        v-model="name"
         label="إسم المحل"
         variant="outlined"
         color="primary"
         placeholder="إسم المحل"
-        :error-messages="errors.market_name"
+        :error-messages="errors.name"
       />
 
       <v-text-field
@@ -27,10 +27,11 @@
         color="primary"
         placeholder="نسبة الهاتف"
         :error-messages="errors.phone_number"
+        @input="convertPhoneToNumber"
       />
     </div>
 
-    <div class="lg:w-1/2 mt-12 lg:mt-0">
+    <!-- <div class="lg:w-1/2 mt-12 lg:mt-0">
       <iframe
         class="w- h-[25rem]"
         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3711.3809451652833!2d39.19203125090872!3d21.531954875714302!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x15c3cfd4906639d9%3A0x3885f685a367999f!2z2YXYudmH2K8g2LPZgdix2KfYoSDYp9mE2LnZhNmFINmE2YTYqtiv2LHZitio!5e0!3m2!1sen!2sly!4v1677401828377!5m2!1sen!2sly"
@@ -41,7 +42,7 @@
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
       />
-    </div>
+    </div> -->
 
     <div class="mt-3">
       <v-btn
@@ -76,9 +77,9 @@ const editMode = computed(() => !!props.market)
 
 const validationSchema = toTypedSchema(
     object({
-        market_name: string().min(1, 'يجب إدخال  إسم المحل '),
+        name: string().min(1, 'يجب إدخال  إسم المحل '),
         owner_name: string().min(1, 'يجب إدخال إسم مالك المحل  '),
-        phone_number: string().min(1, 'يجب إدخال رقم الهاتف  '),
+        phone_number: number().min(1, 'يجب إدخال رقم الهاتف  '),
         active_market: number(),
         location_link: string()
     })
@@ -92,17 +93,22 @@ const { handleSubmit, errors, meta, setValues } = useForm({
     }
 });
 
-const { value: market_name } = useField<string>('market_name');
+const { value: name } = useField<string>('name');
 const { value: owner_name } = useField<string>('owner_name');
-const { value: phone_number } = useField<string>('phone_number');
+const { value: phone_number } = useField<number>('phone_number');
 
 watchEffect(() => {
     if (props.market) {
         setValues({
-            ...props.market
+            ...props.market,
+            phone_number: Number(props.market.phone_number)
         })
     }
 })
+
+const convertPhoneToNumber = () => {
+  phone_number.value = Number(phone_number.value)
+}
 
 const submit = handleSubmit(values => {
    console.log(values);
