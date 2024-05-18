@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-between ">
     <h1 class="text-2xl font-medium ">
-      إضافة تصنيف جديد
+      إضافة تصنيف أساسي جديد
     </h1>
     <v-btn
       :to="{ name: 'main-categories' }"
@@ -10,7 +10,7 @@
       size="large"
       :append-icon="mdiArrowLeft"
     >
-      الرجوع الى التصنيفات الرئيسية
+      الرجوع الى التصنيفات الأساسية
     </v-btn>
   </div>
   <MainCategoryForm

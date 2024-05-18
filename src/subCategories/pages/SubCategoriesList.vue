@@ -1,11 +1,14 @@
 <template>
   <div>
-    <h1 class="text-3xl">
+    <h1 class="text-3xl font-medium">
       التصنيفات الفرعية
-      <span v-if="subCategories.data.value?.data.length! > 0">( {{ subCategories.data.value?.data.length }} )</span>
+      <span
+        v-if="subCategories.data.value?.data.length! > 0"
+        class="bg-gray-200 px-2 rounded-lg text-2xl"
+      > {{ subCategories.data.value?.data.length }}</span>
     </h1>
     <div class="md:flex items-center justify-between mt-6">
-      <div class="flex justify-between items-center bg-[#FCF2EA] rounded-xl py-1 px-4 mb-4 md:mb-0">
+      <div class="flex justify-between items-center bg-[#ebf2fc] rounded-xl py-1 px-4 mb-4 md:mb-0">
         <input
           placeholder="إبحث عن تصنيفات"
           type="text"
@@ -42,24 +45,86 @@
         >
           <div class="flex items-center gap-4">
             <img
-              class="w-40 rounded-lg my-2 border border-gray-200"
-              :src="`${storage}${category.image_path}`"
+              class="w-32 h-32 rounded-lg my-2 border border-gray-200"
+              :src="`${storage}/${category.image_path}`"
               alt=""
             >
-            <p class="text-xl">
-              {{ category.name }} - {{ category.description }} 
-            </p>
+            <div>
+              <p class="text-xl">
+                {{ category.name }}
+              </p>
+              <p>{{ category.description }}</p>
+            </div>
           </div>
-          <div class="flex flex-col md:flex-row justify-end gap-4 mt-4">
+
+          <div class="h-[1px] w-1/2 bg-gray-300 mx-auto my-1" />
+
+          <div class="flex flex-col md:flex-row justify-end mt-4">
             <v-btn
-              :append-icon="mdiPlus"
-              color="primary"
-              rounded="xl"
-              variant="elevated"
               :to="{ name: 'edit-subCategories', params: { id: category.id } }"
+              variant="tonal"
+              class="mx-1"
+              density="comfortable"
+              icon
+              color="grey-darken-2"
             >
-              تعديل
+              <v-icon :icon="mdiTagEdit" />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                تعديل
+              </v-tooltip>
             </v-btn>
+
+            <v-dialog width="500">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  variant="text"
+                  class="mx-1"
+                  density="comfortable"
+                  icon
+                  color="error"
+                >
+                  <v-icon :icon="mdiDelete" />
+                  <v-tooltip
+                    activator="parent"
+                    location="bottom"
+                  >
+                    حذف
+                  </v-tooltip>
+                </v-btn>
+              </template>
+
+              <template #default="{ isActive }">
+                <v-card
+                  :title="dialogQuestion(category.name)"
+                  rounded="lg"
+                  color="#EFE9F5"
+                  style="padding-block: 1.75rem !important"
+                >
+                  <v-card-text> سيتم حذف هذه التصنيف بشكل نهائي . </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer />
+
+                    <v-btn
+                      text="لا"
+                      @click="isActive.value = false"
+                    />
+                    <v-btn
+                      :loading="deleteSubCategoriesMutation.isPending.value"
+                      text="نعم"
+                      @click="
+                        isActive.value = false;
+                        onDeleteSubCategories(category.id)
+                      "
+                    />
+                  </v-card-actions>
+                </v-card>
+              </template>
+            </v-dialog>
           </div>
         </div>
       </div>
@@ -70,11 +135,13 @@
 import SearchIcon from "@/core/components/icons/SearchIcon.vue";
 import type { PaginationParams } from "@/core/models/pagination-params";
 import {
-    mdiPlus
+    mdiPlus,
+    mdiTagEdit,
+    mdiDelete
 } from '@mdi/js'
-import { useQuery } from "@tanstack/vue-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import { ref } from "vue";
-import { getSubCategories } from "../subCategories-service";
+import { getSubCategories, deleteSubCategory } from "../subCategories-service";
 import LoadingSubCategories from "../components/LoadingSubCategories.vue"
 import EmptyData from "@/core/components/EmptyData.vue";
 
@@ -89,5 +156,24 @@ const subCategories = useQuery({
   queryKey: ['subCategories', listParams],
   queryFn: () => getSubCategories(listParams.value)
 })
+
+const queryClient = useQueryClient()
+const deleteSubCategoriesMutation = useMutation({
+  mutationFn: deleteSubCategory,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['subCategories'] })
+  },
+  onError: (error) => {
+    console.log(error)
+  }
+})
+
+const onDeleteSubCategories = (id: number) => {
+  deleteSubCategoriesMutation.mutate(id)
+}
+
+const dialogQuestion = (categoryName: string) => {
+  return `حذف تصنيف ${categoryName} ؟`
+}
 
 </script>

@@ -118,7 +118,8 @@ const listParams = ref({
 })
 const categories = useQuery({
   queryKey: ['categories', listParams],
-  queryFn: () => getCategories(listParams.value)
+  queryFn: () => getCategories(listParams.value),
+  select: (response) => response.data
 })
 
 watchEffect(() => {

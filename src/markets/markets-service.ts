@@ -65,6 +65,10 @@ const editMarket = (id: number, body: Partial<MarketFormRequest>): Promise<Marke
     })
     .post()
     .json((res) => {
+      alertStore.show({
+        message: 'تم تعديل المحل بنجاح',
+        type: 'success'
+      })
       return res
     })
 }

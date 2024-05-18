@@ -6,7 +6,7 @@ import type { PaginationParams } from '@/core/models/pagination-params'
 import type { List } from '@/core/models/list'
 import { alertStore } from '@/core/stores/alert.store'
 
-const getMainCategories = (params: PaginationParams, search_value: string): Promise<List<MainCategory[]>> => {
+const getMainCategories = (params: PaginationParams, search_value?: string): Promise<List<MainCategory[]>> => {
   let url = ""
   if (search_value) {
      url = `/search-level-zero/${search_value}`

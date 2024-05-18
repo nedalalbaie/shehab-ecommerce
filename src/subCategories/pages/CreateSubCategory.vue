@@ -4,7 +4,7 @@
       إضافة تصنيف فرعي جديد
     </h1>
     <v-btn
-      :to="{ name: 'main-categories' }"
+      :to="{ name: 'subCategories' }"
       variant="outlined"
       color="primary"
       size="large"

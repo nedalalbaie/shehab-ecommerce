@@ -10,6 +10,11 @@ const themeStore = reactive<{
   toggleTheme() {
     this.theme = this.theme === 'light' ? 'dark' : 'light'
     localStorage.setItem('theme', this.theme)
+    if (this.theme === 'dark') {
+      document.body.classList.add('dark')
+    } else {
+      document.body.classList.remove('dark')
+    }
   },
   init() {
     const theme = useTheme()
@@ -19,6 +24,11 @@ const themeStore = reactive<{
       this.theme = currentTheme
     }
     theme.global.name.value = this.theme
+    if (this.theme === 'dark') {
+      document.body.classList.add('dark')
+    } else {
+      document.body.classList.remove('dark')
+    }
   }
 })
 

@@ -9,7 +9,8 @@ import "vuetify/styles";
 const myCustomLightTheme: ThemeDefinition = {
     dark: false,
     colors: {
-      primary: "#835400",
+      // primary: "#835400",
+      primary: "#4056F4",
       secondary: "#EBE1D9",
       info: "#2196F3",
       background: "#FFFFFF",

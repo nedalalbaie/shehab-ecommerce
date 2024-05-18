@@ -2,7 +2,7 @@
   <div
     :class="notificationStatus"
     dir="rtl"
-    class="fixed bottom-3 left-[-25rem] bg-red-800 rounded-md w-72 sm:w-96 text-white flex gap-4 items-center px-2 py-2 shadow-alert border-2 border-neutral-600"
+    class="fixed bottom-3 left-[-25rem] bg-red-800 rounded-md w-72 sm:w-96 text-white flex gap-4 items-center px-2 py-2 shadow-alert border-2 border-neutral-600 z-50"
     :style="backgroundColor"
   >
     <div

@@ -1,6 +1,10 @@
 <template>
-  <h2 class="text-2xl font-semibold">
+  <h2 class="text-3xl font-medium">
     المحلات
+    <span
+      v-if="markets.data.value?.data.length! > 0"
+      class="bg-gray-200 px-2 rounded-lg text-2xl"
+    > {{ markets.data.value?.data.length }}</span>
   </h2>
   <div class="flex justify-between mt-8">
     <div class="w-72">
@@ -186,7 +190,6 @@ import type { PaginationParams } from '@/core/models/pagination-params'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import debounce from 'lodash.debounce'
 import LoadingSkeleton from '@/core/components/LoadingSkeleton.vue'
-// import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
 import { BASE_STATUS, type BaseStatus } from '@/core/models/base-status'
 import { mdiDelete } from '@mdi/js'
 

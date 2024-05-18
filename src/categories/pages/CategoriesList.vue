@@ -1,11 +1,14 @@
 <template>
   <div class="min-h-[calc(100vh-80px)] flex flex-col">
-    <h1 class="text-3xl">
-      التصنيفات
-      <span v-if="categories.data.value?.data.length! > 0">( {{ categories.data.value?.data.length }} )</span>
+    <h1 class="text-3xl font-medium">
+      التصنيفات الثانوية
+      <span
+        v-if="categories.data.value?.data.length! > 0"
+        class="bg-gray-200 px-2 rounded-lg text-2xl"
+      >{{ categories.data.value?.data.length }}</span>
     </h1>
     <div class="md:flex items-center justify-between mt-6">
-      <div class="flex justify-between items-center bg-[#FCF2EA] rounded-xl py-1 px-4 mb-4 md:mb-0">
+      <div class="flex justify-between items-center bg-[#ebf2fc] rounded-xl py-1 px-4 mb-4 md:mb-0">
         <input
           placeholder="إبحث عن تصنيفات"
           type="text"
@@ -46,34 +49,51 @@
               :src="`${storage}/${category.image_path}`"
               alt=""
             >
-            <p class="text-xl">
-              {{ category.name }} - {{ category.description }}
-            </p>
+            <div>
+              <p class="text-xl">
+                {{ category.name }}
+              </p>
+              <p>{{ category.description }}</p>
+            </div>
           </div>
-          <div class="flex flex-col md:flex-row justify-end gap-4 mt-4">
-            <!-- <v-btn
-              :append-icon="mdiPlus"
-              color="primary"
-              rounded="xl"
-              variant="elevated"
+
+          <div class="h-[1px] w-1/2 bg-gray-300 mx-auto my-1" />
+
+          <div class="flex flex-col md:flex-row justify-end mt-4">
+            <v-btn
               :to="{ name: 'edit-category', params: { id: category.id } }"
+              variant="tonal"
+              class="mx-1"
+              density="comfortable"
+              icon
+              color="grey-darken-2"
             >
-              تعديل
-            </v-btn> -->
+              <v-icon :icon="mdiTagEdit" />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                تعديل
+              </v-tooltip>
+            </v-btn>
 
             <v-dialog width="500">
               <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
-                  rounded="xl"
-                  variant="elevated"
-                  color="#004C6B"
-                  type="submit"
+                  variant="text"
+                  class="mx-1"
+                  density="comfortable"
+                  icon
+                  color="error"
                 >
-                  حذف
-                  <template #prepend>
-                    <DeleteIcon fill="fill-white" />
-                  </template>
+                  <v-icon :icon="mdiDelete" />
+                  <v-tooltip
+                    activator="parent"
+                    location="bottom"
+                  >
+                    حذف
+                  </v-tooltip>
                 </v-btn>
               </template>
   
@@ -114,14 +134,15 @@
 import SearchIcon from "@/core/components/icons/SearchIcon.vue";
 import type { PaginationParams } from "@/core/models/pagination-params";
 import {
-    mdiPlus
+    mdiPlus ,
+    mdiDelete,
+    mdiTagEdit
 } from '@mdi/js'
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import { ref } from "vue";
 import { deleteCategory, getCategories } from "../services/categories-service";
 import EmptyData from "@/core/components/EmptyData.vue";
 import LoadingCategories from "../components/LoadingCategories.vue";
-import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
 
 const storage = import.meta.env.VITE_API_Storage
 

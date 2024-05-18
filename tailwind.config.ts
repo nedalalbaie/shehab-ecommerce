@@ -7,7 +7,8 @@ export default {
     extend: {
       colors: {
         primary: {
-          100: '#835400',
+          // 100: '#835400',
+          100: '#4056F4',
           200: '#EBE1D9',
           300: '#FFDDB5',
           400: 'rgb(122 78 0)', // Brown on hover

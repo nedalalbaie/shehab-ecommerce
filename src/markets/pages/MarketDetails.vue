@@ -1,13 +1,13 @@
 <template>
   <div class="flex justify-end">
     <v-btn
-      :to="{ name: 'products' }"
+      :to="{ name: 'markets-list' }"
       variant="outlined"
       color="primary"
       size="large"
       :append-icon="mdiArrowLeft"
     >
-      الرجوع الى المنتجات
+      الرجوع الى المحلات
     </v-btn>
   </div>
  

@@ -1,7 +1,18 @@
 <template>
-  <h1 class="text-2xl font-medium ">
-    تعديل التصنيف الفرعي
-  </h1>
+  <div class="flex justify-between ">
+    <h1 class="text-2xl font-medium ">
+      تعديل التصنيف الفرعي
+    </h1>
+    <v-btn
+      :to="{ name: 'subCategories' }"
+      variant="outlined"
+      color="primary"
+      size="large"
+      :append-icon="mdiArrowLeft"
+    >
+      الرجوع الى التصنيفات الفرعية
+    </v-btn>
+  </div>
   <SubCategoryForm
     :is-loading="patchSubCategoryMutation.isPending.value"
     :sub-category="category.data.value"
@@ -10,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+import { mdiArrowLeft } from "@mdi/js";
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { editSubCategory, getSubCategory } from "../subCategories-service"
 import router from "@/router";

@@ -31,6 +31,10 @@ const postProduct = (body: AddProductRequest): Promise<Product> => {
     .formData(body)
     .post()
     .json((res) => {
+      alertStore.show({
+        message: 'تم إضافة المنتج بنجاح',
+        type: 'success'
+      })
       return res
     })
 }
@@ -42,18 +46,29 @@ const editProduct = (id: number, body: Partial<AddProductRequest>): Promise<Prod
     .formData(body)
     .patch()
     .json((res) => {
+      alertStore.show({
+        message: 'تم تعديل المنتج بنجاح',
+        type: 'success'
+      })
       return res
     })
 }
 
 const deleteProduct = (id: number) => {
-  return apiClient.url(`/products/${id}`).delete().json()
+  return apiClient.url(`/products/${id}`).delete().json( ()=> {
+    alertStore.show({
+      message: 'تم حذف المنتج بنجاح',
+      type: 'info'
+    })
+  })
 }
 
 const changeStatus = (body: ProductStatusChangeBody): Promise<void> => {
   return apiClient
+    .addon(queryString)
     .url('/active-prodcut')
-    .post(body)
+    .query(body)
+    .get()
     .json((res) => {
       alertStore.show({
         message: 'تم تغيير حالة المنتج بنجاح',

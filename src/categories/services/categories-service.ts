@@ -44,6 +44,10 @@ const editCategory = (id: number, body: EditCategoryRequest): Promise<Category> 
     })
     .post()
     .json((res) => {
+      alertStore.show({
+        message: 'تم تعديل التصنيف بنجاح',
+        type: 'success'
+      })
       return res
     })
 }

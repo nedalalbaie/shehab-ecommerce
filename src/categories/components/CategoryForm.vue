@@ -121,14 +121,16 @@ const listParams = ref({
 })
 const mainCategories = useQuery({
   queryKey: ['main-categories', listParams],
-  queryFn: () => getMainCategories(listParams.value)
+  queryFn: () => getMainCategories(listParams.value),
+  select: (response) => response.data
 })
 
 watchEffect(() => {
   if (props.category) {
     setValues({
       name: props.category.name,
-      description: props.category.description
+      description: props.category.description,
+      cat_zero_id: props.category.cat_zero_id
     })
     selectedImageState.value = props.category.image_path ? "filled" : "empty"
 
@@ -143,6 +145,8 @@ watchEffect(() => {
 })
 
 const submit = handleSubmit(values => {
+  console.log(values);
+  
   emit("submit", {
     ...values,
     image_path: imageFile.value as File

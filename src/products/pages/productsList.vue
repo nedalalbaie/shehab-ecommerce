@@ -1,8 +1,11 @@
 <template>
   <div class="min-h-[calc(100vh-80px)] flex flex-col">
-    <h1 class="text-3xl">
+    <h1 class="text-3xl font-medium">
       المنتجات
-      <span v-if="products.data.value?.data.length! > 0">( {{ products.data.value?.data.length }} )</span>
+      <span
+        v-if="products.data.value?.data.length! > 0"
+        class="bg-gray-200 px-2 rounded-lg text-2xl"
+      >{{ products.data.value?.data.length }} </span>
     </h1>
     <div
       ref="upperElement"

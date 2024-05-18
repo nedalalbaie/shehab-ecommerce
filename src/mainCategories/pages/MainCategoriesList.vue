@@ -1,11 +1,14 @@
 <template>
   <div class="min-h-[calc(100vh-80px)] flex flex-col">
-    <h1 class="text-3xl">
-      التصنيفات الرئيسية
-      <span v-if="mainCategories.data.value?.data.length! > 0">( {{ mainCategories.data.value?.data.length }} )</span>
+    <h1 class="text-3xl font-medium">
+      التصنيفات الأساسية
+      <span
+        v-if="mainCategories.data.value?.data.length! > 0"
+        class="bg-gray-200 px-1 rounded-lg text-2xl"
+      >{{ mainCategories.data.value?.data.length }}</span>
     </h1>
     <div class="md:flex items-center justify-between mt-6">
-      <div class="flex justify-between items-center bg-[#FCF2EA] rounded-xl py-1 px-4 mb-4 md:mb-0">
+      <div class="flex justify-between items-center bg-[#ebf2fc] rounded-xl py-1 px-4 mb-4 md:mb-0">
         <input
           v-model="searchValue"
           placeholder="إبحث عن تصنيفات"
@@ -70,15 +73,19 @@
               <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
-                  rounded="xl"
-                  variant="elevated"
-                  color="#004C6B"
-                  type="submit"
+                  variant="text"
+                  class="mx-1"
+                  density="comfortable"
+                  icon
+                  color="error"
                 >
-                  حذف
-                  <template #prepend>
-                    <DeleteIcon fill="fill-white" />
-                  </template>
+                  <v-icon :icon="mdiDelete" />
+                  <v-tooltip
+                    activator="parent"
+                    location="bottom"
+                  >
+                    حذف
+                  </v-tooltip>
                 </v-btn>
               </template>
 
@@ -126,7 +133,7 @@ import { deleteMainCategory, getMainCategories } from '../mainCategories-service
 import EmptyData from '@/core/components/EmptyData.vue'
 import LoadingCategories from '@/categories/components/LoadingCategories.vue'
 import debounce from 'lodash.debounce'
-import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
+import { mdiDelete } from '@mdi/js'
 
 const storage = import.meta.env.VITE_API_Storage
 
