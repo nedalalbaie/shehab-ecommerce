@@ -12,7 +12,7 @@
       class="flex justify-between items-center mt-6"
     >
       <div
-        class="flex justify-between items-center bg-[#FCF2EA] border  rounded-xl py-1 px-4"
+        class="flex justify-between items-center bg-[#ebf2fc] border  rounded-xl py-1 px-4"
       >
         <input
           v-model="searchValue"

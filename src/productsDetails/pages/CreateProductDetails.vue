@@ -1,19 +1,19 @@
-<!-- <template>
+<template>
   <div class="flex justify-between ">
     <h1 class="text-2xl font-medium ">
-      إضافة منتج جديد
+      ربط منتج بمحل
     </h1>
     <v-btn
-      :to="{ name: 'main-categories' }"
+      :to="{ name: 'products-details-list' }"
       variant="outlined"
       color="primary"
       size="large"
       :append-icon="mdiArrowLeft"
     >
-      الرجوع الى المنتجات   
+      الرجوع الى القائمة   
     </v-btn>
   </div>
-  <ProductForm
+  <ProductDetailsForm
     :is-loading="addProduct.isPending.value"
     @submit="handleSubmit"
   />
@@ -21,32 +21,24 @@
   <script setup lang="ts">
   import { mdiArrowLeft } from "@mdi/js";
   import { useMutation, useQueryClient } from '@tanstack/vue-query'
-  import { postProduct } from "../products-service"
+  import { postProductDetails } from "../productDetails-service"
   import router from "@/router";
-  import ProductForm from "../components/ProductForm.vue"
-  import type { AddProductRequest } from '../models/product';
+  import ProductDetailsForm from "../components/ProductDetailsForm.vue"
+  import type { CreateProductDetails } from '../models/productDetails';
   
   const queryClient = useQueryClient()
   const addProduct = useMutation({
-    mutationFn: postProduct,
+    mutationFn: postProductDetails,
     onSuccess: () => {
-      router.replace({ name: 'products' })
-      queryClient.invalidateQueries({ queryKey: ['products'] })
+      router.replace({ name: 'products-details-list' })
+      queryClient.invalidateQueries({ queryKey: ['details'] })
     },
     onError: (error) => {
       console.log(error)
     }
   })
   
-  const handleSubmit = (payload: AddProductRequest) => {
+  const handleSubmit = (payload: CreateProductDetails) => {
     addProduct.mutate(payload)
   }
-  </script> -->
-
-<template>
-  <div>
-    kkk
-  </div>
-</template>
-  <script setup lang="ts">
   </script>

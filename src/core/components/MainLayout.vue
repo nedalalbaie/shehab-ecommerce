@@ -158,7 +158,7 @@ a.router-link-active {
   const productCatalogRoutes = [
       { title: 'المحلات', icon: mdiShoppingOutline, alt: 'Products', route: '/markets' },
       { title: 'المنتجات', icon: ProductIcon, alt: 'Products', route: '/products' },
-      // { title: 'تفاصيل المنتجات', icon: ProductIcon, alt: 'Products Details', route: '/productsDetails' },
+      { title: 'تفاصيل المنتجات', icon: ProductIcon, alt: 'Products Details', route: '/productsDetails' },
   ]
 
   const categoriesRoutes = [

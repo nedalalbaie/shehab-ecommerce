@@ -36,10 +36,10 @@ const router = createRouter({
           path: 'products',
           children: productsRoutes
         },
-        // {
-        //   path: 'productsDetails',
-        //   children: productsDetailsRoutes
-        // },
+        {
+          path: 'productsDetails',
+          children: productsDetailsRoutes
+        },
         {
           path: 'categories',
           children: categoriesRoutes

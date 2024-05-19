@@ -8,7 +8,7 @@ import { alertStore } from '@/core/stores/alert.store'
 import type { MarketStatusChangeBody } from './models/market-status-body'
 import type { MarketProducts } from './models/market-product'
 
-const getMarkets = (params: PaginationParams, search_value: string): Promise<List<Market[]>> => {
+const getMarkets = (params: PaginationParams, search_value?: string): Promise<List<Market[]>> => {
   let url = ''
   if (search_value) {
     url = `/search-market/${search_value}`

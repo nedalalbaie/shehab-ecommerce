@@ -1,8 +1,8 @@
 type Product = {
   id: number
+  name: string
   product_code: string
   price: number
-  name: string
   sub_category_id: number
   description: string
   hex_codes: string
