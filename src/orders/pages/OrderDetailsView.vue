@@ -12,7 +12,7 @@
         <p class="border-b-2 border-neutral-600 pb-1 w-fit">
           {{ product.name }}
         </p>
-        <p>{{ product.inventory_level }}</p>
+        <!-- <p>{{ product. }}</p> -->
         <p>{{ product.price }}</p>
       </div>
     </template>

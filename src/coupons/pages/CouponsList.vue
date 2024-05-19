@@ -12,7 +12,6 @@
         clearable
         placeholder="البحث"
         density="compact"
-        @input="handleSearch"
       />
     </div>
     <v-btn
@@ -122,8 +121,6 @@ const searchValue = ref('');
 const listParams = ref<PaginationParams>({
   page: 1,
   limit: 10,
-  productName: undefined,
-  category_id: undefined
 })
 
 const coupones = useQuery({
@@ -147,9 +144,9 @@ const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   }
 }
 
-const handleSearch = debounce(() => {
-  listParams.value.productName = searchValue.value
-}, 300)
+// const handleSearch = debounce(() => {
+//   listParams.value.productName = searchValue.value
+// }, 300)
 
 const queryClient = useQueryClient()
 const deleteCouponMutation = useMutation({

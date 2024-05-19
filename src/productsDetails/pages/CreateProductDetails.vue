@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="flex justify-between ">
     <h1 class="text-2xl font-medium ">
       إضافة منتج جديد
@@ -41,4 +41,12 @@
   const handleSubmit = (payload: AddProductRequest) => {
     addProduct.mutate(payload)
   }
+  </script> -->
+
+<template>
+  <div>
+    kkk
+  </div>
+</template>
+  <script setup lang="ts">
   </script>

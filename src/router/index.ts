@@ -13,6 +13,7 @@ import subCategoriesRoutes from '@/subCategories/subCategories.routes'
 import billsRoutes from '@/bills/bills.routes'
 import marketsRoutes from '@/markets/markets.routes'
 import mainCategoriesRoutes from '@/mainCategories/routes'
+import productsDetailsRoutes from '@/productsDetails/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -35,6 +36,10 @@ const router = createRouter({
           path: 'products',
           children: productsRoutes
         },
+        // {
+        //   path: 'productsDetails',
+        //   children: productsDetailsRoutes
+        // },
         {
           path: 'categories',
           children: categoriesRoutes

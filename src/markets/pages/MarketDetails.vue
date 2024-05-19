@@ -119,14 +119,6 @@
                 {{ product.product_info.description }}
               </p>
             </div>
-            <div class="mt-4 flex items-center border-b border-gray-700">
-              <p class="w-1/2">
-                التصنيف
-              </p>
-              <p class="w-1/2 text-center">
-                سرير
-              </p>
-            </div>
             <div class="mt-4 py-1 flex items-center border-b border-gray-700">
               <p class="w-1/5">
                 {{ product.product_info.hex_codes.length > 1 ? 'الألوان' : 'اللون' }}
@@ -140,14 +132,22 @@
                 />
               </div>
             </div>
-            <!-- <div class="mt-4 flex items-center border-b border-gray-700">
-            <p class="w-1/2">
-              الكمية
-            </p>
-            <p class="w-1/2 text-center">
-              {{ product.inventory_level }}
-            </p>
-          </div> -->
+            <div class="mt-4 flex items-center border-b border-gray-700">
+              <p class="w-1/2">
+                الكمية
+              </p>
+              <p class="w-1/2 text-center">
+                {{ product.inventory }}
+              </p>
+            </div>
+            <div class="mt-4 flex items-center border-b border-gray-700">
+              <p class="w-1/2">
+                الكمية الأدني للبيع
+              </p>
+              <p class="w-1/2 text-center">
+                {{ product.product_info.minimum_quantity }}
+              </p>
+            </div>
             <div class="flex justify-center gap-4 mt-6 text-white">
               <v-dialog width="500">
                 <template #activator="{ props }">

@@ -185,9 +185,7 @@ import EmptyData from "@/core/components/EmptyData.vue";
 
 const listParams = ref<PaginationParams>({
   page: 1,
-  limit: 10,
-  productName: undefined,
-  category_id: undefined
+  limit: 10
 })
 
 const orders = useQuery({

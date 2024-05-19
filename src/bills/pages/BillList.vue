@@ -75,8 +75,6 @@ import LoadingOrders from "@/orders/components/LoadingOrders.vue";
 const listParams = ref<PaginationParams>({
   page: 1,
   limit: 10,
-  productName: undefined,
-  category_id: undefined
 })
 
 const bills = useQuery({
