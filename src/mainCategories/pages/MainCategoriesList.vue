@@ -58,66 +58,24 @@
               <p>{{ category.description }}</p>
             </div>
           </div>
-          <div class="flex flex-col md:flex-row justify-end gap-4 mt-4">
-            <!-- <v-btn
-              :append-icon="mdiPlus"
+          <!-- <div class="flex flex-col md:flex-row justify-end gap-4 mt-4">
+            <v-btn
+              :to="{ name: 'edit-mainCategory', params: { id: category.id } }"
+              variant="tonal"
+              class="mx-1"
+              density="comfortable"
+              icon
               color="primary"
-              rounded="xl"
-              variant="elevated"
-              :to="{ name: 'edit-category', params: { id: category.id } }"
             >
-              تعديل
-            </v-btn> -->
-
-            <v-dialog width="500">
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  variant="text"
-                  class="mx-1"
-                  density="comfortable"
-                  icon
-                  color="error"
-                >
-                  <v-icon :icon="mdiDelete" />
-                  <v-tooltip
-                    activator="parent"
-                    location="bottom"
-                  >
-                    حذف
-                  </v-tooltip>
-                </v-btn>
-              </template>
-
-              <template #default="{ isActive }">
-                <v-card
-                  :title="dialogQuestion(category.name)"
-                  rounded="lg"
-                  color="#EFE9F5"
-                  style="padding-block: 1.75rem !important"
-                >
-                  <v-card-text> سيتم حذف هذه التصنيف بشكل نهائي . </v-card-text>
-
-                  <v-card-actions>
-                    <v-spacer />
-
-                    <v-btn
-                      text="لا"
-                      @click="isActive.value = false"
-                    />
-                    <v-btn
-                      :loading="deleteMainCategoriesMutation.isPending.value"
-                      text="نعم"
-                      @click="
-                        isActive.value = false;
-                        onDeleteMainCategories(category.id)
-                      "
-                    />
-                  </v-card-actions>
-                </v-card>
-              </template>
-            </v-dialog>
-          </div>
+              <v-icon :icon="mdiPencil" />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                تعديل
+              </v-tooltip>
+            </v-btn>
+          </div> -->
         </div>
       </div>
     </div>
@@ -127,13 +85,12 @@
 import SearchIcon from '@/core/components/icons/SearchIcon.vue'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import { mdiPlus } from '@mdi/js'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
-import { deleteMainCategory, getMainCategories } from '../mainCategories-service'
+import { getMainCategories } from '../mainCategories-service'
 import EmptyData from '@/core/components/EmptyData.vue'
 import LoadingCategories from '@/categories/components/LoadingCategories.vue'
 import debounce from 'lodash.debounce'
-import { mdiDelete } from '@mdi/js'
 
 const storage = import.meta.env.VITE_API_Storage
 
@@ -149,24 +106,6 @@ const mainCategories = useQuery({
   queryFn: () => getMainCategories(listParams.value, searchValue.value)
 })
 
-const queryClient = useQueryClient()
-const deleteMainCategoriesMutation = useMutation({
-  mutationFn: deleteMainCategory,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['main-categories'] })
-  },
-  onError: (error) => {
-    console.log(error)
-  }
-})
-
-const onDeleteMainCategories = (id: number) => {
-  deleteMainCategoriesMutation.mutate(id)
-}
-
-const dialogQuestion = (mainCategoryName: string) => {
-  return `حذف تصنيف ${mainCategoryName} ؟`
-}
 
 const handleSearch = debounce(() => {
   // if (searchValue.value.trim() === '') {

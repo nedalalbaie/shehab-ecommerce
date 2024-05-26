@@ -2,9 +2,9 @@
   <h2 class="text-3xl font-medium">
     ربط المنتجات بمحل
     <span
-      v-if="details.data.value?.length! > 0"
+      v-if="details.data.value?.total! > 0"
       class="bg-gray-200 px-2 rounded-lg text-2xl"
-    > {{ details.data.value?.length }}</span>
+    > {{ details.data.value?.total }}</span>
   </h2>
   <div class="flex justify-end mt-8">
     <!-- <div class="w-72">
@@ -54,8 +54,8 @@
       :items-per-page="listParams.limit"
       :page="listParams.page"
       :headers="headers"
-      :items-length="details.data.value.length"
-      :items="details.data.value"
+      :items-length="details.data.value.total"
+      :items="details.data.value.data"
       :loading="details.isPending.value"
       @update:options="onTableOptionsChange({ page: $event.page, limit: $event.itemsPerPage })"
     >
@@ -196,17 +196,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import { mdiPlus, mdiTagEdit, mdiCancel, mdiCheck, mdiEye } from '@mdi/js'
+import { mdiPlus } from '@mdi/js'
 import { ref } from 'vue'
 import type { PaginationParams } from '@/core/models/pagination-params'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
 import debounce from 'lodash.debounce'
 import LoadingSkeleton from '@/core/components/LoadingSkeleton.vue'
 import { BASE_STATUS, type BaseStatus } from '@/core/models/base-status'
-import { mdiDelete } from '@mdi/js'
 import { getProductDetails } from '../productDetails-service'
 
-const isStatusLoading = ref<boolean []>([])
 const searchValue = ref('')
 const listParams = ref<PaginationParams & { search_value: string }>({
   page: 1,
@@ -230,7 +228,6 @@ const headers = [
   // { title: 'الإجرائات', key: 'actions', width: '300px', sortable: false }
 ]
 
-const queryClient = useQueryClient()
 
 // const onStatusChange = (marketId: number, status: BaseStatus, index: number) => {
 //   isStatusLoading.value[index] = true

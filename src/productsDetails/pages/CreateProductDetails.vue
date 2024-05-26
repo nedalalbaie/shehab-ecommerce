@@ -14,7 +14,7 @@
     </v-btn>
   </div>
   <ProductDetailsForm
-    :is-loading="addProduct.isPending.value"
+    :is-loading="addProductDetails.isPending.value"
     @submit="handleSubmit"
   />
 </template>
@@ -27,7 +27,7 @@
   import type { CreateProductDetails } from '../models/productDetails';
   
   const queryClient = useQueryClient()
-  const addProduct = useMutation({
+  const addProductDetails = useMutation({
     mutationFn: postProductDetails,
     onSuccess: () => {
       router.replace({ name: 'products-details-list' })
@@ -39,6 +39,6 @@
   })
   
   const handleSubmit = (payload: CreateProductDetails) => {
-    addProduct.mutate(payload)
+    addProductDetails.mutate(payload)
   }
   </script>

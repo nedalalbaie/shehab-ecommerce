@@ -66,9 +66,9 @@
               class="mx-1"
               density="comfortable"
               icon
-              color="grey-darken-2"
+              color="primary"
             >
-              <v-icon :icon="mdiTagEdit" />
+              <v-icon :icon="mdiPencil" />
               <v-tooltip
                 activator="parent"
                 location="bottom"
@@ -78,7 +78,7 @@
             </v-btn>
 
             <v-dialog width="500">
-              <template #activator="{ props }">
+              <!-- <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
                   variant="text"
@@ -95,7 +95,7 @@
                     حذف
                   </v-tooltip>
                 </v-btn>
-              </template>
+              </template> -->
 
               <template #default="{ isActive }">
                 <v-card
@@ -136,8 +136,7 @@ import SearchIcon from "@/core/components/icons/SearchIcon.vue";
 import type { PaginationParams } from "@/core/models/pagination-params";
 import {
     mdiPlus,
-    mdiTagEdit,
-    mdiDelete
+    mdiPencil
 } from '@mdi/js'
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import { ref } from "vue";

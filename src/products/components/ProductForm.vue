@@ -18,8 +18,8 @@
         :items="subCategories.data.value?.data"
         :loading="subCategories.isPending.value"
         hide-selected
-        label="التصنيفات"
-        placeholder="التصنيفات"
+        label="التصنيفات الفرعية"
+        placeholder="التصنيفات الفرعية"
         variant="outlined"
         color="primary"
         auto-select-first
@@ -161,9 +161,63 @@
       </div>
     </div>
 
+    <div class="h-[1px] w-1/2 bg-gray-300 ml-auto my-10" />
+
+    <p class="text-2xl">
+      ربط المنتج بمحل
+    </p>
+
+    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-2 mt-6">
+      <v-autocomplete
+        v-model="market_id"
+        :hide-no-data="false"
+        item-title="name"
+        item-value="id"
+        :items="markets.data.value?.data"
+        :loading="markets.isPending.value"
+        hide-selected
+        label="المحلات"
+        placeholder="المحلات"
+        variant="outlined"
+        color="primary"
+        auto-select-first
+        :error-messages="errors.market_id"
+      >
+        <template #no-data>
+          <v-list-item>
+            <v-list-item-title>
+              لا توجد نتائج
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+      </v-autocomplete>
+
+      <v-text-field
+        v-model="inventory"
+        label="الكمية"
+        type="number"
+        variant="outlined"
+        color="primary"
+        placeholder="الكمية"
+        :error-messages="errors.inventory"
+        @input="convertinventoryToNumber"
+      />
+
+      <v-text-field
+        v-model="saller_price"
+        label="سعر البيع"
+        type="number"
+        variant="outlined"
+        color="primary"
+        placeholder="سعر البيع"
+        :error-messages="errors.saller_price"
+        @input="convertMinimumQuantityToNumber"
+      />
+    </div>
+
     <div class="mt-3">
       <v-btn
-        :disabled="!meta.valid"
+        :disabled="isDisabled"
         size="large"
         variant="elevated"
         color="primary"
@@ -180,7 +234,6 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
 import { object, string, number } from 'zod';
 import type { AddProductRequest, Product } from "../models/product";
-import { GENDER } from "../models/gender"
 import { computed, reactive, ref, watchEffect } from "vue";
 import { getSubCategories } from "@/subCategories/subCategories-service";
 import { useQuery } from "@tanstack/vue-query";
@@ -188,8 +241,10 @@ import ImageUpload from "@/core/components/ImageUpload.vue"
 import ColorPicker from "../components/ColorPicker.vue"
 import { pathToFile } from '@/core/helpers/pathToFile';
 import { sellingMethods } from "../models/product"
+import { getMarkets } from '@/markets/markets-service';
+import type { CreateProductDetails } from '@/productsDetails/models/productDetails';
 
-type ProductForm = AddProductRequest
+type ProductForm = AddProductRequest & Omit<CreateProductDetails, "product_id">
 
 const props = defineProps<{
   isLoading: boolean,
@@ -215,6 +270,11 @@ const subCategories = useQuery({
   queryFn: () => getSubCategories(listParams.value)
 })
 
+const markets = useQuery({
+  queryKey: ['markets', listParams],
+  queryFn: () => getMarkets(listParams.value)
+})
+
 const validationSchema = toTypedSchema(
   object({
     name: editMode.value ? string() : string().min(1, 'يجب إدخال إسم المنتج '),
@@ -223,10 +283,13 @@ const validationSchema = toTypedSchema(
     sub_category_id: number().min(1, 'يجب إختيار التصنيف'),
     price: number().min(1, 'يجب إدخال السعر'),
     inventory_level: number().min(1, 'يجب إدخال الكمية'),
-    // gender: number().min(1, 'يجب إدخال الجنس'),
     active_product: number(),
     selling_method: string().min(1, 'طريقة الدفع مطلوبة'),
     minimum_quantity: number().min(1, 'القيمة الأدني مطلوبة'),
+
+    saller_price: number().min(1, 'يجب إدخال سعر البيع'),
+    inventory: number().min(1, 'يجب إدخال الكمية'), // inventory must not be greater than 1000
+    market_id: number().min(1, 'يجب إختيار المحل'),
   })
 );
 
@@ -243,9 +306,12 @@ const { value: description } = useField<string>('description');
 const { value: sub_category_id } = useField<number>('sub_category_id');
 const { value: price } = useField<number>('price');
 const { value: inventory_level } = useField<number>('inventory_level');
-const { value: gender } = useField<number>('gender');
 const { value: selling_method } = useField<number>('selling_method');
 const { value: minimum_quantity } = useField<number>('minimum_quantity');
+
+const { value: saller_price } = useField<number>('saller_price');
+const { value: inventory } = useField<number>('inventory');
+const { value: market_id } = useField<number>('market_id');
 
 watchEffect(() => {
   if (props.product) {
@@ -270,6 +336,14 @@ const convertQuantityToNumber = () => {
 
 const convertMinimalquantityToNumber = () => {
   minimum_quantity.value = Number(minimum_quantity.value)
+}
+
+const convertinventoryToNumber = () => {
+  inventory.value = Number(inventory.value)
+}
+
+const convertMinimumQuantityToNumber = () => {
+  saller_price.value = Number(saller_price.value)
 }
 
 const submit = handleSubmit(values => {

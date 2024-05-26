@@ -118,7 +118,8 @@ a.router-link-active {
     mdiAccountMultiple,
     mdiTicketPercentOutline,
     mdiArchiveOutline,
-    mdiShoppingOutline
+    mdiShoppingOutline,
+    mdiLocationEnter
     
   } from "@mdi/js";
   import ProductIcon from './icons/ProductIcon.vue';
@@ -151,6 +152,7 @@ a.router-link-active {
     { title: 'الطلبات', icon: ReceiptIcon, alt: 'Orders', route: '/orders' },
     { title: 'الإعلانات', icon: AdsIcon, alt: 'Ads', route: '/ads' },
     { title: 'الزبائن', icon: mdiAccountMultiple, alt: 'Users', route: '/customers' },
+    { title: 'العناوين', icon: mdiLocationEnter, alt: 'Addresses', route: '/addresses' },
     { title: 'الفواتير', icon: mdiTicketPercentOutline, alt: 'bills', route: '/bills' },
     { title: 'الإحصائيات', icon: Statistics, alt: 'statistics', route: '/statistics' },
 ]

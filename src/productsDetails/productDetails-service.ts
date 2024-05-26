@@ -3,8 +3,9 @@ import queryString from 'wretch/addons/queryString'
 import type { CreateProductDetails, ProductDetails } from './models/productDetails'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import { alertStore } from '@/core/stores/alert.store'
+import type { List } from '@/core/models/list'
 
-const getProductDetails = (params: PaginationParams): Promise<ProductDetails[]> => {
+const getProductDetails = (params: PaginationParams): Promise<List<ProductDetails[]>> => {
   return apiClient
     .addon(queryString)
     .url('/details')

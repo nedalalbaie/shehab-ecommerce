@@ -135,10 +135,10 @@ const { handleSubmit, errors, meta, setValues } = useForm({
   validationSchema
 });
 
-const { value: product_id } = useField<string>('product_id');
 const { value: saller_price } = useField<number>('saller_price');
-const { value: market_id } = useField<number>('market_id');
 const { value: inventory } = useField<number>('inventory');
+const { value: market_id } = useField<number>('market_id');
+const { value: product_id } = useField<string>('product_id');
 
 watchEffect(() => {
   // if (props.product) {
@@ -158,8 +158,6 @@ const convertMinimumQuantityToNumber = () => {
 }
 
 const submit = handleSubmit(values => {
-  console.log(values);
-  
   emit("submit", {
     ...values,
   })

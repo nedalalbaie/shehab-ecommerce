@@ -1,21 +1,37 @@
 <template>
   <div>
-    <h1 class="text-3xl mt-6">
+    <h1 class="text-3xl font-medium mt-6">
       الزبائن
-      <span v-if="customers.data.value?.total">( {{ customers.data.value?.total }} )</span>
+      <span
+        v-if="customers.data.value?.total"
+        class="bg-gray-200 px-2 rounded-lg text-2xl"
+      >{{ customers.data.value?.total }}</span>
     </h1>
-    <div class="w-72  mt-8">
-      <v-text-field
-        v-model="searchValue"
-        label="البحث"
-        variant="outlined"
+    <div class="flex justify-between">
+      <div class="w-72  mt-8">
+        <v-text-field
+          v-model="searchValue"
+          label="البحث"
+          variant="outlined"
+          color="primary"
+          clearable
+          placeholder="البحث"
+          density="compact"
+          @input="handleSearch"
+        />
+      </div>
+    
+      <v-btn
+        append-icon=""
         color="primary"
-        clearable
-        placeholder="البحث"
-        density="compact"
-        @input="handleSearch"
-      />
+        size="large"
+        rounded="xl"
+        variant="elevated"
+      >
+        إضافة منتج
+      </v-btn>
     </div>
+    
 
     <div v-if="!customers.data.value?.data">
       <LoadingSkeleton v-if="customers.isPending.value" />
@@ -27,11 +43,13 @@
     >
       <EmptyData v-if="customers.data.value.data.length === 0" />
 
+      <!-- :item-selectable="(item) => item.name == 'client2'" -->
       <div
         v-if="customers.data.value"
         class="shadow-lg rounded-lg mt-4 border border-gray-200"
       >
         <v-data-table-server
+          v-model="selected"
           sticky
           :items-per-page="listParams.limit"
           :page="listParams.page"
@@ -39,6 +57,8 @@
           :items-length="customers.data.value.total"
           :items="customers.data.value.data"
           :loading="customers.isPending.value"
+          show-select
+          item-value="id"
           @update:options="onTableOptionsChange({ page: $event.page, limit: $event.itemsPerPage })"
         >
           <template #[`item.status`]="{ value, item, index }">
@@ -100,7 +120,7 @@
                 density="comfortable"
                 icon
                 color="warning"
-                @click="onStatusChange(item.id, BASE_STATUS.Deactivated, index)"
+                @click="onTrustStatusChange(item.id, BASE_STATUS.Deactivated, index)"
               >
                 <v-icon :icon="mdiCancel" />
                 <v-tooltip
@@ -118,7 +138,7 @@
                 density="comfortable"
                 icon
                 color="success"
-                @click="onStatusChange(item.id, BASE_STATUS.Activated, index)"
+                @click="onTrustStatusChange(item.id, BASE_STATUS.Activated, index)"
               >
                 <v-icon :icon="mdiCheck" />
                 <v-tooltip
@@ -136,15 +156,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
-import { changeStatus, getCustomers } from "../customers-service"
+import { ref, watchEffect } from "vue";
+import { changeStatus, getCustomers, changeTrustStatus } from "../customers-service"
 import type { PaginationParams } from '@/core/models/pagination-params'
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import LoadingSkeleton from "@/core/components/LoadingSkeleton.vue";
 import EmptyData from "@/core/components/EmptyData.vue";
 import {
     mdiCheck,
-    mdiCancel
+    mdiCancel,
   } from '@mdi/js'
 import type { BaseStatus } from "@/core/models/base-status";
 import {BASE_STATUS} from "@/core/models/base-status"
@@ -159,6 +179,7 @@ const headers = [
 ]
 
 const isStatusLoading = ref<boolean []>([])
+  const selected = ref<string[]>([]);
 const searchValue = ref('');
 const listParams = ref<PaginationParams  & { search_value: string }>({
   page: 1,
@@ -193,6 +214,14 @@ const onStatusChange = (customerId: number, status: BaseStatus, index: number) =
    .finally(() => isStatusLoading.value[index] = false)
 }
 
+const onTrustStatusChange = (customerId: number, status: BaseStatus, index: number) => {
+  isStatusLoading.value[index] = true
+
+  changeTrustStatus({id: customerId, is_trusted: status})
+   .then(() => queryClient.invalidateQueries({ queryKey: ['customers'] }))
+   .finally(() => isStatusLoading.value[index] = false)
+}
+
 const getStatusColor = (status: BaseStatus) => {
   return status === BASE_STATUS.Activated ? 'success' : 'error'
 }
@@ -204,5 +233,12 @@ const getStatusLabel = (status: BaseStatus) => {
 const getTrustedStatusLabel = (status: BaseStatus) => {
   return status === BASE_STATUS.Activated ? 'موثوق' : 'غير موثوق'
 }
+
+
+
+watchEffect(() => {
+  console.log(selected.value);
+  
+})
 
 </script>

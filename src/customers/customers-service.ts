@@ -5,8 +5,9 @@ import type { PaginationParams } from '@/core/models/pagination-params'
 import type { List } from '@/core/models/list'
 import type { CustomerStatusChangeBody } from './models/customer-status-body'
 import { alertStore } from '@/core/stores/alert.store'
+import type { CustomerTrustStatusChangeBody } from './models/customer-trust-status-body'
 
-const getCustomers = (params: PaginationParams, search_value: string): Promise<List<Customer[]>> => {
+const getCustomers = (params: PaginationParams, search_value?: string): Promise<List<Customer[]>> => {
   let url = ''
   if (search_value) {
     url = `/search-customer/${search_value}`
@@ -50,4 +51,17 @@ const changeStatus = (body: CustomerStatusChangeBody): Promise<void> => {
     })
 }
 
-export { getCustomers, getCustomer, editCustomer, changeStatus }
+const changeTrustStatus = (body: CustomerTrustStatusChangeBody): Promise<void> => {
+  return apiClient
+    .url('/customer-trust')
+    .post(body)
+    .json((res) => {
+      alertStore.show({
+        message: 'تم تغيير حالة الزبون بنجاح',
+        type: 'info'
+      })
+      return res
+    })
+}
+
+export { getCustomers, getCustomer, editCustomer, changeStatus, changeTrustStatus }
