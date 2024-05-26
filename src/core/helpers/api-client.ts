@@ -19,6 +19,7 @@ function authInterceptor(next: FetchLike) {
 }
 
 const apiClient = wretch(import.meta.env.VITE_API_URL)
+  .headers({ 'Accept': 'application/json', "Content-Type": "application/json",  })
   .middlewares([authInterceptor])
   .options({ mode: 'cors' })
   .resolve((_) =>
@@ -26,7 +27,7 @@ const apiClient = wretch(import.meta.env.VITE_API_URL)
       authStore.clearAuth()
       router.replace({ name: 'login' })
       throw new Error(err.message)
-    })
+    }) 
       .internalError((err) => {
         alertStore.show({
           message: 'حصل خطأ, يرجى المحاولة مرة أخرى',

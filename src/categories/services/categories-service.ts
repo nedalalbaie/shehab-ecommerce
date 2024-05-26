@@ -7,12 +7,7 @@ import type { List } from '@/core/models/list'
 import { alertStore } from '@/core/stores/alert.store'
 
 const getCategories = (params: PaginationParams): Promise<List<Category[]>> => {
-  return apiClient
-    .addon(queryString)
-    .url('/categories')
-    .query(params)
-    .get()
-    .json()
+  return apiClient.addon(queryString).url('/categories').query(params).get().json()
 }
 
 const getCategory = (id: number): Promise<Category> => {
@@ -27,7 +22,7 @@ const addCategory = (body: AddCategoryRequest): Promise<Category> => {
     .post()
     .json((res) => {
       alertStore.show({
-        message: "تم إضافة التصنيف بنجاح",
+        message: 'تم إضافة التصنيف بنجاح',
         type: 'success'
       })
       return res
@@ -40,7 +35,7 @@ const editCategory = (id: number, body: EditCategoryRequest): Promise<Category> 
     .url(`/categories/${id}`)
     .formData({
       ...body,
-      _method: "put"
+      _method: 'put'
     })
     .post()
     .json((res) => {
@@ -53,12 +48,26 @@ const editCategory = (id: number, body: EditCategoryRequest): Promise<Category> 
 }
 
 const deleteCategory = (id: number) => {
-  return apiClient.url(`/categories/${id}`).delete().json(() => {
-    alertStore.show({
-      message: 'تم حذف التصنيف بنجاح',
-      type: 'info'
+  return apiClient
+    .url(`/categories/${id}`)
+    .delete()
+    .json(() => {
+      alertStore.show({
+        message: 'تم حذف التصنيف بنجاح',
+        type: 'info'
+      })
     })
-  })
 }
 
-export { getCategories, getCategory, addCategory, editCategory, deleteCategory }
+const getCategoriesByMainCategoryId = (categoryId: string): Promise<Category[]> => {
+  return apiClient.url(`/get-categories/${categoryId}`).get().json()
+}
+
+export {
+  getCategories,
+  getCategory,
+  addCategory,
+  editCategory,
+  deleteCategory,
+  getCategoriesByMainCategoryId
+}

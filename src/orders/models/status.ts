@@ -5,3 +5,5 @@ export const STATUS = {
     DELIVERD: "deliverd",
     CANCELD: "canceled",
 } as const
+
+export type OrderStatus = typeof STATUS

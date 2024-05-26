@@ -31,7 +31,6 @@
         إضافة منتج
       </v-btn>
     </div>
-    
 
     <div v-if="!customers.data.value?.data">
       <LoadingSkeleton v-if="customers.isPending.value" />

@@ -37,6 +37,7 @@ const postProduct = (body: AddProductRequest): Promise<Product> => {
       })
       return res
     })
+    .catch((error: any) => console.log(error.errors) )
 }
 
 const editProduct = (id: number, body: Partial<AddProductRequest>): Promise<Product> => {

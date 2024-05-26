@@ -71,11 +71,23 @@ const deleteSubCategory = (id: number) => {
   })
 }
 
+const getsubCategoriesByCategoryId = (subCategoryId: string): Promise<SubCategory[]> => {
+  return apiClient
+  .addon(queryString)
+  .url(`/getSubCategories`)
+  .query({
+    cat_id: subCategoryId
+  })
+  .get()
+  .json()
+}
+
 export {
   getSubCategories,
   getSubCategory,
   getSubCategoryByCategoryId,
   addSubCategory,
   editSubCategory,
-  deleteSubCategory
+  deleteSubCategory,
+  getsubCategoriesByCategoryId
 }
