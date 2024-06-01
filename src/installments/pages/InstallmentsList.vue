@@ -1,6 +1,6 @@
 <template>
   <h2 class="text-3xl font-medium">
-    الإستحقاقات
+    الأقساط
     <span
       v-if="installments && installments.total > 0"
       class="bg-gray-200 px-2 rounded-lg text-2xl"
@@ -26,7 +26,7 @@
       variant="elevated"
       rounded="xl"
     >
-      إضافة إستحقاق
+      إضافة قسط
     </v-btn>
   </div>
   

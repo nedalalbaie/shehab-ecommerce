@@ -9,7 +9,7 @@ import type { Installment } from './models/installment'
 const getInstallments = (params: PaginationParams): Promise<List<Installment[]>> => {
   return apiClient
     .addon(queryString)
-    .url('/invoices-options')
+    .url('/Installment')
     .query(params)
     .get()
     .notFound(() => ({

@@ -1,12 +1,12 @@
 <template>
   <v-btn
-    :to="{ name: 'order-details', params: { id: id} }"
+    :to="{ name: 'view-customer-order', params: { id: id } }"
     variant="outlined"
     color="primary"
     size="large"
     :prepend-icon="mdiArrowRight"
   >
-    الرجوع الى  عرض الطلب 
+    الرجوع الى عرض الطلب
   </v-btn>
 
   <OrderDetails
@@ -63,11 +63,12 @@
                   :title="dialogQuestion(product.name, product.id)"
                   rounded="lg"
                   color="#EFE9F5"
-                  style="padding-block: 1.75rem !important ;"
+                  style="padding-block: 1.75rem !important "
                 >
                   <v-card-text>
-                    سيتم حذف عدد {{ product.minimum_quantity }} {{ product.minimum_quantity === 1 ? 'عنصر' : 'عناصر' }} بقيمة {{ product.price }} د.ل من هذه الطلبية.
-                    لا يمكن التراجع عن هذه العملية.
+                    سيتم حذف عدد {{ product.minimum_quantity }}
+                    {{ product.minimum_quantity === 1 ? 'عنصر' : 'عناصر' }} بقيمة
+                    {{ product.price }} د.ل من هذه الطلبية. لا يمكن التراجع عن هذه العملية.
                   </v-card-text>
 
                   <v-card-actions>
@@ -79,7 +80,10 @@
                     />
                     <v-btn
                       text="نعم"
-                      @click="onRemoveProduct(index, product.id); isActive.value = false"
+                      @click="
+                        onRemoveProduct(index, product.id);
+                        isActive.value = false
+                      "
                     />
                   </v-card-actions>
                 </v-card>
@@ -96,7 +100,7 @@
             color="#004C6B"
             @click="addProducteDialog.open = true"
           >
-            إضافة منتج  
+            إضافة منتج
           </v-btn>
         </div>
 
@@ -122,9 +126,7 @@
               >
                 <template #no-data>
                   <v-list-item>
-                    <v-list-item-title>
-                      لا توجد نتائج
-                    </v-list-item-title>
+                    <v-list-item-title> لا توجد نتائج </v-list-item-title>
                   </v-list-item>
                 </template>
               </v-autocomplete>
@@ -135,7 +137,10 @@
                 color="primary"
                 type="submit"
                 variant="tonal"
-                @click="onAddProductToOrder(selectedProduct as Product); addProducteDialog.open = false"
+                @click="
+                  onAddProductToOrder(selectedProduct as Product);
+                  addProducteDialog.open = false
+                "
               >
                 إضافة
               </v-btn>
@@ -154,28 +159,26 @@
         <div class="mt-2 w-3/4 rounded-tl-lg bg-white shadow-md p-3 mb-6 text-xl">
           <div class="flex gap-8 mb-2">
             <p>الإجمالي :</p>
-            <p> {{ total }} د.ل</p>
+            <p>{{ total }} د.ل</p>
           </div>
 
           <div class="flex gap-8 mt-3">
             <p>تاريخ الدفع :</p>
-            <p> {{ formatDate(orderDetails.order_details.due_date) }}</p>
+            <p>{{ formatDate(orderDetails.order_details.due_date) }}</p>
           </div>
 
-          <div v-if="orderDetails.order_details.payment_method == 'installments' ">
+          <div v-if="orderDetails.order_details.payment_method == 'installments'">
             <div class="flex gap-8 mt-3">
-              <p> الإجمالي بعد الكوبون :</p>
-              <p> {{ orderDetails.order_details.total_price_with_copupon }}</p>
+              <p>الإجمالي بعد الكوبون :</p>
+              <p>{{ orderDetails.order_details.total_price_with_copupon }}</p>
             </div>
 
             <div class="flex gap-8 mt-3">
               <p>معدل الفائدة :</p>
-              <p> {{ orderDetails.order_details.debt_ratio }}</p>
+              <p>{{ orderDetails.order_details.debt_ratio }}</p>
             </div>
 
-            <div
-              class="grid grid-cols-2 gap-4 mt-8"
-            >
+            <div class="grid grid-cols-2 gap-4 mt-8">
               <div class="flex gap-3 justify-between mt-1">
                 <v-text-field
                   v-model="debt_arrears"
@@ -222,34 +225,34 @@
           type="submit"
           :loading="patchOrderMutation.isPending.value"
         >
-          تحديث 
+          تحديث
         </v-btn>
       </form>
     </template>
   </OrderDetails>
 </template>
-  
-<script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
-import OrderDetails from "../components/OrderDetails.vue"
-import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
-import { useRoute } from "vue-router";
-import router from "@/router";
-import { useQueryClient, useMutation, useQuery } from "@tanstack/vue-query";
-import { patchOrder, getOrder } from "../orders-service";
-import type { PatchOrderRequest } from "../models/order";
-import { mdiArrowRight } from "@mdi/js";
-import { toTypedSchema } from "@vee-validate/zod";
-import { number, object, string } from "zod";
-import { formatDate } from "@/core/helpers/format-date"
-import { useField, useForm } from "vee-validate";
-import type { Product } from "@/products/models/product";
-import { getProducts } from "@/products/products-service";
 
-const quantityInputs = ref<any[]>([]);
-const priceInputs = ref<number[]>([]);
-const productCodes = ref<string[]>([]);
-const color_selected = ref<string[]>([]);
+<script setup lang="ts">
+import { computed, ref, watchEffect } from 'vue'
+import OrderDetails from '@/orders/components/OrderDetails.vue'
+import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
+import { useRoute } from 'vue-router'
+import router from '@/router'
+import { useQueryClient, useMutation, useQuery } from '@tanstack/vue-query'
+import { patchOrder, getOrder } from '@/orders/orders-service'
+import type { PatchOrderRequest } from '@/orders/models/order'
+import { mdiArrowRight } from '@mdi/js'
+import { toTypedSchema } from '@vee-validate/zod'
+import { number, object, string } from 'zod'
+import { formatDate } from '@/core/helpers/format-date'
+import { useField, useForm } from 'vee-validate'
+import type { Product } from '@/products/models/product'
+import { getProducts } from '@/products/products-service'
+
+const quantityInputs = ref<any[]>([])
+const priceInputs = ref<number[]>([])
+const productCodes = ref<string[]>([])
+const color_selected = ref<string[]>([])
 
 const products = ref<Product[]>([])
 const selectedProduct = ref<Product>()
@@ -259,29 +262,29 @@ const addProducteDialog = ref({
   productId: 0
 })
 
-const route = useRoute();
-const id = Number(route.params.id);
+const route = useRoute()
+const id = Number(route.params.id)
 
-const { data: orderDetails} = useQuery({
+const { data: orderDetails } = useQuery({
   queryKey: ['orderDetails'],
   queryFn: () => getOrder(id)
 })
 
-const { data: productsList, isPending} = useQuery({
+const { data: productsList, isPending } = useQuery({
   queryKey: ['products'],
-  queryFn: () => getProducts({page:1, limit: 200})
+  queryFn: () => getProducts({ page: 1, limit: 200 })
 })
 
 const queryClient = useQueryClient()
 const patchOrderMutation = useMutation({
-    mutationFn: ({ id, body }: { id: number, body: PatchOrderRequest, }) => patchOrder(id, body),
-    onSuccess: () => {
-        router.replace({ name: 'order-details' })
-        queryClient.invalidateQueries({ queryKey: ['orderDetails'] })
-    },
-    onError: (error) => {
-        console.log(error)
-    }
+  mutationFn: ({ id, body }: { id: number; body: PatchOrderRequest }) => patchOrder(id, body),
+  onSuccess: () => {
+    router.replace({ name: 'view-customer-order' })
+    queryClient.invalidateQueries({ queryKey: ['orderDetails'] })
+  },
+  onError: (error) => {
+    console.log(error)
+  }
 })
 
 const validationSchema = toTypedSchema(
@@ -291,34 +294,34 @@ const validationSchema = toTypedSchema(
     paid_due_value: number().optional(),
     total_price_with_copupon: number().optional(),
     debt_ratio: number().optional(),
-    due_date: string().optional(),
+    due_date: string().optional()
   })
-);
+)
 
 const { errors, setValues, handleSubmit } = useForm({
-  validationSchema, 
+  validationSchema,
   initialValues: {
     due_date: orderDetails.value?.order_details.due_date
   }
-});
+})
 
-const { value: debt_arrears } = useField<number>('debt_arrears');
-const { value: residual_value } = useField<number>('residual_value');
-const { value: paid_due_value } = useField<number>('paid_due_value');
-const { value: total_price_with_copupon } = useField<number>('total_price_with_copupon');
-const { value: debt_ratio } = useField<number>('debt_ratio');
+const { value: debt_arrears } = useField<number>('debt_arrears')
+const { value: residual_value } = useField<number>('residual_value')
+const { value: paid_due_value } = useField<number>('paid_due_value')
+const { value: total_price_with_copupon } = useField<number>('total_price_with_copupon')
+const { value: debt_ratio } = useField<number>('debt_ratio')
 
 watchEffect(() => {
-  if ( orderDetails.value) {
+  if (orderDetails.value) {
     setValues({
       debt_arrears: orderDetails.value.order_details.debt_arrears,
       paid_due_value: orderDetails.value.order_details.paid_due_value,
       residual_value: orderDetails.value.order_details.residual_value,
       total_price_with_copupon: orderDetails.value.order_details.total_price_with_copupon,
-      debt_ratio: orderDetails.value.order_details.debt_ratio,
+      debt_ratio: orderDetails.value.order_details.debt_ratio
     })
 
-    products.value = [...orderDetails.value.products];
+    products.value = [...orderDetails.value.products]
     productCodes.value = JSON.parse(orderDetails.value.order_details.color_selected) as string[]
 
     quantityInputs.value = [...orderDetails.value.order_details.quantity_selected]
@@ -331,32 +334,30 @@ watchEffect(() => {
 })
 
 const dialogQuestion = (title: string, id: number) => {
-    return `هل تريد حذف  ${title} من الطلبية  ${id} ؟`
+  return `هل تريد حذف  ${title} من الطلبية  ${id} ؟`
 }
 
 const onRemoveProduct = (index: number, id: number) => {
-  products.value = products.value!.filter(item => item.id !== id)
+  products.value = products.value!.filter((item) => item.id !== id)
   quantityInputs.value.splice(index, 1)
   priceInputs.value.splice(index, 1)
   productCodes.value.splice(index, 1)
-  
 }
 
 const total = computed(() => {
-    return priceInputs.value.reduce((acc, price) => Number(acc) + Number(price), 0);
-});
+  return priceInputs.value.reduce((acc, price) => Number(acc) + Number(price), 0)
+})
 
-const submit  = handleSubmit(values => {
+const submit = handleSubmit((values) => {
+  const body: PatchOrderRequest = {
+    ...values,
+    product_codes: productCodes.value,
+    quantity_selected: quantityInputs.value,
+    total_price: total.value,
+    color_selected: JSON.stringify(color_selected.value)
+  }
 
-    const body: PatchOrderRequest = {
-      ...values,
-      product_codes: productCodes.value,
-      quantity_selected: quantityInputs.value,
-      total_price: total.value,
-      color_selected: JSON.stringify(color_selected.value)
-    }
-
-    patchOrderMutation.mutate({ body, id })
+  patchOrderMutation.mutate({ body, id })
 })
 
 const convertToNumber = () => {
@@ -375,5 +376,4 @@ const onAddProductToOrder = (product: Product) => {
   productCodes.value.push(product.product_code)
   products.value.push(product)
 }
-
 </script>

@@ -1,12 +1,21 @@
 <template>
   <div>
+    <v-btn
+      :to="{ name: 'view-customer' }"
+      variant="outlined"
+      color="primary"
+      size="large"
+      :prepend-icon="mdiArrowRight"
+    >
+      الرجوع الى  عرض الزبون 
+    </v-btn>
     <div class="flex items-center justify-between mt-6">
       <h1 class="text-3xl font-medium">
         الفواتير
         <span
-          v-if="bills && bills.total > 0"
+          v-if="bills && bills.length > 0"
           class="bg-gray-200 px-2 rounded-lg text-2xl"
-        >{{ bills?.total }}</span>
+        >{{ bills?.length }}</span>
       </h1>
       <div class="flex gap-4">
         <button class="bg-sky-200 py-1 px-2 rounded-md">
@@ -23,19 +32,19 @@
         </button>
       </div>
     </div>
-
+  
     <div v-if="!bills">
       <LoadingOrders />
     </div>
-
+  
     <div
       v-if="bills"
       class="mt-6 flex-grow flex flex-col justify-center"
     >
-      <EmptyData v-if="bills.total === 0" />
+      <EmptyData v-if="bills.length === 0" />
       <div class="grid grid-cols-productsCards gap-x-4 gap-y-8 mt-6">
         <div
-          v-for="bill in bills.data"
+          v-for="bill in bills"
           :key="bill.id"
           class="bg-white shadow-lg rounded-lg p-4"
         >
@@ -120,7 +129,7 @@
                 <ViewIconVue />
               </template>
             </v-btn>
-
+  
             <v-dialog
               v-if="bill.status != STATUS.CANCELD"
               width="500"
@@ -128,7 +137,7 @@
               <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
-  
+    
                   rounded="xl"
                   variant="elevated"
                   color="#004C6B"
@@ -140,7 +149,7 @@
                   </template>
                 </v-btn>
               </template>
-
+  
               <template #default="{ isActive }">
                 <v-card
                   :title="dialogQuestion(bill.bill_number)"
@@ -151,10 +160,10 @@
                   <v-card-text>
                     سيتم الغاء هذه الفاتورة بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الفاتورة تم الغاؤها.
                   </v-card-text>
-
+  
                   <v-card-actions>
                     <v-spacer />
-
+  
                     <v-btn
                       text="لا"
                       @click="isActive.value = false"
@@ -173,54 +182,50 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
-import { ref } from "vue";
-import { cancelBill, getBills } from "../bill-service"
-import type { PaginationParams } from '@/core/models/pagination-params'
-import { STATUS } from "../models/status"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
-import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
-import ViewIconVue from "@/core/components/icons/ViewIcon.vue";
-import router from "@/router";
-import { checkStatus } from "@/core/helpers/check-status"
-import LoadingOrders from "@/orders/components/LoadingOrders.vue";
-import EmptyData from "@/core/components/EmptyData.vue";
-
-const listParams = ref<PaginationParams>({
-  page: 1,
-  limit: 10
-})
-
-const { data: bills} = useQuery({
-  queryKey: ['bills', listParams],
-  queryFn: () => getBills(listParams.value)
-})
-
-const queryClient = useQueryClient()
-const cancelOrderMutation = useMutation({
-  mutationFn: cancelBill,
-  onSuccess: () => {
-    router.replace({ name: 'bills' })
-    queryClient.invalidateQueries({ queryKey: ['bills'] })
-  },
-  onError: (error) => {
-    console.log(error)
+  <script setup lang="ts">
+  import { cancelBill, getBillByCustomerId } from "@/bills/bill-service"
+  import { STATUS } from "@/bills/models/status"
+  import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
+  import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
+  import ViewIconVue from "@/core/components/icons/ViewIcon.vue";
+  import { checkStatus } from "@/core/helpers/check-status"
+  import LoadingOrders from "@/orders/components/LoadingOrders.vue";
+  import EmptyData from "@/core/components/EmptyData.vue";
+  import { useRoute } from "vue-router";
+import { mdiArrowRight } from "@mdi/js";
+  
+  const route = useRoute();
+  const id = Number(route.params.id);
+  
+  const { data: bills} = useQuery({
+    queryKey: ['customer-bills', id],
+    queryFn: () => getBillByCustomerId(id)
+  })
+  
+  const queryClient = useQueryClient()
+  const cancelOrderMutation = useMutation({
+    mutationFn: cancelBill,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customer-bills'] })
+    },
+    onError: (error) => {
+      console.log(error)
+    }
+  })
+  
+  const onCancelOrder = (id: number) => {
+    cancelOrderMutation.mutate(id)
   }
-})
-
-const onCancelOrder = (id: number) => {
-  cancelOrderMutation.mutate(id)
-}
-
-const dialogQuestion = (orderCode: number) => {
-  return `إلغاء الفاتورة ${orderCode}# ?`
-}
-
-const formatToDate = (date: string) => {
-  const dateObject = new Date(date);
-  if (!isNaN(dateObject.getTime())) {
-    return dateObject.toLocaleDateString();
+  
+  const dialogQuestion = (orderCode: number) => {
+    return `إلغاء الفاتورة ${orderCode}# ?`
   }
-}
-
-</script>
+  
+  const formatToDate = (date: string) => {
+    const dateObject = new Date(date);
+    if (!isNaN(dateObject.getTime())) {
+      return dateObject.toLocaleDateString();
+    }
+  }
+  
+  </script>

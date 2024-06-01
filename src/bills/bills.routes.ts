@@ -6,7 +6,7 @@ const routes: RouteRecordRaw[] = [
     name: 'bills',
     component: () => import('./pages/BillList.vue')
   },
-   {
+  {
     path: ':id',
     children: [
       {

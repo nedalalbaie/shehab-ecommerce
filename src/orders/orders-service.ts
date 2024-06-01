@@ -24,6 +24,10 @@ const getOrder = (id: number): Promise<OrderDetails> => {
   return apiClient.addon(queryString).url(`/get-item-details`).query({ id: id }).get().json()
 }
 
+const getOrderByCustomerId = (customerId: number): Promise<Order []> => {
+  return apiClient.url(`/show-all-orders/${customerId}`).get().json()
+}
+
 const patchOrder = (id: number, body: PatchOrderRequest): Promise<Order> => {
   return apiClient
     .url(`/orders/${id}`)
@@ -58,4 +62,4 @@ const changeOrderStatus = (body: ChangeOrderBody) => {
   })
 }
 
-export { getOrders, getOrder, patchOrder, cancelOrder, changeOrderStatus }
+export { getOrders, getOrder, getOrderByCustomerId, patchOrder, cancelOrder, changeOrderStatus }

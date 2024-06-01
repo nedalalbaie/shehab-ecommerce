@@ -27,6 +27,10 @@ const getBill = (id: number): Promise<{
   return apiClient.url(`/bills/${id}`).get().json()
 }
 
+const getBillByCustomerId = (customerId: number): Promise<Bill []> => {
+  return apiClient.url(`/show-all--my-bills/${customerId}`).get().json()
+}
+
 const cancelBill = (id: number) => {
   return apiClient.url(`/bills/${id}`).delete().json(() => {
     alertStore.show({
@@ -46,4 +50,4 @@ const changeBillStatus = (body: ChangeOrderBody) => {
 }
 
 
-export { getBills, getBill, cancelBill, changeBillStatus }
+export { getBills, getBill, getBillByCustomerId, cancelBill, changeBillStatus }

@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-between">
     <h1 class="text-2xl font-medium">
-      إضافة إستحقاق جديد
+      إضافة قسط جديد
     </h1>
     <v-btn
       :to="{ name: 'installments' }"
@@ -10,7 +10,7 @@
       size="large"
       :append-icon="mdiArrowLeft"
     >
-      الرجوع الى الإستحقاقات
+      الرجوع الى الأقساط
     </v-btn>
   </div>
   <InstallemntForm

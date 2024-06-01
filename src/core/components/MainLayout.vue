@@ -106,33 +106,23 @@ a.router-link-active {
 <script setup lang="ts">
   import { logout } from "@/auth/auth-service";
   import {
-    mdiAccountGroup,
-    mdiFileSign,
-    mdiFolderOpen,
     mdiLogout,
-    mdiOfficeBuilding,
-    mdiReceiptText,
     mdiThemeLightDark,
-    mdiViewDashboard,
-    mdiFaceAgent,
     mdiAccountMultiple,
     mdiTicketPercentOutline,
     mdiArchiveOutline,
-    mdiShoppingOutline,
-    mdiLocationEnter
+    mdiShoppingOutline
     
   } from "@mdi/js";
   import ProductIcon from './icons/ProductIcon.vue';
   import CategoryIcon from "./icons/CategoryIcon.vue"
   import ReceiptIcon from "./icons/ReceiptIcon.vue"
   import AdsIcon from "./icons/AdsIcon.vue"
-  import UserIcon from "./icons/UserIcon.vue"
   import Statistics from "./icons/StatisticsIcon.vue"
   import DiscountIcon from "./icons/DiscountIcon.vue"
   import SubCategoryIcon from "./icons/SubCategoryIcon.vue"
-  import { ref, watchEffect } from "vue";
+  import { ref } from "vue";
   import { useDisplay, useTheme } from "vuetify";
-  import authStore from "../stores/auth.store";
   import themeStore from "../stores/theme-store";
 
   const theme = useTheme();
@@ -149,11 +139,11 @@ a.router-link-active {
   };
 
   const navRoutes = [
+    { title: 'إدارة الأقساط', icon: mdiAccountMultiple, alt: 'Installment', route: '/installments' },
     { title: 'الطلبات', icon: ReceiptIcon, alt: 'Orders', route: '/orders' },
-    { title: 'إدارة الأقساط', icon: mdiAccountMultiple, alt: 'Installment api', route: '/installments' },
-    { title: 'الإعلانات', icon: AdsIcon, alt: 'Ads', route: '/ads' },
-    { title: 'الزبائن', icon: mdiAccountMultiple, alt: 'Users', route: '/customers' },
     { title: 'الفواتير', icon: mdiTicketPercentOutline, alt: 'bills', route: '/bills' },
+    { title: 'الزبائن', icon: mdiAccountMultiple, alt: 'Users', route: '/customers' },
+    { title: 'الإعلانات', icon: AdsIcon, alt: 'Ads', route: '/ads' },
     { title: 'الإحصائيات', icon: Statistics, alt: 'statistics', route: '/statistics' },
 ]
 

@@ -34,6 +34,35 @@
         الرجوع الى الزبائن
       </v-btn>
     </div>
+
+    <div class="flex gap-6">
+      <v-btn
+        rounded="xl"
+        variant="elevated"
+        color="primary"
+        type="submit"
+        :to="{ name: 'view-customer-bills', params: { id: customer.id } }"
+      >
+        عرض الفواتير
+        <template #prepend>
+          <ViewIcon />
+        </template>
+      </v-btn>
+            
+      <v-btn
+        rounded="xl"
+        variant="elevated"
+        color="primary"
+        type="submit"
+        :to="{ name: 'view-customer-orders', params: { id: customer.id } }"
+      >
+        عرض الطلبات
+        <template #prepend>
+          <ViewIcon />
+        </template>
+      </v-btn>
+    </div>
+
     <v-card class="mt-4">
       <div class="w-1/2 grid grid-cols-2 gap-4 p-4">
         <div>
@@ -135,6 +164,7 @@ import { useRoute } from 'vue-router';
 import { getCustomer } from '../customers-service';
 import { BASE_STATUS } from "@/core/models/base-status"
 import { getUserAddresses } from '@/addresses/addresses-service';
+import ViewIcon from '@/core/components/icons/ViewIcon.vue';
 
 const route = useRoute();
 const id = Number(route.params.id);
