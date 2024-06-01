@@ -13,13 +13,12 @@ function authInterceptor(next: FetchLike) {
         Authorization: `Bearer ${auth}`
       }
     }
-
     return next(url, opts)
   }
 }
 
 const apiClient = wretch(import.meta.env.VITE_API_URL)
-  .headers({ 'Accept': 'application/json', "Content-Type": "application/json",  })
+  // .headers({ 'Accept': 'application/json', "Content-Type": "application/json",  })
   .middlewares([authInterceptor])
   .options({ mode: 'cors' })
   .resolve((_) =>

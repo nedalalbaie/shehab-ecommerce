@@ -1,6 +1,6 @@
 import apiClient from '@/core/helpers/api-client'
 import queryString from 'wretch/addons/queryString'
-import type { Customer, CustomerFormRequest } from './models/customer'
+import type { Customer, EditCustomerBody } from './models/customer'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import type { List } from '@/core/models/list'
 import type { CustomerStatusChangeBody } from './models/customer-status-body'
@@ -29,7 +29,7 @@ const getCustomer = (id: number): Promise<Customer> => {
   return apiClient.url(`/customers/${id}`).get().json()
 }
 
-const editCustomer = (id: number, body: Partial<CustomerFormRequest>): Promise<Customer> => {
+const editCustomer = (id: number, body: EditCustomerBody): Promise<Customer> => {
   return apiClient
     .url(`/customers/${id}`)
     .put(body)

@@ -1,9 +1,11 @@
 import apiClient from '@/core/helpers/api-client'
 import queryString from 'wretch/addons/queryString'
-import type { Order, PostOrderRequest, PatchOrderRequest } from './models/order'
+import type { Order, PatchOrderRequest } from './models/order'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import type { List } from '@/core/models/list'
 import type { OrderDetails } from './models/order-details'
+import type { ChangeOrderBody } from './models/status'
+import { alertStore } from '@/core/stores/alert.store'
 
 const getOrders = (params: PaginationParams): Promise<List<Order[]>> => {
   return apiClient
@@ -22,26 +24,38 @@ const getOrder = (id: number): Promise<OrderDetails> => {
   return apiClient.addon(queryString).url(`/get-item-details`).query({ id: id }).get().json()
 }
 
-const postOrder = (body: PostOrderRequest): Promise<Order> => {
-  return apiClient
-    .url('/orders')
-    .post(body)
-    .json((res) => {
-      return res
-    })
-}
-
-const patchOrder = (id: number, body: Partial<PatchOrderRequest>): Promise<Order> => {
+const patchOrder = (id: number, body: PatchOrderRequest): Promise<Order> => {
   return apiClient
     .url(`/orders/${id}`)
-    .patch(body)
+    .post({
+      ...body,
+      _method: 'put'
+    })
     .json((res) => {
+      alertStore.show({
+        message: 'تم تعديل الطلب بنجاح',
+        type: 'success'
+      })
       return res
     })
 }
 
 const cancelOrder = (id: number) => {
-  return apiClient.url(`/orders/${id}`).delete().json()
+  return apiClient.url(`/orders/${id}`).delete().json(() => {
+    alertStore.show({
+      message: 'تم حذف الطلب بنجاح',
+      type: 'info'
+    })
+  })
 }
 
-export { getOrders, getOrder, postOrder, patchOrder, cancelOrder }
+const changeOrderStatus = (body: ChangeOrderBody) => {
+  return apiClient.url(`/chnage-order-status`).post(body).json(() => {
+    alertStore.show({
+      message: 'تم تغيير حالة الزبون بنجاح',
+      type: 'info'
+    })
+  })
+}
+
+export { getOrders, getOrder, patchOrder, cancelOrder, changeOrderStatus }

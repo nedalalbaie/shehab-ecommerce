@@ -5,7 +5,7 @@
         src="../../assets/images/panda.png"
         alt="logo"
         class="w-logo mx-auto mb-6"
-      >
+      >admin@email.app
       <v-text-field
         v-model="email"
         label="الإيميل الإلكتروني"

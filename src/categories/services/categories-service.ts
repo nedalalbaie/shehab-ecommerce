@@ -59,7 +59,7 @@ const deleteCategory = (id: number) => {
     })
 }
 
-const getCategoriesByMainCategoryId = (categoryId: string): Promise<Category[]> => {
+const getCategoriesByMainCategoryId = (categoryId: number): Promise<Category[]> => {
   return apiClient.url(`/get-categories/${categoryId}`).get().json()
 }
 

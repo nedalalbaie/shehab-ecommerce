@@ -11,12 +11,60 @@
       />
 
       <v-autocomplete
+        v-model="mainCategoryId"
+        :hide-no-data="false"
+        item-title="name"
+        item-value="id"
+        :items="mainCategories?.data"
+        :loading="mainCategoriesPending"
+        hide-selected
+        label="التصنيفات الأساسية"
+        placeholder="التصنيفات الأساسية"
+        variant="outlined"
+        color="primary"
+        auto-select-first
+      >
+        <template #no-data>
+          <v-list-item>
+            <v-list-item-title>
+              لا توجد نتائج
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+      </v-autocomplete>
+
+      <v-autocomplete
+        v-if="mainCategoryId"
+        v-model="categoryId"
+        :hide-no-data="false"
+        item-title="name"
+        item-value="id"
+        :items="categories"
+        :loading="categoriesPending"
+        hide-selected
+        label="التصنيفات الثانوية"
+        placeholder="التصنيفات الثانوية"
+        variant="outlined"
+        color="primary"
+        auto-select-first
+      >
+        <template #no-data>
+          <v-list-item>
+            <v-list-item-title>
+              لا توجد نتائج
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+      </v-autocomplete>
+
+      <v-autocomplete
+        v-if="mainCategoryId && categoryId"
         v-model="sub_category_id"
         :hide-no-data="false"
         item-title="name"
         item-value="id"
-        :items="subCategories.data.value?.data"
-        :loading="subCategories.isPending.value"
+        :items="subCategories"
+        :loading="subCategoriesPending"
         hide-selected
         label="التصنيفات الفرعية"
         placeholder="التصنيفات الفرعية"
@@ -235,7 +283,7 @@ import { useForm, useField } from 'vee-validate';
 import { object, string, number } from 'zod';
 import type { AddProductRequest, Product } from "../models/product";
 import { computed, reactive, ref, watchEffect } from "vue";
-import { getSubCategories } from "@/subCategories/subCategories-service";
+import {  getsubCategoriesByCategoryId } from "@/subCategories/subCategories-service";
 import { useQuery } from "@tanstack/vue-query";
 import ImageUpload from "@/core/components/ImageUpload.vue"
 import ColorPicker from "../components/ColorPicker.vue"
@@ -243,6 +291,8 @@ import { pathToFile } from '@/core/helpers/pathToFile';
 import { sellingMethods } from "../models/product"
 import { getMarkets } from '@/markets/markets-service';
 import type { CreateProductDetails } from '@/productsDetails/models/productDetails';
+import { getMainCategories } from '@/mainCategories/mainCategories-service';
+import { getCategoriesByMainCategoryId } from '@/categories/services/categories-service';
 
 type ProductForm = AddProductRequest & Omit<CreateProductDetails, "product_id">
 
@@ -254,6 +304,9 @@ const emit = defineEmits<{
   submit: [value: ProductForm]
 }>()
 
+const mainCategoryId = ref<number | null>(null)
+const categoryId = ref<number | null>(null)
+
 const base64Images = reactive<File[] | null[]>([null, null, null, null,])
 const hexCodes = ref<string[]>([])
 const selectedImagesState = ref<"filled" | "empty">("empty")
@@ -262,12 +315,22 @@ const editMode = computed(() => !!props.product)
 const isDisabled = computed(() => !meta.value.valid || selectedImagesState.value == "empty")
 const listParams = ref({
   page: 1,
-  limit: 50,
+  limit: 100,
 })
 
-const subCategories = useQuery({
-  queryKey: ['sub-categories', listParams],
-  queryFn: () => getSubCategories(listParams.value)
+const { data: mainCategories, isPending: mainCategoriesPending} = useQuery({
+  queryKey: ['main-categories', listParams],
+  queryFn: () => getMainCategories(listParams.value)
+})
+const { data: categories, isPending: categoriesPending, refetch: categoriesRefetch} = useQuery({
+  queryKey: ['categories', mainCategoryId],
+  queryFn: () => getCategoriesByMainCategoryId(mainCategoryId.value!),
+  enabled: false
+})
+const { data: subCategories, isPending: subCategoriesPending, refetch: subCategoriesRefetch} = useQuery({
+  queryKey: ['sub-categories', categoryId],
+  queryFn: () => getsubCategoriesByCategoryId(categoryId.value!),
+  enabled: false
 })
 
 const markets = useQuery({
@@ -371,5 +434,18 @@ const handleImage = (imageFile: File | null, state: "filled" | "empty", index?: 
 const handleHexCodes = (passedHexCodes: string[]) => {
   hexCodes.value = passedHexCodes
 }
+
+watchEffect(() => {
+  if (mainCategoryId.value) {
+    categoriesRefetch()
+  }
+})
+
+watchEffect(() => {
+  if (categoryId.value) {
+    subCategoriesRefetch()
+  }
+  
+})
 
 </script>

@@ -24,7 +24,7 @@ const getProduct = (id: number): Promise<Omit<Product , "sub_category_id"> & {ca
   return apiClient.url(`/products/${id}`).get().json()
 }
 
-const postProduct = (body: AddProductRequest): Promise<Product> => {
+const postProduct = (body: AddProductRequest): Promise<List<Product>> => {
   return apiClient
     .addon(formData)
     .url('/products')

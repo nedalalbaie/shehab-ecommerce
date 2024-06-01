@@ -150,9 +150,9 @@ a.router-link-active {
 
   const navRoutes = [
     { title: 'الطلبات', icon: ReceiptIcon, alt: 'Orders', route: '/orders' },
+    { title: 'إدارة الأقساط', icon: mdiAccountMultiple, alt: 'Installment api', route: '/installments' },
     { title: 'الإعلانات', icon: AdsIcon, alt: 'Ads', route: '/ads' },
     { title: 'الزبائن', icon: mdiAccountMultiple, alt: 'Users', route: '/customers' },
-    { title: 'العناوين', icon: mdiLocationEnter, alt: 'Addresses', route: '/addresses' },
     { title: 'الفواتير', icon: mdiTicketPercentOutline, alt: 'bills', route: '/bills' },
     { title: 'الإحصائيات', icon: Statistics, alt: 'statistics', route: '/statistics' },
 ]

@@ -3,6 +3,9 @@ import queryString from 'wretch/addons/queryString'
 import type { Bill } from './models/bill'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import type { List } from '@/core/models/list'
+import type { ChangeOrderBody } from '@/orders/models/status'
+import type { Product } from '@/products/models/product'
+import { alertStore } from '@/core/stores/alert.store'
 
 const getBills = (params: PaginationParams): Promise<List<Bill[]>> => {
   return apiClient
@@ -17,8 +20,30 @@ const getBills = (params: PaginationParams): Promise<List<Bill[]>> => {
     .json()
 }
 
-const cancelBill = (id: number) => {
-  return apiClient.url(`/bills/${id}`).delete().json()
+const getBill = (id: number): Promise<{
+  result: Bill,
+  prodcts: Product []
+}> => {
+  return apiClient.url(`/bills/${id}`).get().json()
 }
 
-export { getBills, cancelBill }
+const cancelBill = (id: number) => {
+  return apiClient.url(`/bills/${id}`).delete().json(() => {
+    alertStore.show({
+      message: 'تم حذف الفاتورة بنجاح',
+      type: 'info'
+    })
+  })
+}
+
+const changeBillStatus = (body: ChangeOrderBody) => {
+  return apiClient.url(`/chnage-status-bill`).post(body).json(() => {
+    alertStore.show({
+      message: 'تم تغيير حالة الفاتورة بنجاح',
+      type: 'info'
+    })
+  })
+}
+
+
+export { getBills, getBill, cancelBill, changeBillStatus }

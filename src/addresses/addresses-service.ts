@@ -17,4 +17,15 @@ const getAddresses = (params: PaginationParams): Promise<List<Address[]>> => {
     .json()
 }
 
-export { getAddresses }
+const getUserAddresses = (userId: number): Promise<Address[]> => {
+  return apiClient
+    .url(`/addresses/${userId}`)
+    .get()
+    .notFound(() => ({
+      data: [],
+      total: 0
+    }))
+    .json()
+}
+
+export { getAddresses, getUserAddresses }

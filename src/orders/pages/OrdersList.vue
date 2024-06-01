@@ -1,10 +1,14 @@
 <template>
   <div>
     <div class="flex items-center justify-between mt-6">
-      <h1 class="text-3xl">
+      <h1 class="text-3xl font-medium">
         الطلبات
-        <span>(20 )</span>
+        <span
+          v-if="orders.data.value && orders.data.value.total > 0"
+          class="bg-gray-200 px-2 rounded-lg text-2xl"
+        >{{ orders.data.value.total }}</span>
       </h1>
+      
       <div class="flex gap-4">
         <button class="bg-sky-200 py-1 px-2 rounded-md">
           قيد المعالجة
@@ -46,9 +50,9 @@
             <p
               class="w-1/2 text-center font-medium"
               :class="{
-                'text-green-600': order.status === STATUS.DELIVERD,
+                // 'text-green-600': order.status === STATUS.DELIVERD,
                 'text-blue-600': order.status === STATUS.PENDING,
-                'text-yellow-600': order.status === STATUS.SHIPPED,
+                'text-yellow-600': order.status === STATUS.SHIPPING,
                 'text-purple-600': order.status === STATUS.CONFIRMED,
                 'text-red-600': order.status === STATUS.CANCELD
               }"
@@ -146,7 +150,7 @@
                   style="padding-block: 1.75rem !important ;"
                 >
                   <v-card-text>
-                    سيتم الغاء هذه الطبية بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الطبية تم الغاؤها.
+                    سيتم الغاء هذه الطلبية بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الطلبية تم الغاؤها.
                   </v-card-text>
 
                   <v-card-actions>

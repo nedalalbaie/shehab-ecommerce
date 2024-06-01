@@ -1,3 +1,6 @@
+import { format } from 'date-fns'
+import { ar } from 'date-fns/locale'
+
 export const formatToDate = (date: string) => {
   return new Date(date).toISOString().split('T')[0]
 }
@@ -16,3 +19,16 @@ export const formatToDatePicker = (dateString: string) => {
   const day = parseInt(parts[2], 10);
   return new Date(year, month, day);
 }
+
+export const formatDate = (date: string | null): string => {
+  return date ? format(new Date(date), 'dd-MM-yyyy') : ''
+}
+
+export const formatDateWithTime = (date: string | null): string => {
+  return date ? format(new Date(date), 'dd-MM-yyyy | hh:mm aaaa', { locale: ar }) : ''
+}
+
+export const formatDateServer = (date: string): string => {
+  return format(new Date(date), 'yyyy-MM-dd')
+}
+

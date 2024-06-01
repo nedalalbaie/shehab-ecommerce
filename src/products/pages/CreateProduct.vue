@@ -38,7 +38,7 @@ const addProduct = useMutation({
     if (productDetails.value) {
      await addProductDetails.mutateAsync({
         ...productDetails.value,
-        product_id: product.id
+        product_id: product.data.id
       })
     }
     router.replace({ name: 'products' })

@@ -20,16 +20,6 @@
           @input="handleSearch"
         />
       </div>
-    
-      <v-btn
-        append-icon=""
-        color="primary"
-        size="large"
-        rounded="xl"
-        variant="elevated"
-      >
-        إضافة منتج
-      </v-btn>
     </div>
 
     <div v-if="!customers.data.value?.data">
@@ -60,6 +50,28 @@
           item-value="id"
           @update:options="onTableOptionsChange({ page: $event.page, limit: $event.itemsPerPage })"
         >
+          <template #[`item.actions`]="{item}">
+            <v-btn
+              :to="{
+                name: 'view-customer',
+                params: { id: item.id },
+              }"
+              variant="tonal"
+              class="mx-1"
+              density="comfortable"
+              icon
+              color="primary"
+            >
+              <v-icon :icon="mdiEye" />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                عرض
+              </v-tooltip>
+            </v-btn>
+          </template>
+
           <template #[`item.status`]="{ value, item, index }">
             <v-chip
               :color="getStatusColor(value)"
@@ -164,6 +176,7 @@ import EmptyData from "@/core/components/EmptyData.vue";
 import {
     mdiCheck,
     mdiCancel,
+    mdiEye
   } from '@mdi/js'
 import type { BaseStatus } from "@/core/models/base-status";
 import {BASE_STATUS} from "@/core/models/base-status"
@@ -173,8 +186,9 @@ const headers = [
   { title: 'إسم الزبون', value: 'name', width: '300px', sortable: false, },
   { title: 'الإيميل الإلكتروني', value: 'email', width: '300px', sortable: false },
   { title: 'رقم الهاتف', value: 'phone_number', width: '300px', sortable: false },
+  { title: 'الإجرائات', key: 'actions', width: '300px', sortable: false },
   { title: 'الحالة', key: 'status', value: 'is_active', width: '300px', sortable: false },
-  { title: 'هل المستخدم موثوق به', key: 'is_trusted', value: 'is_trusted', width: '300px', sortable: false }
+  { title: 'هل المستخدم موثوق به', key: 'is_trusted', value: 'is_trusted', width: '300px', sortable: false },
 ]
 
 const isStatusLoading = ref<boolean []>([])

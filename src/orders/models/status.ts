@@ -1,9 +1,14 @@
 export const STATUS = {
-    PENDING: "pending",
-    CONFIRMED: "confirmed",
-    SHIPPED: "shipped",
-    DELIVERD: "deliverd",
-    CANCELD: "canceled",
+  PENDING: 'pending',
+  CONFIRMED: 'confirmed',
+  SHIPPING: 'shipping',
+  // DELIVERD: "deliverd",
+  CANCELD: 'canceled'
 } as const
 
-export type OrderStatus = typeof STATUS
+export type OrderStatus = (typeof STATUS)[keyof typeof STATUS]
+
+export type ChangeOrderBody = {
+  order_number: number
+  new_status: OrderStatus
+}

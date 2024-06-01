@@ -10,4 +10,11 @@ type Address = {
 
 type CreateAddress = Omit<Address, 'id' | 'created_at'>
 
-export type { Address, CreateAddress }
+type EditAddressBody = {
+  address_name: string
+  city: string
+  neighbourhood: string
+  description: string
+}
+
+export type { Address, CreateAddress, EditAddressBody }
