@@ -32,7 +32,7 @@ const addInstallemntMutation = useMutation({
   mutationFn: postInstallment,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['installments'] })
-    router.replace('installments')
+    router.replace({name: 'installments'})
   },
   onError: (error) => {
     console.log(error)

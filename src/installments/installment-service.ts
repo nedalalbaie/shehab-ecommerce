@@ -9,7 +9,7 @@ import type { Installment } from './models/installment'
 const getInstallments = (params: PaginationParams): Promise<List<Installment[]>> => {
   return apiClient
     .addon(queryString)
-    .url('/Installment')
+    .url('/installments')
     .query(params)
     .get()
     .notFound(() => ({
@@ -22,12 +22,12 @@ const getInstallments = (params: PaginationParams): Promise<List<Installment[]>>
 const postInstallment = (body: Omit<Installment , 'id'>): Promise<Installment> => {
   return apiClient
     .addon(formData)
-    .url('/Installment')
+    .url('/installments')
     .formData(body)
     .post()
     .json((res) => {
       alertStore.show({
-        message: 'تم إضافة الإستحقاق بنجاح',
+        message: 'تم إضافة القسط بنجاح',
         type: 'success'
       })
       return res
@@ -35,9 +35,9 @@ const postInstallment = (body: Omit<Installment , 'id'>): Promise<Installment> =
 }
 
 const deleteInstallment = (id: number) => {
-  return apiClient.url(`/Installments/${id}`).delete().json( ()=> {
+  return apiClient.url(`/installments/${id}`).delete().json( ()=> {
     alertStore.show({
-      message: 'تم حذف الإستحقاق بنجاح',
+      message: 'تم حذف القسط بنجاح',
       type: 'info'
     })
   })

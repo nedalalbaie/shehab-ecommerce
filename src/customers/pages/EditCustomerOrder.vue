@@ -345,7 +345,16 @@ const onRemoveProduct = (index: number, id: number) => {
 }
 
 const total = computed(() => {
-  return priceInputs.value.reduce((acc, price) => Number(acc) + Number(price), 0)
+  let total = 0
+  console.log("her ejee");
+  priceInputs.value.forEach((price, index) => {
+     
+     
+  });
+
+  return total
+
+  // return priceInputs.value.reduce((acc, price, currentIndex) => Number(acc) + Number(price * quantityInputs.value[currentIndex]), 0)
 })
 
 const submit = handleSubmit((values) => {
@@ -376,4 +385,6 @@ const onAddProductToOrder = (product: Product) => {
   productCodes.value.push(product.product_code)
   products.value.push(product)
 }
+
+
 </script>
