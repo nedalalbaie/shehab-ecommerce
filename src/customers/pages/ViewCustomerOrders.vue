@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-btn
-      :to="{ name: 'view-customer', params: { id: id } }"
+      :to="{ name: 'view-customer', params: { customerId: id } }"
       variant="outlined"
       color="primary"
       size="large"
@@ -123,7 +123,7 @@
               variant="elevated"
               color="primary"
               type="submit"
-              :to="{ name: 'view-customer-order', params: { id: order.id } }"
+              :to="{ name: 'view-customer-order', params: { orderId: order.id } }"
             >
               عرض
               <template #prepend>
@@ -197,8 +197,8 @@ import { mdiArrowRight } from "@mdi/js";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
-  const id = Number(route.params.id);
-
+  const id = Number(route.params.customerId);
+console.log(id)
   const { data: orders} = useQuery({
     queryKey: ['orders', id],
     queryFn: () => getOrderByCustomerId(id)

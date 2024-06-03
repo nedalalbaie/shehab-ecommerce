@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    :to="{ name: 'view-customer-orders', params: { id: id} }"
+    :to="{ name: 'view-customer-orders', params: { customerId: customerId} }"
     variant="outlined"
     color="primary"
     size="large"
@@ -42,7 +42,7 @@
       </v-btn>
 
       <v-btn
-        :to="{ name: 'edit-customer-order', params: { id: orderDetails.order_details.id } }"
+        :to="{ name: 'edit-customer-order', params: { orderId: orderDetails.order_details.id } }"
         size="large"
         rounded="xl"
         variant="elevated"
@@ -174,7 +174,12 @@ import { formatDateWithTime } from '@/core/helpers/format-date'
 import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
 
 const route = useRoute()
-const id = Number(route.params.id)
+const orderId = Number(route.params.orderId)
+const customerId = Number(route.params.customerId)
+
+console.log('Order id : ', orderId);
+console.log('Customer id : ', customerId);
+
 
 const {
   data: orderDetails,
@@ -182,7 +187,7 @@ const {
   isError
 } = useQuery({
   queryKey: ['orderDetails'],
-  queryFn: () => getOrder(id)
+  queryFn: () => getOrder(orderId)
 })
 
 const convertToObject = (hexCodesParam: string) => {

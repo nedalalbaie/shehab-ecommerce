@@ -54,7 +54,7 @@
             <v-btn
               :to="{
                 name: 'view-customer',
-                params: { id: item.id },
+                params: { customerId: item.id },
               }"
               variant="tonal"
               class="mx-1"

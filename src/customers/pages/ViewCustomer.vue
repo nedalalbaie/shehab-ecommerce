@@ -15,7 +15,7 @@
     v-else-if="isError"
     type="error"
     class="my-6"
-    title="خطأ في الوصول الى الموظفين"
+    title="خطأ في الوصول الى بيانات الزبون"
     text="الرجاء اعادة المحاولة مرة أخرى."
   />
 
@@ -41,7 +41,7 @@
         variant="elevated"
         color="primary"
         type="submit"
-        :to="{ name: 'view-customer-bills', params: { id: customer.id } }"
+        :to="{ name: 'view-customer-bills', params: { customerId: customer.id } }"
       >
         عرض الفواتير
         <template #prepend>
@@ -54,7 +54,7 @@
         variant="elevated"
         color="primary"
         type="submit"
-        :to="{ name: 'view-customer-orders', params: { id: customer.id } }"
+        :to="{ name: 'view-customer-orders', params: { customerId: customer.id } }"
       >
         عرض الطلبات
         <template #prepend>
@@ -167,7 +167,7 @@ import { getUserAddresses } from '@/addresses/addresses-service';
 import ViewIcon from '@/core/components/icons/ViewIcon.vue';
 
 const route = useRoute();
-const id = Number(route.params.id);
+const id = Number(route.params.customerId);
 
 const { data: customer, isPending, isError } = useQuery({
     queryKey: ['customer'],

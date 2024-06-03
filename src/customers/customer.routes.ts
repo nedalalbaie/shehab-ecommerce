@@ -7,7 +7,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('./pages/CustomersList.vue')
   },
   {
-    path: ':id',
+    path: ':customerId',
     children: [
       {
         path: '',
@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
             component: () => import('./pages/ViewCustomerOrders.vue')
           },
           {
-            path: ':id',
+            path: ':orderId',
             children: [
               {
                 path: '',

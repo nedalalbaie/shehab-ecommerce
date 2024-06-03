@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    :to="{ name: 'view-customer-order', params: { id: id } }"
+    :to="{ name: 'view-customer-order', params: { orderId: id } }"
     variant="outlined"
     color="primary"
     size="large"
@@ -263,7 +263,7 @@ const addProducteDialog = ref({
 })
 
 const route = useRoute()
-const id = Number(route.params.id)
+const id = Number(route.params.orderId)
 
 const { data: orderDetails } = useQuery({
   queryKey: ['orderDetails'],
