@@ -21,7 +21,7 @@
         <div
           v-for="(product, index) in products"
           :key="product.id"
-          class="grid grid-cols-3 items-start"
+          class="grid grid-cols-4 items-start"
         >
           <p class="border-b-2 border-neutral-600 pb-1 w-fit">
             {{ product.name }}
@@ -37,8 +37,10 @@
             @input="convertQuantityToNumber(index)"
           />
 
+          <div />
+
           <div class="flex items-start gap-6">
-            <v-text-field
+            <!-- <v-text-field
               v-model="priceInputs[index]"
               class="w-32"
               label="السعر"
@@ -46,7 +48,11 @@
               variant="outlined"
               color="primary"
               placeholder="السعر"
-            />
+            /> -->
+
+            <p>
+              {{ product.price }}
+            </p>
 
             <v-dialog width="500">
               <template #activator="{ props }">
@@ -100,7 +106,10 @@
           </v-btn>
         </div>
 
-        <v-dialog v-model="addProducteDialog.open">
+        <v-dialog
+          v-model="addProducteDialog.open"
+          class="w-3/4 p-6"
+        >
           <v-card>
             <v-card-title>إضافة منتج للطلب</v-card-title>
 
@@ -339,12 +348,11 @@ const onRemoveProduct = (index: number, id: number) => {
   quantityInputs.value.splice(index, 1)
   priceInputs.value.splice(index, 1)
   productCodes.value.splice(index, 1)
-  
 }
 
 const total = computed(() => {
-    return priceInputs.value.reduce((acc, price) => Number(acc) + Number(price), 0);
-});
+   return products.value.reduce((acc, product, currentIndex) => acc + (product.price * (quantityInputs.value[currentIndex] ?? 0)), 0)
+})
 
 const submit  = handleSubmit(values => {
 

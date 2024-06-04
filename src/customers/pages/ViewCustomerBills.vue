@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-btn
-      :to="{ name: 'view-customer' }"
+      :to="{ name: 'view-customer', params: { customerId: customerId} }"
       variant="outlined"
       color="primary"
       size="large"
@@ -195,11 +195,11 @@
 import { mdiArrowRight } from "@mdi/js";
   
   const route = useRoute();
-  const id = Number(route.params.id);
+  const customerId = Number(route.params.customerId);
   
   const { data: bills} = useQuery({
-    queryKey: ['customer-bills', id],
-    queryFn: () => getBillByCustomerId(id)
+    queryKey: ['customer-bills', customerId],
+    queryFn: () => getBillByCustomerId(customerId)
   })
   
   const queryClient = useQueryClient()

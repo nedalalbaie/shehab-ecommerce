@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-btn
-      :to="{ name: 'view-customer', params: { customerId: id } }"
+      :to="{ name: 'view-customer', params: { customerId: customerId } }"
       variant="outlined"
       color="primary"
       size="large"
@@ -90,7 +90,7 @@
               عدد العناصر
             </p>
             <p class="w-1/2 text-center">
-              5
+              {{ quantityTotal(order.quantity_selected) }}
             </p>
           </div>
           <div class="mt-4 flex items-center border-b border-gray-700">
@@ -123,7 +123,7 @@
               variant="elevated"
               color="primary"
               type="submit"
-              :to="{ name: 'view-customer-order', params: { orderId: order.id } }"
+              :to="{ name: 'view-customer-order', params: { customerId, orderId: order.id } }"
             >
               عرض
               <template #prepend>
@@ -193,15 +193,20 @@
   import { checkStatus } from "@/core/helpers/check-status"
   import LoadingOrders from "@/orders/components/LoadingOrders.vue";
   import EmptyData from "@/core/components/EmptyData.vue";
-import { mdiArrowRight } from "@mdi/js";
-import { useRoute } from "vue-router";
+  import { mdiArrowRight } from "@mdi/js";
+  import { useRoute } from "vue-router";
+  import { computed } from "vue";
 
-const route = useRoute();
-  const id = Number(route.params.customerId);
-console.log(id)
+  const quantityTotal = (quantites: number[]) => (
+     quantites.reduce((acc, quantity) => acc + quantity  )
+  )
+
+  const route = useRoute();
+  const customerId = Number(route.params.customerId);
+
   const { data: orders} = useQuery({
-    queryKey: ['orders', id],
-    queryFn: () => getOrderByCustomerId(id)
+    queryKey: ['orders', customerId],
+    queryFn: () => getOrderByCustomerId(customerId)
   })
   
   const queryClient = useQueryClient()

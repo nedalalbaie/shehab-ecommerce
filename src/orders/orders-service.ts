@@ -56,7 +56,7 @@ const cancelOrder = (id: number) => {
 const changeOrderStatus = (body: ChangeOrderBody) => {
   return apiClient.url(`/chnage-order-status`).post(body).json(() => {
     alertStore.show({
-      message: 'تم تغيير حالة الزبون بنجاح',
+      message: 'تم تغيير حالة الطلب بنجاح',
       type: 'info'
     })
   })

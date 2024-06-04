@@ -27,7 +27,17 @@
       v-if="orderDetails.order_details.status != STATUS.CANCELD"
       class="flex gap-4"
     >
-      <v-btn
+      <v-select
+        v-model="status"
+        class="w-60"
+        placeholder="تغيير حالة الطلب"
+        density="compact"
+        :items="statusOptions"
+        item-title="label"
+        item-value="value"
+      />
+
+      <!-- <v-btn
         size="large"
         rounded="xl"
         variant="elevated"
@@ -38,7 +48,7 @@
         <template #prepend>
           <v-icon :icon="mdiCheck" />
         </template>
-      </v-btn>
+      </v-btn> -->
 
       <v-btn
         :to="{ name: 'edit-order', params: { id: orderDetails.order_details.id } }"
@@ -168,11 +178,13 @@ import {
   mdiPencil,
   mdiCheck
 } from '@mdi/js'
-import { STATUS, type OrderStatus } from "../models/status";
+import { STATUS, statusOptions, type OrderStatus } from "../models/status";
 import { checkStatus } from "@/core/helpers/check-status"
 import { formatDateWithTime } from "@/core/helpers/format-date"
 import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
+import { ref, watch } from "vue";
 
+const status = ref<OrderStatus>()
 const route = useRoute();
 const id = Number(route.params.id);
 
@@ -193,7 +205,7 @@ const queryClient = useQueryClient()
 const cancelOrderMutation = useMutation({
   mutationFn: cancelOrder,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['orders'] })
+    queryClient.invalidateQueries({ queryKey: ['orderDetails'] })
   },
   onError: (error) => {
     console.log(error)
@@ -203,7 +215,7 @@ const cancelOrderMutation = useMutation({
 const changeOrderStatusMutation = useMutation({
   mutationFn: changeOrderStatus,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['orders'] })
+    queryClient.invalidateQueries({ queryKey: ['orderDetails'] })
   },
   onError: (error) => {
     console.log(error)
@@ -217,5 +229,14 @@ const onCancelOrder = (id: number) => {
 const onchangeOrderStatus = (order_number: number, new_status: OrderStatus) => {
   changeOrderStatusMutation.mutate({order_number: order_number, new_status: new_status })
 }
+
+watch(
+  status ,
+  (orderStatus) => {
+    if (orderDetails.value) {
+      onchangeOrderStatus(orderDetails.value.order_details.order_number, orderStatus!)
+    }
+  }
+)
 
 </script>

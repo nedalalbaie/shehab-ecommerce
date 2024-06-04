@@ -81,7 +81,7 @@
               عدد العناصر
             </p>
             <p class="w-1/2 text-center">
-              5
+              {{ quantityTotal(order.quantity_selected) }}
             </p>
           </div>
           <div class="mt-4 flex items-center border-b border-gray-700">
@@ -223,5 +223,9 @@ const formatToDate = (date: string) => {
     return dateObject.toLocaleDateString();
   }
 }
+
+const quantityTotal = (quantites: number[]) => (
+     quantites.reduce((acc, quantity) => acc + quantity)
+  )
 
 </script>

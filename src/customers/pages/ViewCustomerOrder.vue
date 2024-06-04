@@ -28,21 +28,18 @@
       v-if="orderDetails.order_details.status != STATUS.CANCELD"
       class="flex gap-4"
     >
-      <v-btn
-        size="large"
-        rounded="xl"
-        variant="elevated"
-        color="#004C6B"
-        @click="onchangeOrderStatus(orderDetails.order_details.order_number, STATUS.CONFIRMED)"
-      >
-        قبول
-        <template #prepend>
-          <v-icon :icon="mdiCheck" />
-        </template>
-      </v-btn>
+      <v-select
+        v-model="status"
+        class="w-60"
+        placeholder="تغيير حالة الطلب"
+        density="compact"
+        :items="statusOptions"
+        item-title="label"
+        item-value="value"
+      />
 
       <v-btn
-        :to="{ name: 'edit-customer-order', params: { orderId: orderDetails.order_details.id } }"
+        :to="{ name: 'edit-customer-order', params: { customerId, orderId: orderDetails.order_details.id } }"
         size="large"
         rounded="xl"
         variant="elevated"
@@ -167,19 +164,17 @@ import { cancelOrder, changeOrderStatus, getOrder } from '@/orders/orders-servic
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useRoute } from 'vue-router'
 import OrderDetails from '@/orders/components/OrderDetails.vue'
-import { mdiArrowRight, mdiPencil, mdiCheck } from '@mdi/js'
-import { STATUS, type OrderStatus } from '@/orders/models/status'
+import { mdiArrowRight, mdiPencil } from '@mdi/js'
+import { STATUS, statusOptions, type OrderStatus } from '@/orders/models/status'
 import { checkStatus } from '@/core/helpers/check-status'
 import { formatDateWithTime } from '@/core/helpers/format-date'
 import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
+import { ref, watch } from 'vue'
 
+const status = ref<OrderStatus>()
 const route = useRoute()
 const orderId = Number(route.params.orderId)
 const customerId = Number(route.params.customerId)
-
-console.log('Order id : ', orderId);
-console.log('Customer id : ', customerId);
-
 
 const {
   data: orderDetails,
@@ -212,7 +207,7 @@ const cancelOrderMutation = useMutation({
 const changeOrderStatusMutation = useMutation({
   mutationFn: changeOrderStatus,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['orders'] })
+    queryClient.invalidateQueries({ queryKey: ['orderDetails'] })
   },
   onError: (error) => {
     console.log(error)
@@ -226,4 +221,14 @@ const onCancelOrder = (id: number) => {
 const onchangeOrderStatus = (order_number: number, new_status: OrderStatus) => {
   changeOrderStatusMutation.mutate({ order_number: order_number, new_status: new_status })
 }
+
+watch(
+  status ,
+  (orderStatus) => {
+    if (orderDetails.value) {
+      onchangeOrderStatus(orderDetails.value.order_details.order_number, orderStatus!)
+    }
+  }
+)
+
 </script>

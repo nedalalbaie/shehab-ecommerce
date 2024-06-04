@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    :to="{ name: 'view-customer-order', params: { orderId: id } }"
+    :to="{ name: 'view-customer-order', params: { customerId, orderId: orderId } }"
     variant="outlined"
     color="primary"
     size="large"
@@ -21,7 +21,7 @@
         <div
           v-for="(product, index) in products"
           :key="product.id"
-          class="grid grid-cols-3 items-start"
+          class="grid grid-cols-4 items-start"
         >
           <p class="border-b-2 border-neutral-600 pb-1 w-fit">
             {{ product.name }}
@@ -37,16 +37,12 @@
             @input="convertQuantityToNumber(index)"
           />
 
+          <div />
+
           <div class="flex items-start gap-6">
-            <v-text-field
-              v-model="priceInputs[index]"
-              class="w-32"
-              label="السعر"
-              type="number"
-              variant="outlined"
-              color="primary"
-              placeholder="السعر"
-            />
+            <p>
+              {{ product.price }}
+            </p>
 
             <v-dialog width="500">
               <template #activator="{ props }">
@@ -104,7 +100,10 @@
           </v-btn>
         </div>
 
-        <v-dialog v-model="addProducteDialog.open">
+        <v-dialog
+          v-model="addProducteDialog.open"
+          class="w-3/4 p-6"
+        >
           <v-card>
             <v-card-title>إضافة منتج للطلب</v-card-title>
 
@@ -263,11 +262,12 @@ const addProducteDialog = ref({
 })
 
 const route = useRoute()
-const id = Number(route.params.orderId)
+const customerId = Number(route.params.customerId)
+const orderId = Number(route.params.orderId)
 
 const { data: orderDetails } = useQuery({
   queryKey: ['orderDetails'],
-  queryFn: () => getOrder(id)
+  queryFn: () => getOrder(orderId)
 })
 
 const { data: productsList, isPending } = useQuery({
@@ -277,7 +277,7 @@ const { data: productsList, isPending } = useQuery({
 
 const queryClient = useQueryClient()
 const patchOrderMutation = useMutation({
-  mutationFn: ({ id, body }: { id: number; body: PatchOrderRequest }) => patchOrder(id, body),
+  mutationFn: ({ orderId, body }: { orderId: number; body: PatchOrderRequest }) => patchOrder(orderId, body),
   onSuccess: () => {
     router.replace({ name: 'view-customer-order' })
     queryClient.invalidateQueries({ queryKey: ['orderDetails'] })
@@ -345,16 +345,7 @@ const onRemoveProduct = (index: number, id: number) => {
 }
 
 const total = computed(() => {
-  let total = 0
-  console.log("her ejee");
-  priceInputs.value.forEach((price, index) => {
-     
-     
-  });
-
-  return total
-
-  // return priceInputs.value.reduce((acc, price, currentIndex) => Number(acc) + Number(price * quantityInputs.value[currentIndex]), 0)
+   return products.value.reduce((acc, product, currentIndex) => acc + (product.price * (quantityInputs.value[currentIndex] ?? 0)), 0)
 })
 
 const submit = handleSubmit((values) => {
@@ -366,7 +357,7 @@ const submit = handleSubmit((values) => {
     color_selected: JSON.stringify(color_selected.value)
   }
 
-  patchOrderMutation.mutate({ body, id })
+  patchOrderMutation.mutate({ body, orderId })
 })
 
 const convertToNumber = () => {
