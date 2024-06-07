@@ -22,7 +22,7 @@ const addCategory = (body: AddCategoryRequest): Promise<Category> => {
     .post()
     .json((res) => {
       alertStore.show({
-        message: 'تم إضافة التصنيف الثانوي بنجاح',
+        message: 'تم إضافة التصنيف بنجاح',
         type: 'success'
       })
       return res
@@ -40,7 +40,7 @@ const editCategory = (id: number, body: EditCategoryRequest): Promise<Category> 
     .post()
     .json((res) => {
       alertStore.show({
-        message: 'تم تعديل التصنيف الثانوي بنجاح',
+        message: 'تم تعديل التصنيف بنجاح',
         type: 'success'
       })
       return res
@@ -53,7 +53,7 @@ const deleteCategory = (id: number) => {
     .delete()
     .json(() => {
       alertStore.show({
-        message: 'تم حذف التصنيف الثانوي بنجاح',
+        message: 'تم حذف التصنيف بنجاح',
         type: 'info'
       })
     })

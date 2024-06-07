@@ -120,7 +120,6 @@ a.router-link-active {
   import AdsIcon from "./icons/AdsIcon.vue"
   import Statistics from "./icons/StatisticsIcon.vue"
   import DiscountIcon from "./icons/DiscountIcon.vue"
-  import SubCategoryIcon from "./icons/SubCategoryIcon.vue"
   import { ref } from "vue";
   import { useDisplay, useTheme } from "vuetify";
   import themeStore from "../stores/theme-store";
@@ -139,6 +138,7 @@ a.router-link-active {
   };
 
   const navRoutes = [
+    { title: 'التصنيفات', icon: CategoryIcon, alt: 'Categories',  route: '/categories' },
     { title: 'إدارة الأقساط', icon: mdiAccountMultiple, alt: 'Installment', route: '/installments' },
     { title: 'الطلبات', icon: ReceiptIcon, alt: 'Orders', route: '/orders' },
     { title: 'الفواتير', icon: mdiTicketPercentOutline, alt: 'bills', route: '/bills' },
@@ -153,11 +153,11 @@ a.router-link-active {
       { title: 'تفاصيل المنتجات', icon: ProductIcon, alt: 'Products Details', route: '/productsDetails' },
   ]
 
-  const categoriesRoutes = [
-    { title: 'الأساسية', icon: CategoryIcon, alt: 'MainCategories',  route: '/mainCategories' },
-    { title: 'الثانوية', icon: CategoryIcon, alt: 'Categories',  route: '/categories' },
-    { title: ' الفرعية', icon: SubCategoryIcon, alt: 'Sub Categories',  route: '/subCategories' },
-  ]
+  // const categoriesRoutes = [
+  //   { title: 'الأساسية', icon: CategoryIcon, alt: 'MainCategories',  route: '/mainCategories' },
+   
+  //   { title: ' الفرعية', icon: SubCategoryIcon, alt: 'Sub Categories',  route: '/subCategories' },
+  // ]
 
   const promotionsRoutes = [
       { title: 'الكوبونات', icon: mdiTicketPercentOutline, alt: 'coupons', route: '/coupons' },
@@ -228,7 +228,7 @@ a.router-link-active {
           </v-list-item>
         </v-list-group>
 
-        <v-list-group>
+        <!-- <v-list-group>
           <template #activator="{ props }">
             <v-list-item
               v-bind="props"
@@ -254,7 +254,7 @@ a.router-link-active {
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </div>
           </v-list-item>
-        </v-list-group>
+        </v-list-group> -->
 
         <v-list-group>
           <template #activator="{ props }">
@@ -285,13 +285,13 @@ a.router-link-active {
         <div
           v-for="(item, i) in navRoutes" 
           :key="i"
+          class="mt-1"
         >
           <v-list-item
             :value="item"
             color="primary"
             link
             exact
-            rounded="shaped"
             :to="item.route"
           >
             <template #prepend>

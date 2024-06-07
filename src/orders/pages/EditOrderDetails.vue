@@ -328,7 +328,7 @@ watchEffect(() => {
     })
 
     products.value = [...orderDetails.value.products];
-    productCodes.value = JSON.parse(orderDetails.value.order_details.color_selected) as string[]
+    color_selected.value = JSON.parse(orderDetails.value.order_details.color_selected) as string[]
 
     quantityInputs.value = [...orderDetails.value.order_details.quantity_selected]
 

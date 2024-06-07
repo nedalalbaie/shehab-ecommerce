@@ -31,8 +31,10 @@
       <v-select
         v-model="status"
         class="w-60"
+        label="تغيير حالة الطلب"
         placeholder="تغيير حالة الطلب"
-        density="compact"
+        variant="outlined"
+        density="comfortable"
         :items="statusOptions"
         item-title="label"
         item-value="value"
@@ -50,53 +52,6 @@
           <v-icon :icon="mdiPencil" />
         </template>
       </v-btn>
-
-      <v-dialog width="500">
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            size="large"
-            rounded="xl"
-            variant="elevated"
-            color="error"
-            type="submit"
-          >
-            إلغاء الطلبية
-            <template #prepend>
-              <DeleteIcon fill="fill-white" />
-            </template>
-          </v-btn>
-        </template>
-
-        <template #default="{ isActive }">
-          <v-card
-            :title="dialogQuestion(orderDetails.order_details.order_number as number)"
-            rounded="lg"
-            color="#EFE9F5"
-            style="padding-block: 1.75rem !important "
-          >
-            <v-card-text>
-              سيتم الغاء هذه الطبية بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الطبية تم الغاؤها.
-            </v-card-text>
-
-            <v-card-actions>
-              <v-spacer />
-
-              <v-btn
-                text="لا"
-                @click="isActive.value = false"
-              />
-              <v-btn
-                text="نعم"
-                @click="
-                  isActive.value = false;
-                  onCancelOrder(orderDetails.order_details.id as number)
-                "
-              />
-            </v-card-actions>
-          </v-card>
-        </template>
-      </v-dialog>
     </div>
   </div>
 
@@ -150,7 +105,10 @@
           <p>الإجمالي :</p>
           <p>{{ orderDetails.order_details.total_price }} د.ل</p>
         </div>
-        <div class="flex justify-between mt-2">
+        <div
+          v-if="orderDetails.order_details.payment_method !== 'cash' "
+          class="flex justify-between mt-2"
+        >
           <p>متأخرات سداد الديون :</p>
           <p>{{ orderDetails.order_details.paid_due_value }} د.ل</p>
         </div>
@@ -160,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { cancelOrder, changeOrderStatus, getOrder } from '@/orders/orders-service'
+import { changeOrderStatus, getOrder } from '@/orders/orders-service'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useRoute } from 'vue-router'
 import OrderDetails from '@/orders/components/OrderDetails.vue'
@@ -168,10 +126,11 @@ import { mdiArrowRight, mdiPencil } from '@mdi/js'
 import { STATUS, statusOptions, type OrderStatus } from '@/orders/models/status'
 import { checkStatus } from '@/core/helpers/check-status'
 import { formatDateWithTime } from '@/core/helpers/format-date'
-import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, watchEffect } from 'vue'
 
 const status = ref<OrderStatus>()
+let statusCounter = 0
+
 const route = useRoute()
 const orderId = Number(route.params.orderId)
 const customerId = Number(route.params.customerId)
@@ -189,20 +148,7 @@ const convertToObject = (hexCodesParam: string) => {
   return JSON.parse(hexCodesParam) as string[]
 }
 
-const dialogQuestion = (productCode: number) => {
-  return `إلغاء الطلبية ${productCode}# ?`
-}
-
 const queryClient = useQueryClient()
-const cancelOrderMutation = useMutation({
-  mutationFn: cancelOrder,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['orders'] })
-  },
-  onError: (error) => {
-    console.log(error)
-  }
-})
 
 const changeOrderStatusMutation = useMutation({
   mutationFn: changeOrderStatus,
@@ -214,20 +160,25 @@ const changeOrderStatusMutation = useMutation({
   }
 })
 
-const onCancelOrder = (id: number) => {
-  cancelOrderMutation.mutate(id)
-}
-
 const onchangeOrderStatus = (order_number: number, new_status: OrderStatus) => {
   changeOrderStatusMutation.mutate({ order_number: order_number, new_status: new_status })
 }
 
+watchEffect(() => {
+  if (orderDetails.value) { 
+    status.value = orderDetails.value.order_details.status
+  } 
+})
+
 watch(
   status ,
   (orderStatus) => {
-    if (orderDetails.value) {
-      onchangeOrderStatus(orderDetails.value.order_details.order_number, orderStatus!)
-    }
+    if ( statusCounter === 1) {
+      if (orderDetails.value) {
+        onchangeOrderStatus(orderDetails.value.order_details.order_number, orderStatus!)
+      }
+    } else 
+    statusCounter++
   }
 )
 

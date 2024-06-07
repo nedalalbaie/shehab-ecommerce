@@ -320,10 +320,9 @@ watchEffect(() => {
       total_price_with_copupon: orderDetails.value.order_details.total_price_with_copupon,
       debt_ratio: orderDetails.value.order_details.debt_ratio
     })
-
+  
     products.value = [...orderDetails.value.products]
-    productCodes.value = JSON.parse(orderDetails.value.order_details.color_selected) as string[]
-
+    color_selected.value = JSON.parse(orderDetails.value.order_details.color_selected) as string[]
     quantityInputs.value = [...orderDetails.value.order_details.quantity_selected]
 
     orderDetails.value.products.forEach((product) => {

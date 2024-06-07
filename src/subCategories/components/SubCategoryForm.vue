@@ -19,30 +19,6 @@
         placeholder="التفاصيل"
         :error-messages="errors.description"
       />
-
-      <v-autocomplete
-        v-model="cat_id"
-        :hide-no-data="false"
-        item-title="name"
-        item-value="id"
-        :items="categories.data.value"
-        :loading="props.isLoading"
-        hide-selected
-        label="التصنيفات"
-        placeholder="التصنيفات"
-        variant="outlined"
-        color="primary"
-        auto-select-first
-        :error-messages="errors.cat_id"
-      >
-        <template #no-data>
-          <v-list-item>
-            <v-list-item-title>
-              لا توجد نتائج
-            </v-list-item-title>
-          </v-list-item>
-        </template>
-      </v-autocomplete>
     </div>
 
     <div>
@@ -110,18 +86,6 @@ const { handleSubmit, errors, meta, setValues } = useForm({
 
 const { value: name } = useField<string>('name')
 const { value: description } = useField<string>('description')
-const { value: cat_id } = useField<number>('cat_id')
-
-const listParams = ref({
-  page: 1,
-  limit: 50,
-})
-const categories = useQuery({
-  queryKey: ['categories', listParams],
-  queryFn: () => getCategories(listParams.value),
-  select: (response) => response.data
-})
-
 watchEffect(() => {
   if (props.subCategory) {
     setValues({

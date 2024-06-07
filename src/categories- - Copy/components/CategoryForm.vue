@@ -19,6 +19,30 @@
         placeholder="التفاصيل"
         :error-messages="errors.description"
       />
+
+      <v-autocomplete
+        v-model="cat_zero_id"
+        :hide-no-data="false"
+        item-title="name"
+        item-value="id"
+        :items="mainCategories.data.value"
+        :loading="props.isLoading"
+        hide-selected
+        label="التصنيفات الأساسية"
+        placeholder="التصنيفات الأساسية"
+        variant="outlined"
+        color="primary"
+        auto-select-first
+        :error-messages="errors.cat_zero_id"
+      >
+        <template #no-data>
+          <v-list-item>
+            <v-list-item-title>
+              لا توجد نتائج
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+      </v-autocomplete>
     </div>
 
     <div>
@@ -34,17 +58,7 @@
       </div>
     </div>
 
-    <div class="mt-6 flex gap-4">
-      <v-btn
-        color="error"
-        size="large"
-        variant="elevated"
-        type="button"
-        @click="emit('close-dialog')"
-      >
-        الغاء
-      </v-btn>
-
+    <div class="mt-6">
       <v-btn
         :disabled="isDisabled"
         size="large"
@@ -67,15 +81,17 @@ import type { AddCategoryRequest, Category } from "../models/Category"
 import { computed, ref, watchEffect } from "vue"
 import ImageUpload from "@/core/components/ImageUpload.vue"
 import { pathToFile } from '@/core/helpers/pathToFile'
+import { useQuery } from '@tanstack/vue-query'
+import { getMainCategories } from '@/mainCategories/mainCategories-service'
+
+type CategoryForm = AddCategoryRequest
 
 const props = defineProps<{
   isLoading: boolean,
-  category?: Category,
-  mainCategoryId: number
+  category?: Category
 }>()
 const emit = defineEmits<{
-  submit: [value: AddCategoryRequest]
-  'close-dialog': []
+  submit: [value: CategoryForm]
 }>()
 
 const imageFile = ref<File | null>(null)
@@ -87,19 +103,27 @@ const validationSchema = toTypedSchema(
   object({
     name: editMode.value ? string() : string().min(1, 'يجب إدخال إسم التصنيف '),
     description: editMode.value ? string() : string().min(1, 'يجب إدخال التفاصيل  '),
-    cat_zero_id: number()
+    cat_zero_id: number().min(1, 'يجب إدخال التصنيف الأب  '),
   })
 )
 
 const { handleSubmit, errors, meta, setValues } = useForm({
-  validationSchema, 
-  initialValues: {
-    cat_zero_id: props.mainCategoryId
-  }
+  validationSchema
 })
 
 const { value: name } = useField<string>('name')
 const { value: description } = useField<string>('description')
+const { value: cat_zero_id } = useField<number>('cat_zero_id')
+
+const listParams = ref({
+  page: 1,
+  limit: 50,
+})
+const mainCategories = useQuery({
+  queryKey: ['main-categories', listParams],
+  queryFn: () => getMainCategories(listParams.value),
+  select: (response) => response.data
+})
 
 watchEffect(() => {
   if (props.category) {
@@ -121,6 +145,8 @@ watchEffect(() => {
 })
 
 const submit = handleSubmit(values => {
+  console.log(values);
+  
   emit("submit", {
     ...values,
     image_path: imageFile.value as File

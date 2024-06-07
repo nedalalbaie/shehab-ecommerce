@@ -9,10 +9,8 @@ import adsRoutes from '@/ads/ads.routes'
 import customersRoutes from "@/customers/customer.routes"
 import couponsRoutes from '@/coupons/coupons.routes'
 import discountsRoutes from '@/discounts/discounts.routes'
-import subCategoriesRoutes from '@/subCategories/subCategories.routes'
 import billsRoutes from '@/bills/bills.routes'
 import marketsRoutes from '@/markets/markets.routes'
-import mainCategoriesRoutes from '@/mainCategories/routes'
 import productsDetailsRoutes from '@/productsDetails/routes'
 import addressesRoutes  from '@/addresses/routes'
 import installmentsRoutes  from '@/installments/routes'
@@ -45,14 +43,6 @@ const router = createRouter({
         {
           path: 'categories',
           children: categoriesRoutes
-        },
-        {
-          path: 'mainCategories',
-          children: mainCategoriesRoutes
-        },
-        {
-          path: 'subCategories',
-          children: subCategoriesRoutes
         },
         {
           path: 'orders',

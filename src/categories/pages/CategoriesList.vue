@@ -1,13 +1,26 @@
 <template>
+  <CreateCategoryDialog
+    v-if="categoryFormDialog.open"
+    v-model="categoryFormDialog.open"
+    :main-category="categoryFormDialog.mainCategory"
+  />
+
+  <CreateSubCategoryDialog
+    v-if="subCategoryFormDialog.open"
+    v-model="subCategoryFormDialog.open"
+    :category="subCategoryFormDialog.category"
+  />
+
   <div class="min-h-[calc(100vh-80px)] flex flex-col">
     <h1 class="text-3xl font-medium">
-      التصنيفات الثانوية
+      التصنيفات
       <span
-        v-if="categories.data.value?.data.length! > 0"
+        v-if="mainCategories && mainCategories.data.length > 0"
         class="bg-gray-200 px-2 rounded-lg text-2xl"
-      >{{ categories.data.value?.data.length }}</span>
+      >{{ mainCategories.data.length }}</span>
     </h1>
-    <div class="md:flex items-center justify-between mt-6">
+
+    <div class="md:flex items-center justify-between mt-6 mb-4">
       <div class="flex justify-between items-center bg-[#ebf2fc] rounded-xl py-1 px-4 mb-4 md:mb-0">
         <input
           placeholder="إبحث عن تصنيفات"
@@ -18,141 +31,94 @@
       </div>
       <v-btn
         :append-icon="mdiPlus"
-        :to="{ name: 'add-category' }"
+        :to="{ name: 'add-main-category' }"
         color="primary"
         size="large"
         rounded="xl"
         variant="elevated"
       >
-        إضافة تصنيف
+        إضافة تصنيف أساسي
       </v-btn>
     </div>
 
-    <div v-if="!categories.data.value">
-      <LoadingCategories />
+    <div
+      v-if="isPending"
+      class="w-full h-96 flex items-center justify-center"
+    >
+      <v-progress-circular
+        size="50"
+        width="4"
+        indeterminate
+        color="primary"
+      />
     </div>
 
-    <div
-      v-if="categories.data.value"
-      class="mt-8"
-    >
-      <EmptyData v-if="categories.data.value.data.length === 0" />
-      <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-        <div
-          v-for="category in categories.data.value.data"
-          :key="category.id"
-          class="bg-white rounded-lg px-6 py-3 shadow-md"
-        >
-          <div class="flex items-center gap-4">
-            <img
-              class="w-32 h-32 bg-cover rounded-lg my-2 border border-gray-200"
-              :src="`${storage}/${category.image_path}`"
-              alt=""
-            >
-            <div>
-              <p class="text-xl">
-                {{ category.name }}
-              </p>
-              <p>{{ category.description }}</p>
-            </div>
-          </div>
+    <div v-if="categoriesArray">
+      <EmptyData v-if="categoriesArray.length === 0" />
 
-          <div class="h-[1px] w-1/2 bg-gray-300 mx-auto my-1" />
-
-          <div class="flex flex-col md:flex-row justify-end mt-4">
-            <v-btn
-              :to="{ name: 'edit-category', params: { id: category.id } }"
-              variant="tonal"
-              class="mx-1"
-              density="comfortable"
-              icon
-              color="primary"
-            >
-              <v-icon :icon="mdiPencil" />
-              <v-tooltip
-                activator="parent"
-                location="bottom"
-              >
-                تعديل
-              </v-tooltip>
-            </v-btn>
-
-            <v-dialog width="500">
-              <!-- <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  variant="text"
-                  class="mx-1"
-                  density="comfortable"
-                  icon
-                  color="error"
-                >
-                  <v-icon :icon="mdiDelete" />
-                  <v-tooltip
-                    activator="parent"
-                    location="bottom"
-                  >
-                    حذف
-                  </v-tooltip>
-                </v-btn>
-              </template> -->
-  
-              <template #default="{ isActive }">
-                <v-card
-                  :title="dialogQuestion(category.name)"
-                  rounded="lg"
-                  color="#EFE9F5"
-                  style="padding-block: 1.75rem !important ;"
-                >
-                  <v-card-text>
-                    سيتم حذف هذه التصنيف بشكل نهائي .
-                  </v-card-text>
-  
-                  <v-card-actions>
-                    <v-spacer />
-  
-                    <v-btn
-                      text="لا"
-                      @click="isActive.value = false"
-                    />
-                    <v-btn
-                      :disabled="deleteCategoriesMutation.isPending.value"
-                      text="نعم"
-                      @click="isActive.value = false; onDeleteCategories(category.id)"
-                    />
-                  </v-card-actions>
-                </v-card>
-              </template>
-            </v-dialog>
-          </div>
-        </div>
-      </div>
+      <CategoriesCards
+        v-else
+        :categories-array="categoriesArray"
+        @open-category="onOpenCategoryDialog"
+        @open-sub-category="onOpenSubCategoryDialog"
+      />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import SearchIcon from "@/core/components/icons/SearchIcon.vue";
-import type { PaginationParams } from "@/core/models/pagination-params";
-import {
-    mdiPlus, 
-    mdiPencil
-} from '@mdi/js'
-import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
-import { ref } from "vue";
-import { deleteCategory, getCategories } from "../services/categories-service";
-import EmptyData from "@/core/components/EmptyData.vue";
-import LoadingCategories from "../components/LoadingCategories.vue";
+import SearchIcon from '@/core/components/icons/SearchIcon.vue'
+import type { PaginationParams } from '@/core/models/pagination-params'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { deleteCategory, getCategories } from '../services/categories-service'
+import EmptyData from '@/core/components/EmptyData.vue'
+import {  mdiPlus } from '@mdi/js'
+import { computed, ref, watchEffect } from 'vue'
+import { getMainCategories } from '../services/mainCategories-service'
+import { getSubCategories } from '../services/subCategories-service'
+import type { CategoryArray } from '../models/categoriesArray'
+import CategoriesCards from '../components/CategoriesCards.vue'
+import CreateCategoryDialog from '../components/CreateCategoryDialog.vue'
+import type { MainCategory } from '../models/mainCategory'
+import CreateSubCategoryDialog from '../components/CreateSubCategoryDialog.vue'
+import type { Category } from '../models/Category'
 
-const storage = import.meta.env.VITE_API_Storage
+const categoriesArray = ref<CategoryArray []>()
+const isPending = computed(() => !categoriesArray.value)
+
+const categoryFormDialog = ref<{
+  open: boolean;
+  mainCategory: MainCategory | null ;
+}>({
+  open: false,
+  mainCategory: null,
+});
+
+const subCategoryFormDialog = ref<{
+  open: boolean;
+  category: Category | null ;
+}>({
+  open: false,
+  category: null,
+});
 
 const listParams = ref<PaginationParams>({
   page: 1,
-  limit: 10
+  limit: 100
 })
 
-const categories = useQuery({
+const { data: mainCategories } = useQuery({
+  queryKey: ['main-categories', listParams],
+  queryFn: () => getMainCategories(listParams.value)
+})
+
+const { data: categories} = useQuery({
   queryKey: ['categories', listParams],
   queryFn: () => getCategories(listParams.value)
+})
+
+const { data: subCategories} = useQuery({
+  queryKey: ['sub-categories', listParams],
+  queryFn: () => getSubCategories(listParams.value)
 })
 
 const queryClient = useQueryClient()
@@ -173,5 +139,32 @@ const onDeleteCategories = (id: number) => {
 const dialogQuestion = (categoryName: string) => {
   return `حذف تصنيف ${categoryName} ؟`
 }
+
+const onOpenCategoryDialog = (mainCategory: MainCategory) => {
+  categoryFormDialog.value = {
+    open: true,
+    mainCategory: mainCategory
+  }
+}
+
+const onOpenSubCategoryDialog = (category: Category) => {
+  subCategoryFormDialog.value = {
+    open: true,
+    category: category
+  }
+}
+
+watchEffect(() => {
+  if (mainCategories.value && categories.value && subCategories.value) {
+    categoriesArray.value = 
+      mainCategories.value.data.map(mainCategory => ({
+        ...mainCategory, children: categories.value.data.map(category => ({
+          ...category, children : subCategories.value.data.map(subCategory => ({
+            ...subCategory
+          })).filter(subCategory => subCategory.cat_id === category.id)
+        })).filter(category => category.cat_zero_id === mainCategory.id)
+      }))
+  }
+})
 
 </script>

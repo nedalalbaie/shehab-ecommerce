@@ -12,7 +12,6 @@ type AddCategoryRequest = {
   name: string
   description: string
   image_path: File
-  cat_zero_id: number
 }
 
 type EditCategoryRequest = Partial<{
