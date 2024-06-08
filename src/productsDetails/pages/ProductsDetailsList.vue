@@ -220,12 +220,11 @@ const details = useQuery({
 const headers = [
   { title: 'رمز المنتج', value: 'product_info.product_code', width: '300px', sortable: false },
   { title: 'إسم المنتج', value: 'product_info.name', width: '300px', sortable: false },
-  { title: 'سعر المنتج', value: 'product_info.price', width: '250px', sortable: false },
+  { title: 'سعر الشراء', value: 'saller_price', width: '300px', sortable: false },
   { title: 'إسم المحل', value: 'market_info.name', width: '350px', sortable: false },
   { title: 'إسم مالك المحل', value: 'market_info.owner_name', width: '300px', sortable: false },
   { title: 'الكمية', value: 'inventory', width: '300px', sortable: false },
-  { title: 'سعر البيع', value: 'saller_price', width: '300px', sortable: false },
-  // { title: 'الإجرائات', key: 'actions', width: '300px', sortable: false }
+  { title: 'سعر البيع', value: 'product_info.price', width: '250px', sortable: false },
 ]
 
 

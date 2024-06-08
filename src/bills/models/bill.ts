@@ -11,6 +11,8 @@ type Bill = {
   user_id: number
   product_codes: string[]
   created_at: string
+
+  debt_arrears: number
 }
 
 export type { Bill }

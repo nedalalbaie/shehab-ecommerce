@@ -14,6 +14,7 @@ import marketsRoutes from '@/markets/markets.routes'
 import productsDetailsRoutes from '@/productsDetails/routes'
 import addressesRoutes  from '@/addresses/routes'
 import installmentsRoutes  from '@/installments/routes'
+import AppDashboard from '../statistics/AppDashboard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,8 +27,12 @@ const router = createRouter({
     {
       path: '/',
       component: MainLayout,
-      redirect: '/products',
       children: [
+        {
+          path: '',
+          name: 'dashboard',
+          component: AppDashboard
+        },
         {
           path: 'markets',
           children: marketsRoutes

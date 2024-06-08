@@ -41,7 +41,7 @@
           class="bg-white shadow-lg rounded-lg p-4"
         >
           <p class="text-xl text-center">
-            #{{ order.order_number }}
+            {{ order.order_number }}
           </p>
           <div class="mt-4 flex items-center border-b border-gray-700 pb-1">
             <p class="w-1/2">

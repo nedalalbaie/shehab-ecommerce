@@ -76,20 +76,20 @@
           </div>
           <div class="mt-4 flex items-center border-b border-gray-700">
             <p class="w-1/2">
-              التصنيف
+              طريقة البيع
             </p>
             <p class="w-1/2 text-center">
-              سرير
+              {{ product.selling_method == 'package' ? 'بالحزمة' : 'بالقطعة الواحدة' }}
             </p>
           </div>
-          <!-- <div class="mt-4 flex items-center border-b border-gray-700">
+          <div class="mt-4 flex items-center border-b border-gray-700">
             <p class="w-1/2">
-              الجنس
+              القيمة الأدني
             </p>
             <p class="w-1/2 text-center">
-              --
+              {{ product.minimum_quantity }}
             </p>
-          </div> -->
+          </div>
           <div class="mt-4 py-1 flex items-center border-b border-gray-700">
             <p class="w-1/5">
               {{ product.hex_codes.length > 1 ? 'الألوان' : 'اللون' }}

@@ -12,6 +12,7 @@
         clearable
         placeholder="البحث"
         density="compact"
+        @input="handleSearch"
       />
     </div>
     <v-btn
@@ -118,9 +119,10 @@ import { formatToDate } from "@/core/helpers/format-date"
 import DeleteIcon from '@/core/components/icons/DeleteIcon.vue';
 
 const searchValue = ref('');
-const listParams = ref<PaginationParams>({
+const listParams = ref<PaginationParams & { coupon_code: string}>({
   page: 1,
   limit: 10,
+  coupon_code: ''
 })
 
 const coupones = useQuery({
@@ -144,9 +146,9 @@ const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   }
 }
 
-// const handleSearch = debounce(() => {
-//   listParams.value.productName = searchValue.value
-// }, 300)
+const handleSearch = debounce(() => {
+  listParams.value.coupon_code = searchValue.value
+}, 300)
 
 const queryClient = useQueryClient()
 const deleteCouponMutation = useMutation({

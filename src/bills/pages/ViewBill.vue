@@ -59,7 +59,10 @@
           <p>الإجمالي :</p>
           <p> {{ bill.result.total_price }} د.ل</p>
         </div>
-        <div class="flex justify-between mt-2">
+        <div
+          v-if="bill.result.debt_arrears"
+          class="flex justify-between mt-2"
+        >
           <p>متأخرات سداد الديون :</p>
           <!-- <p> {{ orderDetails.order_details.paid_due_value }} د.ل</p> -->
         </div>

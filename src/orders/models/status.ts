@@ -19,10 +19,6 @@ export const statusOptions = [
   {
     label: 'قيد التوصيل',
     value: STATUS.SHIPPING
-  },
-  {
-    label: ' ملغية',
-    value: STATUS.CANCELD
   }
 ]
 

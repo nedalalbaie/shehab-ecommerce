@@ -8,20 +8,8 @@
           class="bg-gray-200 px-2 rounded-lg text-2xl"
         >{{ bills?.total }}</span>
       </h1>
-      <div class="flex gap-4">
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          قيد المعالجة
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          قيد التوصيل
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          تم التوصيل
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          ملغية
-        </button>
-      </div>
+
+      <bills-search-filter />
     </div>
 
     <div v-if="!bills">
@@ -40,7 +28,7 @@
           class="bg-white shadow-lg rounded-lg p-4"
         >
           <p class="text-xl text-center">
-            #{{ bill.bill_number }}
+            {{ bill.bill_number }}
           </p>
           <div class="mt-4 flex items-center border-b border-gray-700 pb-1">
             <p class="w-1/2">
@@ -50,9 +38,9 @@
               class="w-1/2 text-center font-medium"
               :class="{
                 // 'text-green-600': order.status === STATUS.DELIVERD,
-                'text-blue-600': bill.status === STATUS.PENDING,
-                'text-yellow-600': bill.status === STATUS.SHIPPING,
-                'text-purple-600': bill.status === STATUS.CONFIRMED,
+                // 'text-blue-600': bill.status === STATUS.PENDING,
+                // 'text-yellow-600': bill.status === STATUS.SHIPPING,
+                'text-green-600': bill.status === STATUS.ACCEPTED,
                 'text-red-600': bill.status === STATUS.CANCELD
               }"
             >
@@ -80,15 +68,7 @@
               عدد العناصر
             </p>
             <p class="w-1/2 text-center">
-              5
-            </p>
-          </div>
-          <div class="mt-4 flex items-center border-b border-gray-700">
-            <p class="w-1/2">
-              العنوان
-            </p>
-            <p class="w-1/2 text-center">
-              طرابلس
+              {{ quantityTotal(bill.quantity) }}
             </p>
           </div>
           <div class="mt-4 flex items-center border-b border-gray-700">
@@ -161,7 +141,7 @@
                     />
                     <v-btn
                       text="نعم"
-                      @click="isActive.value = false; onCancelOrder(bill.id)"
+                      @click="isActive.value = false; onCancelOrder(bill.bill_number, 'canceled')"
                     />
                   </v-card-actions>
                 </v-card>
@@ -175,16 +155,15 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import { cancelBill, getBills } from "../bill-service"
+import { changeBillStatus, getBills } from "../bill-service"
 import type { PaginationParams } from '@/core/models/pagination-params'
-import { STATUS } from "../models/status"
+import { STATUS, type BillStatus } from "../models/status"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
 import ViewIconVue from "@/core/components/icons/ViewIcon.vue";
-import router from "@/router";
-import { checkStatus } from "@/core/helpers/check-status"
 import LoadingOrders from "@/orders/components/LoadingOrders.vue";
 import EmptyData from "@/core/components/EmptyData.vue";
+import BillsSearchFilter from "../components/BillsSearchFilter.vue";
 
 const listParams = ref<PaginationParams>({
   page: 1,
@@ -198,9 +177,8 @@ const { data: bills} = useQuery({
 
 const queryClient = useQueryClient()
 const cancelOrderMutation = useMutation({
-  mutationFn: cancelBill,
+  mutationFn: changeBillStatus,
   onSuccess: () => {
-    router.replace({ name: 'bills' })
     queryClient.invalidateQueries({ queryKey: ['bills'] })
   },
   onError: (error) => {
@@ -208,8 +186,11 @@ const cancelOrderMutation = useMutation({
   }
 })
 
-const onCancelOrder = (id: number) => {
-  cancelOrderMutation.mutate(id)
+const onCancelOrder = (billNumber: number, billStatus: BillStatus) => {
+  cancelOrderMutation.mutate({
+    bill_number: billNumber,
+    status: billStatus
+  })
 }
 
 const dialogQuestion = (orderCode: number) => {
@@ -222,5 +203,20 @@ const formatToDate = (date: string) => {
     return dateObject.toLocaleDateString();
   }
 }
+
+const checkStatus = (status: string) => {
+  switch (status) {
+    case STATUS.CANCELD:
+      return 'ملغية'
+    case STATUS.ACCEPTED:
+      return 'تم التوصيل'
+    default:
+      return 'تم التوصيل'
+  }
+}
+
+const quantityTotal = (quantites: number[]) => (
+     quantites.reduce((acc, quantity) => acc + quantity)
+)
 
 </script>

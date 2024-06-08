@@ -53,7 +53,7 @@
         </template>
       </v-btn>
 
-      <!-- <v-dialog width="500">
+      <v-dialog width="500">
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
@@ -98,7 +98,7 @@
             </v-card-actions>
           </v-card>
         </template>
-      </v-dialog> -->
+      </v-dialog>
     </div>
   </div>
 
@@ -152,7 +152,10 @@
           <p>الإجمالي :</p>
           <p>{{ orderDetails.order_details.total_price }} د.ل</p>
         </div>
-        <div class="flex justify-between mt-2">
+        <div
+          v-if="orderDetails.order_details.payment_method == 'installments'"
+          class="flex justify-between mt-2"
+        >
           <p>متأخرات سداد الديون :</p>
           <p>{{ orderDetails.order_details.paid_due_value }} د.ل</p>
         </div>

@@ -171,7 +171,7 @@
             <p> {{ formatDate(orderDetails.order_details.due_date) }}</p>
           </div>
 
-          <div v-if="orderDetails.order_details.payment_method == 'installments' ">
+          <div v-if="orderDetails.order_details.payment_method == 'installments'">
             <div class="flex gap-8 mt-3">
               <p> الإجمالي بعد الكوبون :</p>
               <p> {{ orderDetails.order_details.total_price_with_copupon }}</p>

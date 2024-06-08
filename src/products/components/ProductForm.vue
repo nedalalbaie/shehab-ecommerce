@@ -185,10 +185,7 @@
     </div>
 
     <div>
-      <ColorPicker
-        :hex-codes-prop="hexCodes"
-        @pass-hexcodes="handleHexCodes"
-      />
+      <ColorPicker />
     </div>
 
     <div class="mt-10">
