@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import TopLeftArrowIcon from './icons/TopLeftArrowIcon.vue';
+
 defineProps<{
     title: string;
     icon: string | any;
@@ -10,22 +12,23 @@ defineProps<{
 <template>
   <div class="w-full p-2">
     <v-card class="h-[140px] w-full">
-      <div class="flex justify-between items-center p-7">
-        <div class="flex flex-col gap-3 items-start w-full">
-          <div class="font-medium text-gray-500 max-w-[90%]">
+      <div class="flex gap-3 w-full p-7">
+        <div>
+          <div class="font-medium text-gray-500">
             {{ title }}
           </div>
 
           <div class="font-bold text-2xl">
-            {{ value }}
+            {{ value }} د.ل
           </div>
         </div>
 
         <div
-          class="px-3 py-3 rounded-lg bg-opacity-30"
+          class="px-3 py-3 rounded-lg bg-opacity-30 flex gap-1 text-green-700"
           :class="color"
         >
-          <v-icon :icon="icon" />
+          <p>%13.25</p>
+          <v-icon :icon="TopLeftArrowIcon" />
         </div>
       </div>
     </v-card>
