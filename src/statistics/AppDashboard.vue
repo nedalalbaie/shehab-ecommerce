@@ -57,7 +57,7 @@ const isStatisticsLoading = computed(() => {
       <stat-card
         title="عدد الطلبات"
         :value="statistics.total_orders"
-        :icon="OrderSvg as string"
+        :icon="OrderSvg"
         color="bg-orange-600"
       />
 
