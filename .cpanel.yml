@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/makhazincom/public_html/frontend
+    - /bin/cp -r * $DEPLOYPATH
