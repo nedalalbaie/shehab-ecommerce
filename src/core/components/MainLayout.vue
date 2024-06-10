@@ -2,7 +2,6 @@
   import { logout } from "@/auth/auth-service";
   import {
     mdiLogout,
-    mdiThemeLightDark,
     mdiAccountMultiple,
     mdiTicketPercentOutline,
     mdiArchiveOutline,
@@ -11,23 +10,22 @@
   } from "@mdi/js";
   import ProductIcon from './icons/ProductIcon.vue';
   import CategoryIcon from "./icons/CategoryIcon.vue"
-  import ReceiptIcon from "./icons/ReceiptIcon.vue"
   import AdsIcon from "./icons/AdsIcon.vue"
   import Statistics from "./icons/StatisticsIcon.vue"
   import DiscountIcon from "./icons/DiscountIcon.vue"
   import OrderSvg from "./icons/OrderSvg.vue"
   import { ref } from "vue";
-  import { useDisplay, useTheme } from "vuetify";
-  import themeStore from "../stores/theme-store";
+  import { useDisplay } from "vuetify";
+  // import themeStore from "../stores/theme-store";
 
-  const theme = useTheme();
+  // const theme = useTheme();
   const breakpoint = useDisplay();
   const drawer = ref(breakpoint.lgAndUp.value);
 
-  const toggleTheme = () => {
-    themeStore.toggleTheme();
-    theme.global.name.value = themeStore.theme;
-  };
+  // const toggleTheme = () => {
+  //   themeStore.toggleTheme();
+  //   theme.global.name.value = themeStore.theme;
+  // };
 
   const onLogout = () => {
     logout();

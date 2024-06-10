@@ -6,14 +6,14 @@ import productsRoutes from '@/products/products.routes'
 import categoriesRoutes from '@/categories/categories.routes'
 import ordersRoutes from '@/orders/orders.routes'
 import adsRoutes from '@/ads/ads.routes'
-import customersRoutes from "@/customers/customer.routes"
+import customersRoutes from '@/customers/customer.routes'
 import couponsRoutes from '@/coupons/coupons.routes'
 import discountsRoutes from '@/discounts/discounts.routes'
 import billsRoutes from '@/bills/bills.routes'
 import marketsRoutes from '@/markets/markets.routes'
 import productsDetailsRoutes from '@/productsDetails/routes'
-import addressesRoutes  from '@/addresses/routes'
-import installmentsRoutes  from '@/installments/routes'
+import addressesRoutes from '@/addresses/routes'
+import installmentsRoutes from '@/installments/routes'
 import AppDashboard from '../statistics/AppDashboard.vue'
 
 const router = createRouter({
@@ -80,7 +80,7 @@ const router = createRouter({
         {
           path: 'installments',
           children: installmentsRoutes
-        },
+        }
       ]
     },
     {
@@ -90,16 +90,16 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to) => {
-  const auth = authStore.auth
+// router.beforeEach((to) => {
+//   const auth = authStore.auth
 
-  if (to.name !== 'login' && !auth) {
-    return { name: 'login' }
-  }
+//   if (to.name !== 'login' && !auth) {
+//     return { name: 'login' }
+//   }
 
-  if (to.name === 'login' && auth) {
-    return '/'
-  }
-})
+//   if (to.name === 'login' && auth) {
+//     return '/'
+//   }
+// })
 
 export default router
