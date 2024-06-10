@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/makhazincom/public_html/frontend/
+    - export DEPLOYPATH=/home/makhazincom/public_html/ecommerce-test.makhazin.com.ly/
     - /bin/cp -r * $DEPLOYPATH
