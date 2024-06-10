@@ -170,7 +170,7 @@
                     <v-btn
                       text="نعم"
                       @click="
-                        isActive.value = false
+                        isActive.value = false;
                         onCancelOrder(bill.bill_number, 'canceled')
                       "
                     />

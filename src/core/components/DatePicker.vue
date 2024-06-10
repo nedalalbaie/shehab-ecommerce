@@ -23,9 +23,9 @@ const emit = defineEmits<{
 }>()
 
 const date = ref<{
-  day: string | null
-  month: string | null
-  year: string | null
+  day: number | null 
+  month: number | null 
+  year: number | null 
 }>({
   day: null,
   month: null,
@@ -38,9 +38,9 @@ watch(
     if (value) {
       const dateValue = parseISO(value as string)
       date.value = {
-        day: dateValue.getDate().toString(),
-        month: (dateValue.getMonth() + 1).toString(),
-        year: dateValue.getFullYear().toString()
+        day: dateValue.getDate(),
+        month: (dateValue.getMonth() + 1),
+        year: dateValue.getFullYear()
       }
     }
 

@@ -10,12 +10,7 @@ const routes: RouteRecordRaw[] = [
     path: 'add',
     name: 'add-main-category',
     component: () => import('./pages/CreateMainCategory.vue')
-  },
-  {
-    path: 'edit/:id',  
-    name: 'edit-category',
-    component: () => import('./pages/EditCategory.vue')
-  },
+  }
 ]
 
 export default routes
