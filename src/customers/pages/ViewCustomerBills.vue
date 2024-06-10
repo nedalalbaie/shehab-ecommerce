@@ -1,13 +1,13 @@
 <template>
   <div>
     <v-btn
-      :to="{ name: 'view-customer', params: { customerId: customerId} }"
+      :to="{ name: 'view-customer', params: { customerId: customerId } }"
       variant="outlined"
       color="primary"
       size="large"
       :prepend-icon="mdiArrowRight"
     >
-      الرجوع الى  عرض الزبون 
+      الرجوع الى عرض الزبون
     </v-btn>
     <div class="flex items-center justify-between mt-6">
       <h1 class="text-3xl font-medium">
@@ -15,7 +15,9 @@
         <span
           v-if="bills && bills.length > 0"
           class="bg-gray-200 px-2 rounded-lg text-2xl"
-        >{{ bills?.length }}</span>
+        >{{
+          bills?.length
+        }}</span>
       </h1>
       <div class="flex gap-4">
         <button class="bg-sky-200 py-1 px-2 rounded-md">
@@ -32,11 +34,11 @@
         </button>
       </div>
     </div>
-  
+
     <div v-if="!bills">
       <LoadingOrders />
     </div>
-  
+
     <div
       v-if="bills"
       class="mt-6 flex-grow flex flex-col justify-center"
@@ -58,10 +60,7 @@
             <p
               class="w-1/2 text-center font-medium"
               :class="{
-                // 'text-green-600': order.status === STATUS.DELIVERD,
-                'text-blue-600': bill.status === STATUS.PENDING,
-                'text-yellow-600': bill.status === STATUS.SHIPPING,
-                'text-purple-600': bill.status === STATUS.CONFIRMED,
+                'text-green-600': bill.status === STATUS.ACCEPTED,
                 'text-red-600': bill.status === STATUS.CANCELD
               }"
             >
@@ -129,7 +128,7 @@
                 <ViewIconVue />
               </template>
             </v-btn>
-  
+
             <v-dialog
               v-if="bill.status != STATUS.CANCELD"
               width="500"
@@ -137,7 +136,6 @@
               <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
-    
                   rounded="xl"
                   variant="elevated"
                   color="#004C6B"
@@ -149,28 +147,32 @@
                   </template>
                 </v-btn>
               </template>
-  
+
               <template #default="{ isActive }">
                 <v-card
                   :title="dialogQuestion(bill.bill_number)"
                   rounded="lg"
                   color="#EFE9F5"
-                  style="padding-block: 1.75rem !important ;"
+                  style="padding-block: 1.75rem !important"
                 >
                   <v-card-text>
-                    سيتم الغاء هذه الفاتورة بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الفاتورة تم الغاؤها.
+                    سيتم الغاء هذه الفاتورة بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الفاتورة تم
+                    الغاؤها.
                   </v-card-text>
-  
+
                   <v-card-actions>
                     <v-spacer />
-  
+
                     <v-btn
                       text="لا"
                       @click="isActive.value = false"
                     />
                     <v-btn
                       text="نعم"
-                      @click="isActive.value = false; onCancelOrder(bill.id)"
+                      @click="
+                        isActive.value = false
+                        onCancelOrder(bill.bill_number, 'canceled')
+                      "
                     />
                   </v-card-actions>
                 </v-card>
@@ -182,50 +184,52 @@
     </div>
   </div>
 </template>
-  <script setup lang="ts">
-  import { cancelBill, getBillByCustomerId } from "@/bills/bill-service"
-  import { STATUS } from "@/bills/models/status"
-  import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
-  import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
-  import ViewIconVue from "@/core/components/icons/ViewIcon.vue";
-  import { checkStatus } from "@/core/helpers/check-status"
-  import LoadingOrders from "@/orders/components/LoadingOrders.vue";
-  import EmptyData from "@/core/components/EmptyData.vue";
-  import { useRoute } from "vue-router";
-import { mdiArrowRight } from "@mdi/js";
-  
-  const route = useRoute();
-  const customerId = Number(route.params.customerId);
-  
-  const { data: bills} = useQuery({
-    queryKey: ['customer-bills', customerId],
-    queryFn: () => getBillByCustomerId(customerId)
+<script setup lang="ts">
+import { changeBillStatus, getBillByCustomerId } from '@/bills/bill-service'
+import { STATUS, type BillStatus } from '@/bills/models/status'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
+import ViewIconVue from '@/core/components/icons/ViewIcon.vue'
+import { checkStatus } from '@/core/helpers/check-status'
+import LoadingOrders from '@/orders/components/LoadingOrders.vue'
+import EmptyData from '@/core/components/EmptyData.vue'
+import { useRoute } from 'vue-router'
+import { mdiArrowRight } from '@mdi/js'
+
+const route = useRoute()
+const customerId = Number(route.params.customerId)
+
+  const { data: bills } = useQuery({
+  queryKey: ['customer-bills', customerId],
+  queryFn: () => getBillByCustomerId(customerId)
+})
+
+const queryClient = useQueryClient()
+const cancelOrderMutation = useMutation({
+  mutationFn: changeBillStatus,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['bills'] })
+  },
+  onError: (error) => {
+    console.log(error)
+  }
+})
+
+const onCancelOrder = (billNumber: number, billStatus: BillStatus) => {
+  cancelOrderMutation.mutate({
+    bill_number: billNumber,
+    status: billStatus
   })
-  
-  const queryClient = useQueryClient()
-  const cancelOrderMutation = useMutation({
-    mutationFn: cancelBill,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customer-bills'] })
-    },
-    onError: (error) => {
-      console.log(error)
-    }
-  })
-  
-  const onCancelOrder = (id: number) => {
-    cancelOrderMutation.mutate(id)
+}
+
+const dialogQuestion = (orderCode: number) => {
+  return `إلغاء الفاتورة ${orderCode}# ?`
+}
+
+const formatToDate = (date: string) => {
+  const dateObject = new Date(date)
+  if (!isNaN(dateObject.getTime())) {
+    return dateObject.toLocaleDateString()
   }
-  
-  const dialogQuestion = (orderCode: number) => {
-    return `إلغاء الفاتورة ${orderCode}# ?`
-  }
-  
-  const formatToDate = (date: string) => {
-    const dateObject = new Date(date);
-    if (!isNaN(dateObject.getTime())) {
-      return dateObject.toLocaleDateString();
-    }
-  }
-  
-  </script>
+}
+</script>
