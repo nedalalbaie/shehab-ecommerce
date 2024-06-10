@@ -1,19 +1,19 @@
-/* eslint-env node */
-require('@rushstack/eslint-patch/modern-module-resolution')
+// /* eslint-env node */
+// require('@rushstack/eslint-patch/modern-module-resolution')
 
 module.exports = {
   root: true,
-  'extends': [
+  extends: [
     'plugin:vue/vue3-essential',
     'eslint:recommended',
     '@vue/eslint-config-typescript',
     '@vue/eslint-config-prettier/skip-formatting',
-    'plugin:vue/recommended' // delete this to disable eslint
+    'plugin:vue/recommended', // delete this to disable eslint
   ],
   parserOptions: {
     ecmaVersion: 'latest'
   },
   rules: {
-    'vue/no-multiple-template-root': 'off'
+    'vue/no-multiple-template-root': 'off',
   }
 }
