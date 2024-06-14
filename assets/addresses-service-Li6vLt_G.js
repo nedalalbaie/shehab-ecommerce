@@ -1,1 +1,0 @@
-import{ay as t}from"./index-sE9P4Q9O.js";import{q as e}from"./queryString-AL1HqB06.js";const o=s=>t.addon(e).url("/addresses").query(s).get().notFound(()=>({data:[],total:0})).json(),d=s=>t.url(`/addresses/${s}`).get().notFound(()=>({data:[],total:0})).json();export{o as a,d as g};

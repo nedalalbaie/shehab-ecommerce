@@ -1,1 +1,0 @@
-const e={PENDING:"pending",CONFIRMED:"confirmed",SHIPPING:"shipping",CANCELD:"canceled"},s=[{label:"قيد المعالجة",value:e.PENDING},{label:"تم القبول",value:e.CONFIRMED},{label:"قيد التوصيل",value:e.SHIPPING}],t=a=>{switch(a){case e.CANCELD:return"ملغية";case e.CONFIRMED:return"تم الموافقة";case e.SHIPPING:return"قيد التوصيل";default:return"قيد المعالجة"}};export{e as S,t as c,s};
