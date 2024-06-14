@@ -9,20 +9,7 @@
         >{{ orders.data.value.total }}</span>
       </h1>
       
-      <div class="flex gap-4">
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          قيد المعالجة
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          قيد التوصيل
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          تم التوصيل
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          ملغية
-        </button>
-      </div>
+      <orders-search-filter v-model="listParams" />
     </div>
 
     <div v-if="!orders.data.value">
@@ -51,10 +38,10 @@
               class="w-1/2 text-center font-medium"
               :class="{
                 // 'text-green-600': order.status === STATUS.DELIVERD,
-                'text-blue-600': order.status === STATUS.PENDING,
-                'text-yellow-600': order.status === STATUS.SHIPPING,
-                'text-purple-600': order.status === STATUS.CONFIRMED,
-                'text-red-600': order.status === STATUS.CANCELD
+                'text-green-600': order.status === STATUS.CONFIRMED,
+                'text-red-600': order.status === STATUS.CANCELD,
+                'text-orange-500': order.status === STATUS.PENDING,
+                'text-[#00696F]': order.status === STATUS.SHIPPING,
               }"
             >
               {{ checkStatus(order.status) }}
@@ -132,7 +119,7 @@
   
                   rounded="xl"
                   variant="elevated"
-                  color="#004C6B"
+                  color="error"
                   type="submit"
                 >
                   إلغاء
@@ -186,6 +173,7 @@ import router from "@/router";
 import { checkStatus } from "@/core/helpers/check-status"
 import LoadingOrders from "../components/LoadingOrders.vue";
 import EmptyData from "@/core/components/EmptyData.vue";
+import OrdersSearchFilter from "../components/OrdersSearchFilter.vue";
 
 const listParams = ref<PaginationParams>({
   page: 1,
@@ -213,7 +201,7 @@ const onCancelOrder = (id: number) => {
   cancelOrderMutation.mutate(id)
 }
 
-const dialogQuestion = (orderCode: number) => {
+const dialogQuestion = (orderCode: string) => {
   return `إلغاء الطلبية ${orderCode}# ?`
 }
 

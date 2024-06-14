@@ -17,6 +17,7 @@ export default {
           100: "#004C6B",
           200: "rgb(0 67 94)" // Blue on hover
         },
+        filter: '#E3E892',
         dark: '#303030',
         'nav-bg': '#F5F5F5'
       },

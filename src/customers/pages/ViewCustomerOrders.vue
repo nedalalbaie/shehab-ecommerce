@@ -17,21 +17,6 @@
           class="bg-gray-200 px-2 rounded-lg text-2xl"
         >{{ orders.length }}</span>
       </h1>
-        
-      <div class="flex gap-4">
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          قيد المعالجة
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          قيد التوصيل
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          تم التوصيل
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          ملغية
-        </button>
-      </div>
     </div>
   
     <div v-if="!orders">
@@ -60,10 +45,10 @@
               class="w-1/2 text-center font-medium"
               :class="{
                 // 'text-green-600': order.status === STATUS.DELIVERD,
-                'text-blue-600': order.status === STATUS.PENDING,
-                'text-yellow-600': order.status === STATUS.SHIPPING,
-                'text-purple-600': order.status === STATUS.CONFIRMED,
-                'text-red-600': order.status === STATUS.CANCELD
+                'text-green-600': order.status === STATUS.CONFIRMED,
+                'text-red-600': order.status === STATUS.CANCELD,
+                'text-orange-500': order.status === STATUS.PENDING,
+                'text-[#00696F]': order.status === STATUS.SHIPPING,
               }"
             >
               {{ checkStatus(order.status) }}
@@ -195,7 +180,6 @@
   import EmptyData from "@/core/components/EmptyData.vue";
   import { mdiArrowRight } from "@mdi/js";
   import { useRoute } from "vue-router";
-  import { computed } from "vue";
 
   const quantityTotal = (quantites: number[]) => (
      quantites.reduce((acc, quantity) => acc + quantity  )
@@ -225,7 +209,7 @@
     cancelOrderMutation.mutate(id)
   }
   
-  const dialogQuestion = (orderCode: number) => {
+  const dialogQuestion = (orderCode: string) => {
     return `إلغاء الطلبية ${orderCode}# ?`
   }
   

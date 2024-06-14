@@ -296,7 +296,6 @@ const searchValue = ref('');
 const listParams = ref<PaginationParams & {productName?: string}>({
   page: 1,
   limit: 10,
-  productName: undefined,
 })
 
 const products = useQuery({
@@ -309,7 +308,7 @@ const upperElement = ref<HTMLElement | null>(null)
 
 const getBackgroundImage = (url: string) => {
   return {
-    backgroundImage: `url(${storage}/${url})`,
+    backgroundImage: `url(${storage}${url})`,
     // backgroundSize: '60%' 
   }
 }
@@ -338,11 +337,6 @@ const dialogQuestion = (productCode: string) => {
 }
 
 const handleSearch  = debounce(() => {
-    // if (searchValue.value.trim() === '') {
-    //   return
-    // } else if (searchValue.value.trim().length !== searchValue.value.length) {
-    //   listParams.value.filter = searchValue.value
-    // }
     listParams.value.productName = searchValue.value
     
 }, 300)

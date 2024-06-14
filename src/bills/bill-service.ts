@@ -1,13 +1,13 @@
 import apiClient from '@/core/helpers/api-client'
 import queryString from 'wretch/addons/queryString'
 import type { Bill } from './models/bill'
-import type { PaginationParams } from '@/core/models/pagination-params'
 import type { List } from '@/core/models/list'
 import type { Product } from '@/products/models/product'
 import { alertStore } from '@/core/stores/alert.store'
 import type { ChangeBillStatusBody } from './models/change-bill-status-body'
+import type { BillsPaginationParamas } from './models/bills-pagination-params'
 
-const getBills = (params: PaginationParams): Promise<List<Bill[]>> => {
+const getBills = (params: BillsPaginationParamas): Promise<List<Bill[]>> => {
   return apiClient
     .addon(queryString)
     .url('/bills')
@@ -31,6 +31,16 @@ const getBillByCustomerId = (customerId: number): Promise<Bill []> => {
   return apiClient.url(`/show-all--my-bills/${customerId}`).get().json()
 }
 
+const postBill = (orderNumber: string) : Promise<void> => {
+   return apiClient.url('/bills').post({order_number: orderNumber}).json((res) => {
+    alertStore.show({
+      message: 'تم إنشاء فاتورة بنجاح',
+      type: 'success'
+    })
+    return res
+  })
+}
+
 // const cancelBill = (id: number) => {
 //   return apiClient.url(`/bills/${id}`).delete().json(() => {
 //     alertStore.show({
@@ -41,7 +51,7 @@ const getBillByCustomerId = (customerId: number): Promise<Bill []> => {
 // }
 
 const changeBillStatus = (body: ChangeBillStatusBody) => {
-  return apiClient.url(`/chnage-status-bill`).post(body).json(() => {
+  return apiClient.url(`/change-status-bill`).post(body).json(() => {
     alertStore.show({
       message: 'تم تغيير حالة الفاتورة بنجاح',
       type: 'info'
@@ -50,4 +60,4 @@ const changeBillStatus = (body: ChangeBillStatusBody) => {
 }
 
 
-export { getBills, getBill, getBillByCustomerId, changeBillStatus }
+export { getBills, getBill, getBillByCustomerId, changeBillStatus, postBill }

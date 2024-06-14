@@ -5,7 +5,7 @@ export const checkStatus = (status: string) => {
     case STATUS.CANCELD:
       return 'ملغية'
     case STATUS.CONFIRMED:
-      return 'تم الموافقة'
+      return 'تم القبول'
     case STATUS.SHIPPING:
       return 'قيد التوصيل'
     default:

@@ -23,6 +23,6 @@ export const statusOptions = [
 ]
 
 export type ChangeOrderBody = {
-  order_number: number
+  order_number: string
   new_status: OrderStatus
 }

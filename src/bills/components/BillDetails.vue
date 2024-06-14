@@ -3,7 +3,9 @@
     <div class="flex items-center justify-between mt-6">
       <div>
         <h1 class="text-3xl flex items-center gap-2">
-          الفاتورة {{ bill.result.bill_number }}# - {{ checkStatus(bill.result.status) }} 
+          <span>الفاتورة</span>
+          <span>{{ bill.result.bill_number }}</span> 
+          <span>{{ checkStatus(bill.result.status) }} </span>
           <div
             class="h-6 w-6 rounded-[50%]"
             :class="{
@@ -12,9 +14,9 @@
             }"
           />
         </h1>
-        <p>
-          {{ formatDateWithTime(bill.result.created_at) }}
-        </p>
+        <!-- <p v-if="bill.result.created_at">
+          {{ formatToDate(bill.result.created_at) }}
+        </p> -->
       </div>
   
       <div
@@ -32,7 +34,7 @@
           :prepend-icon="mdiPrinter"
           @click="onPrintBill()"
         >
-          طباعة الفاتورة
+          طباعة 
         </v-btn>
 
         <v-dialog
@@ -48,7 +50,7 @@
               color="error"
               type="submit"
             >
-              إلغاء الفاتورة
+              إلغاء 
               <template #prepend>
                 <DeleteIcon fill="fill-white" />
               </template>
@@ -121,7 +123,7 @@
   import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
   import { changeBillStatus } from "../bill-service";
   import { useQueryClient, useMutation } from "@tanstack/vue-query";
-  import { formatDateWithTime } from "@/core/helpers/format-date"
+  // import { formatDateWithTime } from "@/core/helpers/format-date"
   import router from "@/router";
   import type { Bill } from "../models/bill";
   import type { Product } from "@/products/models/product";
@@ -200,10 +202,22 @@ const onPrintBill =  () => {
     case STATUS.CANCELD:
       return 'ملغية'
     case STATUS.ACCEPTED:
-      return 'تم التوصيل'
+      return 'تم القبول'
     default:
-      return 'تم التوصيل'
+      return 'تم القبول'
   }
 }
+
+// const formatToDate = (date: string) => {
+//   // const dateObject = new Date(date);
+//   // if (!isNaN(dateObject.getTime())) {
+//   //   return dateObject.toLocaleDateString();
+//   // }
+//   if (date !== null) {
+//     console.log(date);
+    
+//     // formatDateWithTime(date)
+//   }
+// }
   
   </script>

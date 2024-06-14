@@ -10,10 +10,11 @@ const myCustomLightTheme: ThemeDefinition = {
     dark: false,
     colors: {
       // primary: "#835400",
-      primary: "#4056F4",
+      // primary: "#4056F4", skyblue
+      primary: "#00696F",
       secondary: "#EBE1D9",
       info: "#2196F3",
-      background: "#FFFFFF",
+      background: "#EFF5F5",
       surface: "#FFFFFF",  
       "primary-darken-1": "#3700B3",
       "secondary-darken-1": "#018786",

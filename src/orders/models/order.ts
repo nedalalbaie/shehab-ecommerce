@@ -2,7 +2,7 @@ import type { OrderStatus } from "./status"
 
 type Order = {
   id: number
-  order_number: number
+  order_number: string
   total_price: number
   total_price_with_copupon: number
   residual_value: number

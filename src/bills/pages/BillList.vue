@@ -9,7 +9,7 @@
         >{{ bills?.total }}</span>
       </h1>
 
-      <bills-search-filter />
+      <bills-search-filter v-model="listParams" />
     </div>
 
     <div v-if="!bills">
@@ -37,9 +37,6 @@
             <p
               class="w-1/2 text-center font-medium"
               :class="{
-                // 'text-green-600': order.status === STATUS.DELIVERD,
-                // 'text-blue-600': bill.status === STATUS.PENDING,
-                // 'text-yellow-600': bill.status === STATUS.SHIPPING,
                 'text-green-600': bill.status === STATUS.ACCEPTED,
                 'text-red-600': bill.status === STATUS.CANCELD
               }"
@@ -111,7 +108,7 @@
   
                   rounded="xl"
                   variant="elevated"
-                  color="#004C6B"
+                  color="error"
                   type="submit"
                 >
                   إلغاء
@@ -156,7 +153,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { changeBillStatus, getBills } from "../bill-service"
-import type { PaginationParams } from '@/core/models/pagination-params'
 import { STATUS, type BillStatus } from "../models/status"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
@@ -164,8 +160,9 @@ import ViewIconVue from "@/core/components/icons/ViewIcon.vue";
 import LoadingOrders from "@/orders/components/LoadingOrders.vue";
 import EmptyData from "@/core/components/EmptyData.vue";
 import BillsSearchFilter from "../components/BillsSearchFilter.vue";
+import type { BillsPaginationParamas } from "../models/bills-pagination-params";
 
-const listParams = ref<PaginationParams>({
+const listParams = ref<BillsPaginationParamas>({
   page: 1,
   limit: 10
 })
@@ -209,9 +206,9 @@ const checkStatus = (status: string) => {
     case STATUS.CANCELD:
       return 'ملغية'
     case STATUS.ACCEPTED:
-      return 'تم التوصيل'
+      return 'تم القبول'
     default:
-      return 'تم التوصيل'
+      return 'تم القبول'
   }
 }
 
