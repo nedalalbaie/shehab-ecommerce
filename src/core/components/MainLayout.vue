@@ -12,7 +12,7 @@
   import CategoryIcon from "./icons/CategoryIcon.vue"
   import AdsIcon from "./icons/AdsIcon.vue"
   import Statistics from "./icons/StatisticsIcon.vue"
-  import DiscountIcon from "./icons/DiscountIcon.vue"
+  // import DiscountIcon from "./icons/DiscountIcon.vue"
   import OrderSvg from "./icons/OrderSvg.vue"
   import { ref } from "vue";
   import { useDisplay } from "vuetify";
@@ -53,10 +53,10 @@
   //   { title: ' الفرعية', icon: SubCategoryIcon, alt: 'Sub Categories',  route: '/subCategories' },
   // ]
 
-  const promotionsRoutes = [
-      { title: 'الكوبونات', icon: mdiTicketPercentOutline, alt: 'coupons', route: '/coupons' },
-      { title: 'النخفيضات', icon: DiscountIcon, alt: 'discounts', route: '/discounts' },
-  ]
+  // const promotionsRoutes = [
+  //     { title: 'الكوبونات', icon: mdiTicketPercentOutline, alt: 'coupons', route: '/coupons' },
+  //     { title: 'النخفيضات', icon: DiscountIcon, alt: 'discounts', route: '/discounts' },
+  // ]
 
 </script>
 
@@ -149,32 +149,6 @@
             </div>
           </v-list-item>
         </v-list-group> -->
-
-        <v-list-group>
-          <template #activator="{ props }">
-            <v-list-item
-              v-bind="props"
-              :prepend-icon="mdiArchiveOutline"
-              title="الخصومات"
-            />
-          </template>
-
-          <v-list-item
-            v-for="(item, i) in promotionsRoutes"
-            :key="i"
-            :value="item"
-            color="primary"
-            link
-            exact
-            :to="item.route"
-          >
-            <template #prepend>
-              <v-icon :icon="item.icon" />
-            </template>
-
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item>
-        </v-list-group>
 
         <div
           v-for="(item, i) in navRoutes" 
