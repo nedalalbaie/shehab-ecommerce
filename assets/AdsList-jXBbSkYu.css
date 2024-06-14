@@ -1,0 +1,1 @@
+.skeleton{background-color:#b33737;position:relative;animation:skeleton-pulse 1s linear alternate infinite}@keyframes skeleton-pulse{0%{transform:scale(.99);background-color:#b3bdc1}to{transform:scale(.99);background-color:#f0f3f5}}

@@ -1,0 +1,1 @@
+import{ay as s,aS as e}from"./index-sE9P4Q9O.js";import{q as o}from"./queryString-AL1HqB06.js";const u=t=>s.addon(o).url("/details").query(t).get().notFound(()=>({data:[],totalRecords:0})).json(),d=t=>s.url("/details").post(t).json(r=>(e.show({message:"تمت الإضافة  بنجاح",type:"success"}),r));export{u as g,d as p};
