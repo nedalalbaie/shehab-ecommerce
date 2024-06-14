@@ -7,7 +7,7 @@
     class="icon"
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
-    stroke="#000000"
+    :stroke="color ?? 'white'"
     stroke-width="36.864"
   >
     <g
@@ -45,3 +45,9 @@
     </g>
   </svg>
 </template>
+
+<script setup lang="ts">
+defineProps<{
+  color: string
+}>()
+</script>

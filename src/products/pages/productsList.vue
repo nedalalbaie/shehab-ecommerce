@@ -11,17 +11,41 @@
       ref="upperElement"
       class="flex justify-between items-center mt-6"
     >
-      <div
-        class="flex justify-between items-center bg-[#ebf2fc] border  rounded-xl py-1 px-4"
-      >
-        <input
-          v-model="searchValue"
-          placeholder="إبحث عن منتجات"
-          type="text"
-          class="w-56 border-none p-2 rounded-lg outline-none transition-all duration-100 placeholder:text-gray-700"
-          @input="handleSearch"
+      <div class="flex gap-4">
+        <div
+          class="flex justify-between items-center bg-[#ebf2fc] border  rounded-xl py-1 px-4"
         >
-        <SearchIcon custom-style="w-6 h-6" />
+          <input
+            v-model="searchValue"
+            placeholder="إبحث عن منتجات"
+            type="text"
+            class="w-56 border-none p-2 rounded-lg outline-none transition-all duration-100 placeholder:text-gray-700"
+            @input="handleSearch"
+          >
+          <SearchIcon custom-style="w-6 h-6" />
+        </div>
+
+        <v-btn
+          :append-icon="DiscountIcon"
+          :to="{ name: 'coupons' }"
+          color="primary"
+          size="large"
+          rounded="xl"
+          variant="elevated"
+        >
+          التخفيضات
+        </v-btn>
+
+        <v-btn
+          :append-icon="mdiTicketPercentOutline"
+          :to="{ name: 'discounts' }"
+          color="primary"
+          size="large"
+          rounded="xl"
+          variant="elevated"
+        >
+          الكوبونات
+        </v-btn>
       </div>
       <v-btn
         :append-icon="mdiPlus"
@@ -136,7 +160,7 @@
                 <EditIcon />
               </template>
             </v-btn> -->
-            <v-btn
+            <!-- <v-btn
               :to="{
                 name: 'market-details',
                 params: { id: product.id },
@@ -154,7 +178,7 @@
               >
                 عرض
               </v-tooltip>
-            </v-btn>
+            </v-btn> -->
   
             <v-dialog width="500">
               <template #activator="{ props }">
@@ -259,11 +283,13 @@ import {
   mdiEye,
   mdiCancel,
   mdiCheck,
-  mdiDelete
+  mdiDelete,
+  mdiTicketPercentOutline
 } from '@mdi/js'
 import debounce from "lodash.debounce";
 import { type BaseStatus } from "@/core/models/base-status";
 import { BASE_STATUS } from "@/core/models/base-status";
+import DiscountIcon from "@/core/components/icons/DiscountIcon.vue"
 
 const isStatusLoading = ref<boolean []>([])
 const searchValue = ref('');

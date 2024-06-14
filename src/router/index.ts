@@ -90,16 +90,16 @@ const router = createRouter({
   ]
 })
 
-// router.beforeEach((to) => {
-//   const auth = authStore.auth
+router.beforeEach((to) => {
+  const auth = authStore.auth
 
-//   if (to.name !== 'login' && !auth) {
-//     return { name: 'login' }
-//   }
+  if (to.name !== 'login' && !auth) {
+    return { name: 'login' }
+  }
 
-//   if (to.name === 'login' && auth) {
-//     return '/'
-//   }
-// })
+  if (to.name === 'login' && auth) {
+    return '/'
+  }
+})
 
 export default router
