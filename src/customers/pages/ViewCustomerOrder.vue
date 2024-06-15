@@ -160,7 +160,7 @@ const changeOrderStatusMutation = useMutation({
   }
 })
 
-const onchangeOrderStatus = (order_number: number, new_status: OrderStatus) => {
+const onchangeOrderStatus = (order_number: string, new_status: OrderStatus) => {
   changeOrderStatusMutation.mutate({ order_number: order_number, new_status: new_status })
 }
 
