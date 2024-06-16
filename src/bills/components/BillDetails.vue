@@ -14,9 +14,9 @@
             }"
           />
         </h1>
-        <!-- <p v-if="bill.result.created_at">
+        <p v-if="bill.result.created_at">
           {{ formatToDate(bill.result.created_at) }}
-        </p> -->
+        </p>
       </div>
   
       <div
@@ -37,51 +37,50 @@
           طباعة 
         </v-btn>
 
+        <v-btn
+          v-if="bill.result.status !== STATUS.CANCELD"
+          size="large"
+          rounded="xl"
+          variant="elevated"
+          color="error"
+          type="submit"
+          @click="cancelBillDialog.open = true"
+        >
+          إلغاء 
+          <template #prepend>
+            <DeleteIcon fill="fill-white" />
+          </template>
+        </v-btn>
+
         <v-dialog
           v-if="bill.result.status != STATUS.CANCELD"
+          v-model="cancelBillDialog.open"
           width="500"
         >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              size="large"
-              rounded="xl"
-              variant="elevated"
-              color="error"
-              type="submit"
-            >
-              إلغاء 
-              <template #prepend>
-                <DeleteIcon fill="fill-white" />
-              </template>
-            </v-btn>
-          </template>
+          <v-card
+            :title="dialogQuestion(bill.result.bill_number)"
+            rounded="lg"
+            color="#EFE9F5"
+            style="padding-block: 1.75rem !important ;"
+          >
+            <v-card-text>
+              سيتم إلغاء هذه الفاتورة بشكل نهائي، سيتلقى الزبون إشعارا يوضح أن الفاتورة تم إلغاءها.
+            </v-card-text>
   
-          <template #default="{ isActive }">
-            <v-card
-              :title="dialogQuestion(bill.result.bill_number as number)"
-              rounded="lg"
-              color="#EFE9F5"
-              style="padding-block: 1.75rem !important ;"
-            >
-              <v-card-text>
-                سيتم الغاء هذه الطلبية بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الطلبية تم الغاؤها.
-              </v-card-text>
+            <v-card-actions>
+              <v-spacer />
   
-              <v-card-actions>
-                <v-spacer />
-  
-                <v-btn
-                  text="لا"
-                  @click="isActive.value = false"
-                />
-                <v-btn
-                  text="نعم"
-                  @click="isActive.value = false; onchangeOrderStatus(bill.result.bill_number, 'canceled')"
-                />
-              </v-card-actions>
-            </v-card>
-          </template>
+              <v-btn
+                text="لا"
+                @click="cancelBillDialog.open = false"
+              />
+              <v-btn
+                :loading="changeOrderStatusMutation.isPending.value"
+                text="نعم"
+                @click=" onchangeOrderStatus(bill.result.bill_number, 'canceled')"
+              />
+            </v-card-actions>
+          </v-card>
         </v-dialog>
       </div>
     </div>
@@ -116,30 +115,35 @@
     ref="componentRef"
     class="hidden print:block"
   >
-    <print-bill :bill="bill.result" />
+    <print-bill
+      :bill="bill.result"
+      :products="bill.prodcts"
+    />
   </div>
 </template>
   <script setup lang="ts">
   import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
   import { changeBillStatus } from "../bill-service";
   import { useQueryClient, useMutation } from "@tanstack/vue-query";
-  // import { formatDateWithTime } from "@/core/helpers/format-date"
-  import router from "@/router";
+  import { formatDateWithTime } from "@/core/helpers/format-date"
   import type { Bill } from "../models/bill";
-  import type { Product } from "@/products/models/product";
   import { STATUS, type BillStatus } from "../models/status";
   import { mdiPrinter } from "@mdi/js";
   import { useVueToPrint } from 'vue-to-print'
   import { ref } from "vue";
   import PrintBill from "../components/PrintBill.vue"
+  import type { Product } from "@/products/models/product";
   
-  // eslint-disable-next-line
-  const definedProps = defineProps<{
+ defineProps<{
     bill: {
       result: Bill,
       prodcts: Product []
     }
   }>()
+
+const cancelBillDialog = ref({
+  open: false
+})
 
 const componentRef = ref()
 const { handlePrint } = useVueToPrint({
@@ -153,15 +157,13 @@ const { handlePrint } = useVueToPrint({
 
 const onPrintBill =  () => {
   setTimeout(() => {
-    console.log('inside set timeout print');
-    
      handlePrint()
     // window.print()
   }, 50)
 }
   
-  const dialogQuestion = (productCode: number) => {
-    return `حذف الفاتورة ${productCode}# ?`
+  const dialogQuestion = (billNumber: string) => {
+    return `إلغاء الفاتورة ${billNumber}# ؟`
   }
   
   const queryClient = useQueryClient()
@@ -169,7 +171,7 @@ const onPrintBill =  () => {
   const changeOrderStatusMutation = useMutation({
     mutationFn: changeBillStatus,
     onSuccess: () => {
-      router.replace({name: 'bills'})
+      cancelBillDialog.value.open = false
       queryClient.invalidateQueries({ queryKey: ['bills'] })
     },
     onError: (error) => {
@@ -177,7 +179,7 @@ const onPrintBill =  () => {
     }
   })
   
-  const onchangeOrderStatus = (order_number: number, billStatus: BillStatus) => {
+  const onchangeOrderStatus = (order_number: string, billStatus: BillStatus) => {
     changeOrderStatusMutation.mutate({bill_number: order_number, status: billStatus })
   }
   
@@ -208,16 +210,14 @@ const onPrintBill =  () => {
   }
 }
 
-// const formatToDate = (date: string) => {
-//   // const dateObject = new Date(date);
-//   // if (!isNaN(dateObject.getTime())) {
-//   //   return dateObject.toLocaleDateString();
-//   // }
-//   if (date !== null) {
-//     console.log(date);
-    
-//     // formatDateWithTime(date)
-//   }
-// }
+const formatToDate = (date: string) => {
+  // const dateObject = new Date(date);
+  // if (!isNaN(dateObject.getTime())) {
+  //   return dateObject.toLocaleDateString();
+  // }
+  if (date !== null) {
+    return formatDateWithTime(date)
+  }
+}
   
   </script>

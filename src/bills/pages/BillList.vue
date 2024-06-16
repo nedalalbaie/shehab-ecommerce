@@ -183,15 +183,15 @@ const cancelOrderMutation = useMutation({
   }
 })
 
-const onCancelOrder = (billNumber: number, billStatus: BillStatus) => {
+const onCancelOrder = (billNumber: string, billStatus: BillStatus) => {
   cancelOrderMutation.mutate({
     bill_number: billNumber,
     status: billStatus
   })
 }
 
-const dialogQuestion = (orderCode: number) => {
-  return `إلغاء الفاتورة ${orderCode}# ?`
+const dialogQuestion = (billNumber: string) => {
+  return `إلغاء الفاتورة ${billNumber}# ?`
 }
 
 const formatToDate = (date: string) => {

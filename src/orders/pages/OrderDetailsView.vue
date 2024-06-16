@@ -77,51 +77,50 @@
         </template>
       </v-btn>
 
-      <v-dialog width="500">
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            size="large"
-            rounded="xl"
-            variant="elevated"
-            color="error"
-            type="submit"
-          >
-            إلغاء 
-            <template #prepend>
-              <DeleteIcon fill="fill-white" />
-            </template>
-          </v-btn>
+      <v-btn
+        size="large"
+        rounded="xl"
+        variant="elevated"
+        color="error"
+        type="submit"
+        @click="cancelOrderDialog.open = true"
+      >
+        إلغاء 
+        <template #prepend>
+          <DeleteIcon fill="fill-white" />
         </template>
+      </v-btn>
 
-        <template #default="{ isActive }">
-          <v-card
-            :title="dialogQuestion(orderDetails.order_details.order_number)"
-            rounded="lg"
-            color="#EFE9F5"
-            style="padding-block: 1.75rem !important "
-          >
-            <v-card-text>
-              سيتم الغاء هذه الطبية بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الطبية تم الغاؤها.
-            </v-card-text>
+      <v-dialog
+        v-model="cancelOrderDialog.open"
+        width="500"
+      >
+        <v-card
+          :title="dialogQuestion()"
+          rounded="lg"
+          color="#EFE9F5"
+          style="padding-block: 1.75rem !important "
+        >
+          <v-card-text>
+            سيتم الغاء هذه الطلبية بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الطلبية تم الغاؤها.
+          </v-card-text>
 
-            <v-card-actions>
-              <v-spacer />
+          <v-card-actions>
+            <v-spacer />
 
-              <v-btn
-                text="لا"
-                @click="isActive.value = false"
-              />
-              <v-btn
-                text="نعم"
-                @click="
-                  isActive.value = false;
-                  onCancelOrder(orderDetails.order_details.id as number)
-                "
-              />
-            </v-card-actions>
-          </v-card>
-        </template>
+            <v-btn
+              text="لا"
+              @click="cancelOrderDialog.open = false"
+            />
+            <v-btn
+              :loading="cancelOrderMutation.isPending.value"
+              text="نعم"
+              @click="
+                onCancelOrder(orderDetails.order_details.id as number)
+              "
+            />
+          </v-card-actions>
+        </v-card>
       </v-dialog>
     </div>
   </div>
@@ -205,6 +204,10 @@ import { postBill } from '@/bills/bill-service'
 const status = ref<OrderStatus>()
 let statusCounter = 0
 
+const cancelOrderDialog = ref({
+  open: false
+})
+
 const route = useRoute()
 const id = Number(route.params.id)
 
@@ -221,15 +224,16 @@ const convertToObject = (hexCodesParam: string) => {
   return JSON.parse(hexCodesParam) as string[]
 }
 
-const dialogQuestion = (productCode: string) => {
-  return `إلغاء الطلبية ${productCode} ؟`
+const dialogQuestion = () => {
+  return `إلغاء الطلبية ${orderDetails.value?.order_details.order_number} ؟`
 }
 
 const queryClient = useQueryClient()
 const cancelOrderMutation = useMutation({
   mutationFn: cancelOrder,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['orderDetails'] })
+    queryClient.invalidateQueries({ queryKey: ['orders'] })
+    cancelOrderDialog.value.open = false
   },
   onError: (error) => {
     console.log(error)
@@ -253,13 +257,14 @@ const changeOrderStatusMutation = useMutation({
   }
 })
 
+const onchangeOrderStatus = (order_number: string, new_status: OrderStatus) => {
+  changeOrderStatusMutation.mutate({ order_number: order_number, new_status: new_status })
+}
+
 const onCancelOrder = (id: number) => {
   cancelOrderMutation.mutate(id)
 }
 
-const onchangeOrderStatus = (order_number: string, new_status: OrderStatus) => {
-  changeOrderStatusMutation.mutate({ order_number: order_number, new_status: new_status })
-}
 
 const onMakeBill = () => {
   if (orderDetails.value) {

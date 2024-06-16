@@ -15,9 +15,19 @@
   >
     <div>
       <h1 class="text-3xl flex items-center gap-2">
-        الطلب {{ orderDetails.order_details.order_number }}# -
-        {{ checkStatus(orderDetails.order_details.status) }}
-        <div class="h-6 w-6 rounded-[50%] bg-orange-300" />
+        <span>الطلب</span>
+        <span>{{ orderDetails.order_details.order_number }}</span> 
+        <span>{{ checkStatus(orderDetails.order_details.status) }} </span>
+
+        <div
+          class="h-6 w-6 rounded-[50%] "
+          :class="{
+            'bg-green-600': orderDetails.order_details.status === STATUS.CONFIRMED,
+            'bg-red-600': orderDetails.order_details.status === STATUS.CANCELD,
+            'bg-orange-300': orderDetails.order_details.status === STATUS.PENDING,
+            'bg-[#00696F]': orderDetails.order_details.status === STATUS.SHIPPING,
+          }"
+        />
       </h1>
       <p>
         {{ formatDateWithTime(orderDetails.order_details.created_at) }}
@@ -41,6 +51,21 @@
       />
 
       <v-btn
+        v-if="orderDetails.order_details.status == STATUS.CONFIRMED"
+        size="large"
+        rounded="xl"
+        variant="elevated"
+        color="primary"
+        :loading="makeBillMutation.isPending.value"
+        @click="onMakeBill"
+      >
+        إنشاء فاتورة
+        <template #prepend>
+          <v-icon :icon="BillIcon" />
+        </template>
+      </v-btn>
+
+      <v-btn
         :to="{ name: 'edit-customer-order', params: { customerId, orderId: orderDetails.order_details.id } }"
         size="large"
         rounded="xl"
@@ -52,6 +77,52 @@
           <v-icon :icon="mdiPencil" />
         </template>
       </v-btn>
+
+      <v-btn
+        size="large"
+        rounded="xl"
+        variant="elevated"
+        color="error"
+        type="submit"
+        @click="cancelOrderDialog.open = true"
+      >
+        إلغاء 
+        <template #prepend>
+          <DeleteIcon fill="fill-white" />
+        </template>
+      </v-btn>
+
+      <v-dialog
+        v-model="cancelOrderDialog.open"
+        width="500"
+      >
+        <v-card
+          :title="dialogQuestion()"
+          rounded="lg"
+          color="#EFE9F5"
+          style="padding-block: 1.75rem !important "
+        >
+          <v-card-text>
+            سيتم الغاء هذه الطلبية بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الطلبية تم الغاؤها.
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer />
+
+            <v-btn
+              text="لا"
+              @click="cancelOrderDialog.open = false"
+            />
+            <v-btn
+              :loading="cancelOrderMutation.isPending.value"
+              text="نعم"
+              @click="
+                onCancelOrder(orderDetails.order_details.id as number)
+              "
+            />
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
   </div>
 
@@ -118,7 +189,7 @@
 </template>
 
 <script setup lang="ts">
-import { changeOrderStatus, getOrder } from '@/orders/orders-service'
+import { cancelOrder, changeOrderStatus, getOrder } from '@/orders/orders-service'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useRoute } from 'vue-router'
 import OrderDetails from '@/orders/components/OrderDetails.vue'
@@ -127,6 +198,10 @@ import { STATUS, statusOptions, type OrderStatus } from '@/orders/models/status'
 import { checkStatus } from '@/core/helpers/check-status'
 import { formatDateWithTime } from '@/core/helpers/format-date'
 import { ref, watch, watchEffect } from 'vue'
+import { postBill } from '@/bills/bill-service'
+import BillIcon from '@/orders/components/icons/BillIcon.vue'
+import router from '@/router'
+import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
 
 const status = ref<OrderStatus>()
 let statusCounter = 0
@@ -134,6 +209,10 @@ let statusCounter = 0
 const route = useRoute()
 const orderId = Number(route.params.orderId)
 const customerId = Number(route.params.customerId)
+
+const cancelOrderDialog = ref({
+  open: false
+})
 
 const {
   data: orderDetails,
@@ -181,5 +260,38 @@ watch(
     statusCounter++
   }
 )
+
+const makeBillMutation = useMutation({
+  mutationFn: postBill,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['orderDetails'] })
+  }
+})
+
+const onMakeBill = () => {
+  if (orderDetails.value) {
+    makeBillMutation.mutate(orderDetails.value.order_details.order_number)
+  }
+}
+
+const dialogQuestion = () => {
+  return `إلغاء الطلبية ${orderDetails.value?.order_details.order_number} ؟`
+}
+
+const onCancelOrder = (id: number) => {
+  cancelOrderMutation.mutate(id)
+}
+
+const cancelOrderMutation = useMutation({
+  mutationFn: cancelOrder,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['orders'] })
+    router.replace({name: 'orders'})
+    cancelOrderDialog.value.open = false
+  },
+  onError: (error) => {
+    console.log(error)
+  }
+})
 
 </script>

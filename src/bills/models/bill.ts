@@ -2,7 +2,7 @@ import type { BillStatus } from "./status"
 
 type Bill = {
   id: number
-  bill_number: number
+  bill_number: string
   customer_name: string
   phone_number: string
   quantity: any[]

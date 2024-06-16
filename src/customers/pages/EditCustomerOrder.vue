@@ -1,4 +1,36 @@
 <template>
+  <v-dialog
+    v-if="deleteProducteDialog.product"
+    v-model="deleteProducteDialog.open"
+    width="500"
+  >
+    <v-card
+      :title="dialogQuestion(deleteProducteDialog.product.name, deleteProducteDialog.product.product_code)"
+      rounded="lg"
+      color="#EFE9F5"
+      style="padding-block: 1.75rem !important ;"
+    >
+      <v-card-text>
+        سيتم حذف عدد {{ orderDetails?.order_details.quantity_selected[deleteProducteDialog.index] }} 
+        {{ orderDetails?.order_details.quantity_selected[deleteProducteDialog.index] === 1 ? 'عنصر' : 'عناصر' }} بقيمة {{ deleteProducteDialog.product.price }} د.ل من هذه الطلبية.
+        لا يمكن التراجع عن هذه العملية.
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer />
+
+        <v-btn
+          text="لا"
+          @click="deleteProducteDialog.open = false"
+        />
+        <v-btn
+          text="نعم"
+          @click="onRemoveProduct(deleteProducteDialog.index, deleteProducteDialog.product.id)"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <v-btn
     :to="{ name: 'view-customer-order', params: { customerId, orderId: orderId } }"
     variant="outlined"
@@ -44,47 +76,12 @@
               {{ product.price }}
             </p>
 
-            <v-dialog width="500">
-              <template #activator="{ props }">
-                <v-btn v-bind="props">
-                  <DeleteIcon
-                    fill="fill-black"
-                    custom-style="w-7 h-7 cursor-pointer"
-                  />
-                </v-btn>
-              </template>
-
-              <template #default="{ isActive }">
-                <v-card
-                  :title="dialogQuestion(product.name, product.id)"
-                  rounded="lg"
-                  color="#EFE9F5"
-                  style="padding-block: 1.75rem !important "
-                >
-                  <v-card-text>
-                    سيتم حذف عدد {{ product.minimum_quantity }}
-                    {{ product.minimum_quantity === 1 ? 'عنصر' : 'عناصر' }} بقيمة
-                    {{ product.price }} د.ل من هذه الطلبية. لا يمكن التراجع عن هذه العملية.
-                  </v-card-text>
-
-                  <v-card-actions>
-                    <v-spacer />
-
-                    <v-btn
-                      text="لا"
-                      @click="isActive.value = false"
-                    />
-                    <v-btn
-                      text="نعم"
-                      @click="
-                        onRemoveProduct(index, product.id);
-                        isActive.value = false
-                      "
-                    />
-                  </v-card-actions>
-                </v-card>
-              </template>
-            </v-dialog>
+            <v-btn @click="onDeleteProduct(product, index)">
+              <DeleteIcon
+                fill="fill-black"
+                custom-style="w-7 h-7 cursor-pointer"
+              />
+            </v-btn>
           </div>
         </div>
 
@@ -220,7 +217,7 @@
           size="large"
           rounded="xl"
           variant="elevated"
-          color="#004C6B"
+          color="primary"
           type="submit"
           :loading="patchOrderMutation.isPending.value"
         >
@@ -259,6 +256,16 @@ const selectedProduct = ref<Product>()
 const addProducteDialog = ref({
   open: false,
   productId: 0
+})
+
+const deleteProducteDialog = ref<{
+  open: boolean,
+  product: Product | null,
+  index: number
+}>({
+  open: false,
+  product: null,
+  index: 0
 })
 
 const route = useRoute()
@@ -332,8 +339,8 @@ watchEffect(() => {
   }
 })
 
-const dialogQuestion = (title: string, id: number) => {
-  return `هل تريد حذف  ${title} من الطلبية  ${id} ؟`
+const dialogQuestion = (title: string, productCode: string) => {
+  return `هل تريد حذف  ${title} من الطلبية  ${productCode} ؟`
 }
 
 const onRemoveProduct = (index: number, id: number) => {
@@ -376,5 +383,10 @@ const onAddProductToOrder = (product: Product) => {
   products.value.push(product)
 }
 
+const onDeleteProduct = (product: Product, index: number) => {
+  deleteProducteDialog.value.open = true
+  deleteProducteDialog.value.index = index
+  deleteProducteDialog.value.product = product
+}
 
 </script>

@@ -44,7 +44,6 @@
             <p
               class="w-1/2 text-center font-medium"
               :class="{
-                // 'text-green-600': order.status === STATUS.DELIVERD,
                 'text-green-600': order.status === STATUS.CONFIRMED,
                 'text-red-600': order.status === STATUS.CANCELD,
                 'text-orange-500': order.status === STATUS.PENDING,
@@ -126,7 +125,7 @@
     
                   rounded="xl"
                   variant="elevated"
-                  color="#004C6B"
+                  color="error"
                   type="submit"
                 >
                   إلغاء

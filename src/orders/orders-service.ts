@@ -47,7 +47,7 @@ const patchOrder = (id: number, body: PatchOrderRequest): Promise<Order> => {
 const cancelOrder = (id: number) => {
   return apiClient.url(`/orders/${id}`).delete().json(() => {
     alertStore.show({
-      message: 'تم حذف الطلب بنجاح',
+      message: 'تم إلغاء الطلب بنجاح',
       type: 'info'
     })
   })
