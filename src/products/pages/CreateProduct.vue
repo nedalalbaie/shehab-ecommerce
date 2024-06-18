@@ -35,10 +35,12 @@ const queryClient = useQueryClient()
 const addProduct = useMutation({
   mutationFn: postProduct,
   onSuccess: async (product) => {
+    console.log(product);
+    
     if (productDetails.value) {
      await addProductDetails.mutateAsync({
         ...productDetails.value,
-        product_id: product.data.id
+        product_id: product.date.id
       })
     }
     router.replace({ name: 'products' })

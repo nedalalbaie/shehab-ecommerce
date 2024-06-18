@@ -156,36 +156,10 @@
         :error-messages="errors.minimum_quantity"
         @input="convertMinimalquantityToNumber"
       />
-
-      <!-- <div>
-        <p class="text-xl mb-4">
-          الجنس
-        </p>
-        <v-radio-group
-          v-model="gender"
-          inline
-        >
-          <v-radio
-            label="أولاد"
-            :value="GENDER.MALE"
-            color="#00658D"
-          />
-          <v-radio
-            label="بنات"
-            :value="GENDER.FEMALE"
-            color="#A13763"
-          />
-          <v-radio
-            label="كلاهما"
-            :value="GENDER.BOTH"
-            color="primary"
-          />
-        </v-radio-group>
-      </div> -->
     </div>
 
     <div>
-      <ColorPicker />
+      <ColorPicker v-model="hexCodes" />
     </div>
 
     <div class="mt-10">
@@ -279,7 +253,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
 import { object, string, number } from 'zod';
 import type { AddProductRequest, Product } from "../models/product";
-import { computed, reactive, ref, watchEffect } from "vue";
+import { computed, reactive, ref, watch, watchEffect } from "vue";
 import {  getsubCategoriesByCategoryId } from "@/subCategories/subCategories-service";
 import { useQuery } from "@tanstack/vue-query";
 import ImageUpload from "@/core/components/ImageUpload.vue"
@@ -312,7 +286,7 @@ const editMode = computed(() => !!props.product)
 const isDisabled = computed(() => !meta.value.valid || selectedImagesState.value == "empty")
 const listParams = ref({
   page: 1,
-  limit: 100,
+  limit: 200,
 })
 
 const { data: mainCategories, isPending: mainCategoriesPending} = useQuery({
@@ -363,7 +337,7 @@ const { handleSubmit, errors, meta, setValues } = useForm({
 const { value: name } = useField<string>('name');
 const { value: product_code } = useField<number>('product_code');
 const { value: description } = useField<string>('description');
-const { value: sub_category_id } = useField<number>('sub_category_id');
+const { value: sub_category_id, resetField: resetSubCategory } = useField<number>('sub_category_id');
 const { value: price } = useField<number>('price');
 const { value: inventory_level } = useField<number>('inventory_level');
 const { value: selling_method } = useField<number>('selling_method');
@@ -407,8 +381,6 @@ const convertMinimumQuantityToNumber = () => {
 }
 
 const submit = handleSubmit(values => {
-  console.log(values);
-  
   emit("submit", {
     ...values,
     image1_path: base64Images[0] as File,
@@ -428,21 +400,21 @@ const handleImage = (imageFile: File | null, state: "filled" | "empty", index?: 
 
 }
 
-const handleHexCodes = (passedHexCodes: string[]) => {
-  hexCodes.value = passedHexCodes
-}
-
 watchEffect(() => {
   if (mainCategoryId.value) {
+    categoryId.value = null
     categoriesRefetch()
   }
 })
 
-watchEffect(() => {
-  if (categoryId.value) {
-    subCategoriesRefetch()
+watch(
+  categoryId, 
+  (categoryId) => {
+    if (categoryId) {
+      resetSubCategory()
+      subCategoriesRefetch()
   }
-  
-})
+  }
+)
 
 </script>

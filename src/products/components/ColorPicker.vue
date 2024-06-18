@@ -1,67 +1,96 @@
 <template>
   <p>الألوان *</p>
 
-  <v-color-picker
-    v-model="colors"
-    mode="hex"
-    @update:modelValue="selectColor"
-  />
-  
-  <!-- <div class="mt-8 flex gap-4 relative">
-    <div
-      v-for="(color, index) in hexCodes"
-      :key="index"
-      class="w-14 h-14 rounded-[50%] shadow-full-white flex items-end"
-      :style="{ 'background-color': color }"
-    >
+  <div class="flex gap-6">
+    <v-color-picker
+      v-model="color"
+      mode="hex"
+    />
+
+    <div class="flex flex-col items-center gap-3 self-start shadow-md border p-4 rounded-md">
+      <p class="text-center">
+        إضفط علي الزر  لإضافة هذا اللون إلي ألوان المنتج
+      </p>
       <div
-        class="bg-red-700 w-6 h-6 grid place-content-center rounded-[50%] relative -bottom-4  shadow-full-white border border-neutral-300 cursor-pointer"
-        @click="removeColor(color, index)"
+        class="w-14 h-14 rounded-[50%] shadow-full-white flex items-end"
+        :style="{ 'background-color': color }"
+      />
+
+      <v-btn
+        :disabled="!color"
+        variant="elevated"
+        color="primary"
+        size="small"
+        @click="addColor"
       >
-        <MinusIcon />
+        إضافة اللون 
+      </v-btn>
+    </div>
+  </div>
+
+  <div
+    v-if="hexCodes.length > 0"
+    class="self-start shadow-md border p-4 rounded-md relative mt-4 w-1/2"
+  >
+    <p>
+      الألوان المختارة للمنتج
+    </p>
+    <div class="flex flex-wrap gap-6 mt-4">
+      <div
+        v-for="(hexColor, index) in hexCodes"
+        :key="index"
+        class="w-14 h-14 rounded-[50%] shadow-full-white flex items-end border"
+        :style="{ 'background-color': hexColor }"
+      >
+        <div
+          class="bg-red-700 w-6 h-6 grid place-content-center rounded-[50%] relative -bottom-4  shadow-full-white border border-neutral-300 cursor-pointer"
+          @click="removeColor(hexColor)"
+        >
+          <MinusIcon />
+          <v-tooltip
+            activator="parent"
+            location="bottom"
+          >
+            إزالة اللون
+          </v-tooltip>
+        </div>
       </div>
     </div>
-  </div> -->
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { ref } from 'vue';
 import MinusIcon from "./icons/MinusIcon.vue"
-import ArrowIcon from "./icons/ArrowIcon.vue"
-
-// const props = defineProps<{
-//   hexCodesProp?: string [] 
-// }>()
-// const emit = defineEmits<{
-//   passHexcodes: [value: string []]
-// }>()
+import { alertStore } from '@/core/stores/alert.store';
  
-const hexCodes = ref<string[]>([])
-const isColorListOpen = ref(false)
+const hexCodes = defineModel<string []>({required: true})
 
-const colors = ref()
+const color = ref()
 
-const selectColor = (color: any) => {
-  console.log(color);
-  
+const addColor = () => {
+  if (hexCodes.value.some(code => code == color.value)) {
+    alertStore.show({
+        message: 'لقد قمت بإدخال هذا اللون مسبقا',
+        type: 'error'
+      })
+      return
+  }
+
+  hexCodes.value.push(color.value)
 }
 
-// const addColor = (selectedColor: string) => {
-//     hexCodes.value.push(selectedColor)
-//     colors.value = colors.value.filter((color: string) => color !== selectedColor)
-//     emit("passHexcodes", hexCodes.value)  
-// }
+const removeColor = (selectedColor: string) => {
+    // if (hexCodes.value) {
+    //     if (hexCodes.value.length < 2) {
+    //         hexCodes.value.splice(index, 1)
+    //     } else {
+    //         hexCodes.value = hexCodes.value.filter(color => color !== selectedColor)
+    //     }
+    // }
 
-// const removeColor = (selectedColor: string, index: number) => {
-//     if (hexCodes.value) {
-//         if (hexCodes.value.length < 2) {
-//             hexCodes.value.splice(index, 1)
-//         } else {
-//             hexCodes.value = hexCodes.value.filter(color => color !== selectedColor)
-//         }
-//     }
-//     colors.value.push(selectedColor);
-// }
+    hexCodes.value = hexCodes.value.filter(color => color !== selectedColor)
+}
 
 // watchEffect(() => {
 //   if (props.hexCodesProp) {

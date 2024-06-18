@@ -181,7 +181,7 @@
   import { useRoute } from "vue-router";
 
   const quantityTotal = (quantites: number[]) => (
-     quantites.reduce((acc, quantity) => acc + quantity  )
+    quantites.length > 0 ? quantites.reduce((acc, quantity) => acc + quantity) : 0
   )
 
   const route = useRoute();

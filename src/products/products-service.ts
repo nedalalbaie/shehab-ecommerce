@@ -24,7 +24,9 @@ const getProduct = (id: number): Promise<Omit<Product , "sub_category_id"> & {ca
   return apiClient.url(`/products/${id}`).get().json()
 }
 
-const postProduct = (body: AddProductRequest): Promise<List<Product>> => {
+const postProduct = (body: AddProductRequest): Promise<{
+  date: Product
+}> => {
   return apiClient
     .addon(formData)
     .url('/products')
@@ -37,7 +39,6 @@ const postProduct = (body: AddProductRequest): Promise<List<Product>> => {
       })
       return res
     })
-    .catch((error: any) => console.log(error.errors) )
 }
 
 const editProduct = (id: number, body: Partial<AddProductRequest>): Promise<Product> => {

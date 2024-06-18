@@ -8,26 +8,26 @@
       >{{ products.data.value?.data.length }} </span>
     </h1>
     <div
-      ref="upperElement"
-      class="flex justify-between items-center mt-6"
+      class="flex justify-between mt-6"
     >
       <div class="flex gap-4">
-        <div
-          class="flex justify-between items-center bg-[#ebf2fc] border  rounded-xl py-1 px-4"
-        >
-          <input
-            v-model="searchValue"
-            placeholder="إبحث عن منتجات"
-            type="text"
-            class="w-56 border-none p-2 rounded-lg outline-none transition-all duration-100 placeholder:text-gray-700"
-            @input="handleSearch"
-          >
-          <SearchIcon custom-style="w-6 h-6" />
-        </div>
+        <v-text-field
+          v-model="search"
+          class="w-72"
+          label="إبحث بإسم المنتج"
+          bg-color="background"
+          density="comfortable"
+          variant="solo"
+          clearable
+          flat
+          rounded
+          @click:clear="onInputClear"
+          @input="handleSearch"
+        />
 
         <v-btn
           :append-icon="DiscountIcon"
-          :to="{ name: 'coupons' }"
+          :to="{ name: 'discounts' }"
           color="primary"
           size="large"
           rounded="xl"
@@ -38,7 +38,7 @@
 
         <v-btn
           :append-icon="mdiTicketPercentOutline"
-          :to="{ name: 'discounts' }"
+          :to="{ name: 'coupons' }"
           color="primary"
           size="large"
           rounded="xl"
@@ -118,12 +118,12 @@
             <p class="w-1/5">
               {{ product.hex_codes.length > 1 ? 'الألوان' : 'اللون' }}
             </p>
-            <div class="w-4/5 flex justify-end gap-1">
+            <div class="w-4/5 flex justify-end gap-1 flex-wrap">
               <div
-                v-for="(color, colorIndex) in product.hex_codes"
+                v-for="(color, colorIndex) in convertToObject(product.hex_codes)"
                 :key="colorIndex"
-                class="w-8 h-8 rounded-[50%] shadow-full-white border-2  flex items-end"
-                :style="{ 'background-color': `#${color}` }"
+                class="w-8 h-8 rounded-[50%]  border-2  flex items-end"
+                :style="{ 'background-color': `${color}` }"
               />
             </div>
           </div>
@@ -160,108 +160,47 @@
                 <EditIcon />
               </template>
             </v-btn> -->
-            <!-- <v-btn
+            <v-btn
               :to="{
-                name: 'market-details',
+                name: 'product-details',
                 params: { id: product.id },
               }"
               variant="tonal"
-              class="mx-1"
-              density="comfortable"
-              icon
+              rounded="xl"
+              :append-icon="mdiEye"
               color="primary"
             >
-              <v-icon :icon="mdiEye" />
-              <v-tooltip
-                activator="parent"
-                location="bottom"
-              >
-                عرض
-              </v-tooltip>
-            </v-btn> -->
-  
-            <v-dialog width="500">
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  variant="text"
-                  class="mx-1"
-                  density="comfortable"
-                  icon
-                  color="error"
-                >
-                  <v-icon :icon="mdiDelete" />
-                  <v-tooltip
-                    activator="parent"
-                    location="bottom"
-                  >
-                    حذف
-                  </v-tooltip>
-                </v-btn>
-              </template>
-  
-              <template #default="{ isActive }">
-                <v-card
-                  :title="dialogQuestion(product.product_code)"
-                  rounded="lg"
-                  color="#EFE9F5"
-                  style="padding-block: 1.75rem !important ;"
-                >
-                  <v-card-text>
-                    سيتم حذف هذه المنتج بشكل نهائي .
-                  </v-card-text>
-  
-                  <v-card-actions>
-                    <v-spacer />
-  
-                    <v-btn
-                      text="لا"
-                      @click="isActive.value = false"
-                    />
-                    <v-btn
-                      text="نعم"
-                      @click="isActive.value = false; onDeleteProduct(product.id)"
-                    />
-                  </v-card-actions>
-                </v-card>
-              </template>
-            </v-dialog>
+              عرض
+            </v-btn>
 
             <v-btn
               v-if="product.active_product === BASE_STATUS.Activated"
               :loading="isStatusLoading[index]"
               variant="tonal"
-              class="mx-1"
-              density="comfortable"
-              icon
-              color="warning"
+              rounded="xl"
+              color="error"
+              :append-icon="mdiCancel"
               @click="onStatusChange(product.id, BASE_STATUS.Deactivated, index)"
             >
-              <v-icon :icon="mdiCancel" />
-              <v-tooltip
-                activator="parent"
-                location="bottom"
-              >
-                الغاء التفعيل
-              </v-tooltip>
+              الغاء التفعيل
             </v-btn>
             <v-btn
               v-if="product.active_product === BASE_STATUS.Deactivated"
               :loading="isStatusLoading[index]"
               variant="tonal"
-              class="mx-1"
-              density="comfortable"
-              icon
-              color="success"
+              rounded="xl"
+              :append-icon="mdiCheck"
+              color="primary"
               @click="onStatusChange(product.id, BASE_STATUS.Activated, index)"
             >
-              <v-icon :icon="mdiCheck" />
+              <!-- <v-icon :icon="mdiCheck" />
               <v-tooltip
                 activator="parent"
                 location="bottom"
               >
                 إعادة التفعيل
-              </v-tooltip>
+              </v-tooltip> -->
+              إعادة التفعيل
             </v-btn>
           </div>
         </div>
@@ -272,19 +211,17 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { getProducts, deleteProduct, changeStatus } from "../products-service"
+import { getProducts, changeStatus } from "../products-service"
 import type { PaginationParams } from '@/core/models/pagination-params'
-import SearchIcon from "@/core/components/icons/SearchIcon.vue";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import EmptyData from "@/core/components/EmptyData.vue";
 import LoadingProducts from "../components/LoadingProducts.vue";
 import {
   mdiPlus,
-  mdiEye,
   mdiCancel,
   mdiCheck,
-  mdiDelete,
-  mdiTicketPercentOutline
+  mdiTicketPercentOutline,
+  mdiEye
 } from '@mdi/js'
 import debounce from "lodash.debounce";
 import { type BaseStatus } from "@/core/models/base-status";
@@ -292,7 +229,7 @@ import { BASE_STATUS } from "@/core/models/base-status";
 import DiscountIcon from "@/core/components/icons/DiscountIcon.vue"
 
 const isStatusLoading = ref<boolean []>([])
-const searchValue = ref('');
+const search= ref('');
 const listParams = ref<PaginationParams & {productName?: string}>({
   page: 1,
   limit: 10,
@@ -304,42 +241,26 @@ const products = useQuery({
 })
 
 const storage = import.meta.env.VITE_API_Storage
-const upperElement = ref<HTMLElement | null>(null)
 
 const getBackgroundImage = (url: string) => {
   return {
-    backgroundImage: `url(${storage}${url})`,
-    // backgroundSize: '60%' 
+    backgroundImage: `url(${storage}${url})`
   }
 }
 
 const convertToObject = (hexCodesParam: string) => {
-  return JSON.parse(hexCodesParam) as string[]
+ return JSON.parse(hexCodesParam) as string[]
 }
 
 const queryClient = useQueryClient()
-const deleteProductMutation = useMutation({
-  mutationFn: deleteProduct,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['products'] })
-  },
-  onError: (error) => {
-    console.log(error)
-  }
-})
-
-const onDeleteProduct = (id: number) => {
-  deleteProductMutation.mutate(id)
-}
-
-const dialogQuestion = (productCode: string) => {
-  return `حذف المنتج ${productCode}# ؟`
-}
 
 const handleSearch  = debounce(() => {
-    listParams.value.productName = searchValue.value
-    
-}, 300)
+    listParams.value.productName = search.value
+}, 400)
+
+const onInputClear = () => {
+  listParams.value.productName = ''
+ }
 
 const onStatusChange = (productId: number, status: BaseStatus, index: number) => {
   isStatusLoading.value[index] = true

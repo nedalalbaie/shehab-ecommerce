@@ -1,7 +1,19 @@
 <template>
-  <h2 class="text-2xl font-semibold">
-    الكوبونات
-  </h2>
+  <div class="flex justify-between">
+    <h2 class="text-2xl font-semibold">
+      الكوبونات
+    </h2>
+    <v-btn
+      :to="{ name: 'products' }"
+      variant="outlined"
+      color="primary"
+      size="large"
+      :append-icon="mdiArrowLeft"
+    >
+      الرجوع الى المتجات
+    </v-btn>
+  </div>
+
   <div class="flex justify-between mt-8">
     <div class="w-72">
       <v-text-field
@@ -106,6 +118,7 @@
 </template>
 <script setup lang="ts">
 import {
+  mdiArrowLeft,
   mdiPlus,
   mdiTagEdit
 } from '@mdi/js'

@@ -59,5 +59,4 @@ const changeBillStatus = (body: ChangeBillStatusBody) => {
   })
 }
 
-
 export { getBills, getBill, getBillByCustomerId, changeBillStatus, postBill }
