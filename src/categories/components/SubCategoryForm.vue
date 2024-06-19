@@ -21,7 +21,7 @@
       />
     </div>
   
-    <div>
+    <div v-if="!editMode">
       <h3 class="text-xl">
         قم بالضغط لرفع صورة
       </h3>
@@ -65,7 +65,6 @@
   import type { SubCategory, CreateOrPatchSubCategory } from "../models/subCategory"
   import { computed, ref, watchEffect } from "vue"
   import ImageUpload from "@/core/components/ImageUpload.vue"
-  import { pathToFile } from '@/core/helpers/pathToFile'
   
   const props = defineProps<{
     isLoading: boolean,
@@ -105,27 +104,14 @@
         ...props.subCategory
       })
       selectedImageState.value = props.subCategory.image_path ? "filled" : "empty"
-  
-      pathToFile(props.subCategory.image_path, props.subCategory.image_path.substring(props.subCategory.image_path.lastIndexOf("/") + 1))
-        .then((file: File) => {
-          selectedImage.value = file
-        })
-        .catch((error: Error) => {
-          console.error(error);
-        });
     }
   })
   
   const submit = handleSubmit(values => {
     emit("submit", {
       ...values,
-      image_path: selectedImage.value as File
+      image_path: editMode.value? props.subCategory!.image_path : selectedImage.value as File
     })
-    console.log({
-      ...values,
-      image_path: selectedImage.value as File
-    });
-    
   })
   
   const handleImage = (image: File | null, state: "filled" | "empty") => {

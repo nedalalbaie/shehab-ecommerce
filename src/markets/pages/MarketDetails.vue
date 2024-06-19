@@ -123,12 +123,12 @@
               <p class="w-1/5">
                 {{ product.product_info.hex_codes.length > 1 ? 'الألوان' : 'اللون' }}
               </p>
-              <div class="w-4/5 flex justify-end gap-1">
+              <div class="w-4/5 flex flex-wrap justify-end gap-1">
                 <div
-                  v-for="(color, index) in product.product_info.hex_codes"
+                  v-for="(color, index) in convertToObject(product.product_info.hex_codes)"
                   :key="index"
                   class="w-8 h-8 rounded-[50%] shadow-full-white border-2  flex items-end"
-                  :style="{ 'background-color': `#${color}` }"
+                  :style="{ 'background-color': `${color}` }"
                 />
               </div>
             </div>
@@ -193,6 +193,10 @@ const getBackgroundImage = (url: string) => {
 
 const onRefetch = () => {
   marketProducts.refetch()
+}
+
+const convertToObject = (hexCodesParam: string) => {
+ return JSON.parse(hexCodesParam) as string[]
 }
 
 </script>

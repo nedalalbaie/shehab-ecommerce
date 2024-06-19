@@ -21,7 +21,7 @@
       />
     </div>
 
-    <div>
+    <div v-if="!editMode">
       <h3 class="text-xl">
         قم بالضغط لرفع صورة
       </h3>
@@ -66,7 +66,6 @@ import { number, object, string, } from 'zod'
 import type { AddCategoryRequest, Category } from "../models/Category"
 import { computed, ref, watchEffect } from "vue"
 import ImageUpload from "@/core/components/ImageUpload.vue"
-import { pathToFile } from '@/core/helpers/pathToFile'
 
 const props = defineProps<{
   isLoading: boolean,
@@ -109,21 +108,13 @@ watchEffect(() => {
       cat_zero_id: props.category.cat_zero_id
     })
     selectedImageState.value = props.category.image_path ? "filled" : "empty"
-
-    pathToFile(props.category.image_path, props.category.image_path.substring(props.category.image_path.lastIndexOf("/") + 1))
-      .then((file: File) => {
-        imageFile.value = file
-      })
-      .catch((error: Error) => {
-        console.error(error);
-      });
   }
 })
 
 const submit = handleSubmit(values => {
   emit("submit", {
     ...values,
-    image_path: imageFile.value as File
+    image_path: editMode.value? props.category!.image_path : imageFile.value as File
   })
 })
 

@@ -6,8 +6,8 @@
       class="bg-gray-200 px-2 rounded-lg text-2xl"
     > {{ installments.total }}</span>
   </h2>
-  <div class="flex justify-between mt-8">
-    <div class="w-72">
+  <div class="flex justify-end mt-8">
+    <!-- <div class="w-72">
       <v-text-field
         v-model="searchValue"
         label="البحث"
@@ -18,13 +18,15 @@
         density="compact"
         @input="handleSearch"
       />
-    </div>
+    </div> -->
+
     <v-btn
       :append-icon="mdiPlus"
       :to="{ name: 'add-installment' }"
       color="primary"
       variant="elevated"
       rounded="xl"
+      size="large"
     >
       إضافة قسط
     </v-btn>
@@ -46,71 +48,65 @@
       :loading="isPending"
       @update:options="onTableOptionsChange({ page: $event.page, limit: $event.itemsPerPage })"
     >
+      <template #[`item.show`]="{ item }">
+        <v-chip
+          :color="getStatusColor(item.show)"
+        >
+          {{ getStatusLabel(item.show) }}
+        </v-chip>
+      </template>
+
       <template #[`item.actions`]="{ item }">
         <div class="flex gap-1">
-          <v-dialog width="500">
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                variant="text"
-                class="mx-1"
-                density="comfortable"
-                icon
-                color="error"
-              >
-                <v-icon :icon="mdiDelete" />
-                <v-tooltip
-                  activator="parent"
-                  location="bottom"
-                >
-                  حذف
-                </v-tooltip>
-              </v-btn>
-            </template>
-  
-            <template #default="{ isActive }">
-              <v-card
-                :title="dialogQuestion('')"
-                rounded="lg"
-                color="#EFE9F5"
-                style="padding-block: 1.75rem !important "
-              >
-                <v-card-text> سيتم حذف هذه الإستحقاق بشكل نهائي . </v-card-text>
-  
-                <v-card-actions>
-                  <v-spacer />
-  
-                  <v-btn
-                    text="لا"
-                    @click="isActive.value = false"
-                  />
-                  <v-btn
-                    text="نعم"
-                    @click="
-                      isActive.value = false;
-                      onDeleteInstallment(item.id)
-                    "
-                  />
-                </v-card-actions>
-              </v-card>
-            </template>
-          </v-dialog>
+          <v-btn
+            v-if="item.show == 1"
+            :loading="deleteInstallmentMutation.isPending.value"
+            variant="tonal"
+            class="mx-1"
+            density="comfortable"
+            icon
+            color="warning"
+            @click="onDeleteInstallment(item.id)"
+          >
+            <v-icon :icon="mdiCancel" />
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >
+              الغاء التفعيل
+            </v-tooltip>
+          </v-btn>
+          <v-btn
+            v-if="item.show == 0"
+            :loading="deleteInstallmentMutation.isPending.value"
+            variant="tonal"
+            class="mx-1"
+            density="comfortable"
+            icon
+            color="success"
+            @click="onDeleteInstallment(item.id)"
+          >
+            <v-icon :icon="mdiCheck" />
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >
+              إعادة التفعيل
+            </v-tooltip>
+          </v-btn>
         </div>
       </template>
     </v-data-table-server>
   </div>
 </template>
   <script setup lang="ts">
-  import { mdiPlus } from '@mdi/js'
+  import { mdiCancel, mdiCheck, mdiPlus } from '@mdi/js'
   import { ref } from 'vue'
   import { getInstallments, deleteInstallment} from '../installment-service'
   import type { PaginationParams } from '@/core/models/pagination-params'
   import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-  import debounce from 'lodash.debounce'
   import LoadingSkeleton from '@/core/components/LoadingSkeleton.vue'
-  import { mdiDelete } from '@mdi/js'
-  
-  const searchValue = ref('')
+
   const listParams = ref<PaginationParams & { search_value: string }>({
     page: 1,
     limit: 10,
@@ -125,7 +121,7 @@
   const headers = [
     { title: 'الأيام المتبقية', value: 'days_late', width: '300px', sortable: false },
     { title: 'النسبة', value: 'percentage', width: '300px', sortable: false },
-    { title: 'العرض', value: 'show', width: '300px', sortable: false },
+    { title: 'العرض', value: 'show', key: 'show', width: '300px', sortable: false },
     { title: 'الإجرائات', key: 'actions', width: '300px', sortable: false }
   ]
   
@@ -140,10 +136,6 @@
     }
   }
   
-  const handleSearch = debounce(() => {
-    listParams.value.search_value = searchValue.value
-  }, 300)
-  
   const deleteInstallmentMutation = useMutation({
     mutationFn: deleteInstallment,
     onSuccess: () => {
@@ -157,10 +149,14 @@
   const onDeleteInstallment = (id: number) => {
     deleteInstallmentMutation.mutate(id)
   }
-  
-  const dialogQuestion = (productCode: string) => {
-    return `حذف الإستحقاق ${productCode}# ؟`
-  }
+
+  const getStatusColor = (status: number) => {
+  return status === 1 ? 'green-darken-4' : 'error'
+}
+
+const getStatusLabel = (status: number) => {
+  return status === 1 ? 'مفعل' : 'غير مفعل'
+}
   
   </script>
   

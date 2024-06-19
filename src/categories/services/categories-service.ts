@@ -1,7 +1,7 @@
 import apiClient from '@/core/helpers/api-client'
 import queryString from 'wretch/addons/queryString'
 import formData from 'wretch/addons/formData'
-import type { AddCategoryRequest, Category, EditCategoryRequest } from '../models/Category'
+import type { AddCategoryRequest, Category } from '../models/Category'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import type { List } from '@/core/models/list'
 import { alertStore } from '@/core/stores/alert.store'
@@ -29,7 +29,7 @@ const addCategory = (body: AddCategoryRequest): Promise<Category> => {
     })
 }
 
-const editCategory = (id: number, body: EditCategoryRequest): Promise<Category> => {
+const editCategory = (id: number, body: AddCategoryRequest): Promise<Category> => {
   return apiClient
     .addon(formData)
     .url(`/categories/${id}`)

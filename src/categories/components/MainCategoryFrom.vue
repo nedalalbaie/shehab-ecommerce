@@ -21,7 +21,7 @@
       />
     </div>
     
-    <div>
+    <div v-if="!editMode">
       <h3 class="text-xl">
         قم بالضغط لرفع صورة
       </h3>
@@ -56,7 +56,6 @@
     import type { MainCategory, PostMainCategoryRequest } from "../models/mainCategory"
     import { computed, ref, watchEffect } from "vue"
     import ImageUpload from "@/core/components/ImageUpload.vue"
-    import { pathToFile } from '@/core/helpers/pathToFile'
     
     const props = defineProps<{
       isLoading: boolean,
@@ -65,7 +64,7 @@
     const emit = defineEmits<{
       submit: [value: PostMainCategoryRequest]
     }>()
-    
+
     const imageFile = ref<File | null>(null)
     const selectedImageState = ref<"filled" | "empty">("empty")
     const editMode = computed(() => !!props.mainCategory)
@@ -92,21 +91,13 @@
           description: props.mainCategory.description
         })
         selectedImageState.value = props.mainCategory.image_path ? "filled" : "empty"
-    
-        pathToFile(props.mainCategory.image_path, props.mainCategory.image_path.substring(props.mainCategory.image_path.lastIndexOf("/") + 1))
-          .then((file: File) => {
-            imageFile.value = file
-          })
-          .catch((error: Error) => {
-            console.error(error);
-          });
       }
     })
     
     const submit = handleSubmit(values => {
       emit("submit", {
         ...values,
-        image_path: imageFile.value as File
+        image_path: editMode.value ? props.mainCategory!.image_path : imageFile.value as File
       })
     })
     

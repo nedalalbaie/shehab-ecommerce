@@ -17,13 +17,15 @@
   <div class="flex justify-between mt-8">
     <div class="w-72">
       <v-text-field
-        v-model="searchValue"
-        label="البحث"
-        variant="outlined"
-        color="primary"
+        v-model="search"
+        label="إبحث بكود الكوبون  "
+        bg-color="background"
         clearable
-        placeholder="البحث"
-        density="compact"
+        variant="solo"
+        flat
+        density="comfortable"
+        rounded
+        @click:clear="onInputClear"
         @input="handleSearch"
       />
     </div>
@@ -33,15 +35,34 @@
       color="primary"
       variant="elevated"
       rounded="xl"
+      size="large"
     >
       إضافة كوبون
     </v-btn>
   </div>
 
-  <LoadingSkeleton v-if="coupones.isPending.value" />
+  <div
+    v-if="coupones.isPending.value"
+    class="w-full h-96 flex items-center justify-center"
+  >
+    <v-progress-circular
+      size="50"
+      width="4"
+      indeterminate
+      color="primary"
+    />
+  </div>
+
+  <v-alert
+    v-else-if="coupones.isError.value"
+    type="error"
+    class="my-6"
+    title="خطأ في الوصول الى بيانات المحلات"
+    text="الرجاء اعادة المحاولة مرة أخرى."
+  />
 
   <div
-    v-if="coupones.data.value"
+    v-else-if="coupones.data.value"
     class="shadow-lg rounded-lg mt-4 border border-gray-200"
   >
     <v-data-table-server
@@ -60,82 +81,101 @@
       <template #[`item.actions`]="{ item }">
         <div class="flex gap-2">
           <v-btn
-            :append-icon="mdiTagEdit"
-            color="grey-darken-2"
-            size="small"
-            variant="elevated"
             :to="{ name: 'edit-coupon', params: { id: item.id } }"
+            variant="tonal"
+            class="mx-1"
+            density="comfortable"
+            icon
+            color="primary"
           >
-            تعديل
+            <v-icon :icon="mdiPencil" />
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >
+              تعديل
+            </v-tooltip>
           </v-btn>
 
-          <v-dialog width="500">
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                size="small"
-                variant="elevated"
-                color="#004C6B"
-                type="submit"
-              >
-                حذف
-                <template #prepend>
-                  <DeleteIcon fill="fill-white" />
-                </template>
-              </v-btn>
-            </template>
-  
-            <template #default="{ isActive }">
-              <v-card
-                :title="dialogQuestion(item.coupon_code)"
-                rounded="lg"
-                color="#EFE9F5"
-                style="padding-block: 1.75rem !important ;"
-              >
-                <v-card-text>
-                  سيتم حذف هذه الكوبون بشكل نهائي .
-                </v-card-text>
-  
-                <v-card-actions>
-                  <v-spacer />
-  
-                  <v-btn
-                    text="لا"
-                    @click="isActive.value = false"
-                  />
-                  <v-btn
-                    text="نعم"
-                    @click="isActive.value = false; onDeleteCoupon(item.id)"
-                  />
-                </v-card-actions>
-              </v-card>
-            </template>
-          </v-dialog>
+          <v-btn
+            variant="text"
+            class="mx-1"
+            density="comfortable"
+            icon
+            color="error"
+            @click="openDeleteDialog(item)"
+          >
+            <v-icon :icon="mdiDelete" />
+            <v-tooltip
+              activator="parent"
+              location="bottom"
+            >
+              حذف
+            </v-tooltip>
+          </v-btn>
         </div>
       </template>
     </v-data-table-server>
   </div>
+
+  <v-dialog
+    v-model="deleteDialog.open"
+    width="500"
+  >
+    <v-card
+      :title="dialogQuestion()"
+      rounded="lg"
+      color="#EFE9F5"
+      style="padding-block: 1.75rem !important ;"
+    >
+      <v-card-text>
+        سيتم حذف هذه الكوبون بشكل نهائي .
+      </v-card-text>
+  
+      <v-card-actions>
+        <v-spacer />
+  
+        <v-btn
+          text="لا"
+          @click="deleteDialog.open = false"
+        />
+        <v-btn
+          :loading="deleteCouponMutation.isPending.value"
+          text="نعم"
+          @click=" onDeleteCoupon()"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 <script setup lang="ts">
 import {
   mdiArrowLeft,
-  mdiPlus,
-  mdiTagEdit
+  mdiDelete,
+  mdiPencil,
+  mdiPlus
 } from '@mdi/js'
 import { ref } from "vue";
 import { getCoupons, deleteCoupon } from "../coupons-service"
 import type { PaginationParams } from '@/core/models/pagination-params'
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import debounce from 'lodash.debounce'
-import LoadingSkeleton from "@/core/components/LoadingSkeleton.vue"
 import { formatToDate } from "@/core/helpers/format-date"
-import DeleteIcon from '@/core/components/icons/DeleteIcon.vue';
+import { type Coupon } from '../models/coupon';
 
-const searchValue = ref('');
-const listParams = ref<PaginationParams & { coupon_code: string}>({
+const search = ref('');
+const listParams = ref({
   page: 1,
   limit: 10,
   coupon_code: ''
+})
+
+const deleteDialog = ref<{
+  open: boolean,
+  coupon: Coupon | null
+}>({
+ open: false,
+ coupon: null
 })
 
 const coupones = useQuery({
@@ -159,14 +199,19 @@ const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   }
 }
 
-const handleSearch = debounce(() => {
-  listParams.value.coupon_code = searchValue.value
-}, 300)
+const onInputClear = () => {
+  listParams.value.coupon_code = ''
+ }
+
+ const handleSearch  = debounce(() => {
+   listParams.value.coupon_code = search.value
+}, 400)
 
 const queryClient = useQueryClient()
 const deleteCouponMutation = useMutation({
   mutationFn: deleteCoupon,
   onSuccess: () => {
+    deleteDialog.value.open = false
     queryClient.invalidateQueries({ queryKey: ['coupones'] })
   },
   onError: (error) => {
@@ -174,12 +219,19 @@ const deleteCouponMutation = useMutation({
   }
 })
 
-const onDeleteCoupon = (id: number) => {
-  deleteCouponMutation.mutate(id)
+const openDeleteDialog = (coupon: Coupon) => {
+  deleteDialog.value = {
+    open: true,
+    coupon: coupon
+  }
 }
 
-const dialogQuestion = (productCode: string) => {
-  return `حذف الكوبون ${productCode}# ?`
+const onDeleteCoupon = () => {
+  deleteCouponMutation.mutate(deleteDialog.value.coupon!.id)
+}
+
+const dialogQuestion = () => {
+  return `حذف الكوبون ${deleteDialog.value.coupon!.coupon_code} ؟`
 }
 
 </script>

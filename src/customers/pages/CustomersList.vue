@@ -236,7 +236,7 @@ const onTrustStatusChange = (customerId: number, status: BaseStatus, index: numb
 }
 
 const getStatusColor = (status: BaseStatus) => {
-  return status === BASE_STATUS.Activated ? 'success' : 'error'
+  return status === BASE_STATUS.Activated ? 'green-darken-4' : 'error'
 }
 
 const getStatusLabel = (status: BaseStatus) => {

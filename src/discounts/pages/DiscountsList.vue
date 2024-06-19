@@ -17,13 +17,15 @@
   <div class="flex justify-between mt-8">
     <div class="w-72">
       <v-text-field
-        v-model="searchValue"
-        label="البحث"
-        variant="outlined"
-        color="primary"
+        v-model="search"
+        label="إبحث بقيمة التخفيض"
+        bg-color="background"
         clearable
-        placeholder="البحث"
-        density="compact"
+        variant="solo"
+        flat
+        density="comfortable"
+        rounded
+        @click:clear="onInputClear"
         @input="handleSearch"
       />
     </div>
@@ -146,10 +148,11 @@ const deleteDialog = ref<{
  discount: null
 })
 
-const searchValue = ref('');
-const listParams = ref<PaginationParams>({
+const search = ref('');
+const listParams = ref({
   page: 1,
   limit: 10,
+  discount_value: ''
 })
 
 const discounts = useQuery({
@@ -173,14 +176,11 @@ const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   }
 }
 
-const handleSearch = debounce(() => {
-  // listParams.value.productName = searchValue.value
-}, 300)
-
 const queryClient = useQueryClient()
 const deleteDiscountMutation = useMutation({
   mutationFn: deleteDiscount,
   onSuccess: () => {
+    deleteDialog.value.open = false
     queryClient.invalidateQueries({ queryKey: ['discounts'] })
   },
   onError: (error) => {
@@ -193,7 +193,7 @@ const onDeleteDiscount = () => {
 }
 
 const dialogQuestion = () => {
-  return `حذف التخفيض ${deleteDialog.value.discount!.discount_value}# ?`
+  return `حذف التخفيض ${deleteDialog.value.discount!.discount_value} ؟`
 }
 
 const openDeleteDialog = (discount: Discount) => {
@@ -202,5 +202,13 @@ const openDeleteDialog = (discount: Discount) => {
     discount: discount
   }
 }
+
+const handleSearch  = debounce(() => {
+   listParams.value.discount_value = search.value
+    
+}, 400)
+const onInputClear = () => {
+  listParams.value.discount_value = ''
+ }
 
 </script>

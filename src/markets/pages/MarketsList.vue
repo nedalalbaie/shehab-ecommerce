@@ -9,13 +9,15 @@
   <div class="flex justify-between mt-8">
     <div class="w-72">
       <v-text-field
-        v-model="searchValue"
-        label="البحث"
-        variant="outlined"
-        color="primary"
+        v-model="search"
+        label="إبحث بإسم المحل "
+        bg-color="background"
         clearable
-        placeholder="البحث"
-        density="compact"
+        variant="solo"
+        flat
+        density="comfortable"
+        rounded
+        @click:clear="onInputClear"
         @input="handleSearch"
       />
     </div>
@@ -25,15 +27,34 @@
       color="primary"
       variant="elevated"
       rounded="xl"
+      size="large"
     >
       إضافة محل
     </v-btn>
   </div>
 
-  <LoadingSkeleton v-if="markets.isPending.value" />
+  <div
+    v-if="markets.isPending.value"
+    class="w-full h-96 flex items-center justify-center"
+  >
+    <v-progress-circular
+      size="50"
+      width="4"
+      indeterminate
+      color="primary"
+    />
+  </div>
+
+  <v-alert
+    v-else-if="markets.isError.value"
+    type="error"
+    class="my-6"
+    title="خطأ في الوصول الى بيانات المحلات"
+    text="الرجاء اعادة المحاولة مرة أخرى."
+  />
 
   <div
-    v-if="markets.data.value"
+    v-else-if="markets.data.value"
     class="shadow-lg rounded-lg mt-4 border border-gray-200"
   >
     <v-data-table-server
@@ -43,7 +64,6 @@
       :headers="headers"
       :items-length="markets.data.value.total"
       :items="markets.data.value.data"
-      :loading="markets.isPending.value"
       @update:options="onTableOptionsChange({ page: $event.page, limit: $event.itemsPerPage })"
     >
       <template #[`item.status`]="{ value }">
@@ -119,9 +139,9 @@
             class="mx-1"
             density="comfortable"
             icon
-            color="grey-darken-2"
+            color="primary"
           >
-            <v-icon :icon="mdiTagEdit" />
+            <v-icon :icon="mdiPencil" />
             <v-tooltip
               activator="parent"
               location="bottom"
@@ -129,81 +149,32 @@
               تعديل
             </v-tooltip>
           </v-btn>
-
-          <v-dialog width="500">
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                variant="text"
-                class="mx-1"
-                density="comfortable"
-                icon
-                color="error"
-              >
-                <v-icon :icon="mdiDelete" />
-                <v-tooltip
-                  activator="parent"
-                  location="bottom"
-                >
-                  حذف
-                </v-tooltip>
-              </v-btn>
-            </template>
-
-            <template #default="{ isActive }">
-              <v-card
-                :title="dialogQuestion(item.name)"
-                rounded="lg"
-                color="#EFE9F5"
-                style="padding-block: 1.75rem !important "
-              >
-                <v-card-text> سيتم حذف هذه المحل بشكل نهائي . </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer />
-
-                  <v-btn
-                    text="لا"
-                    @click="isActive.value = false"
-                  />
-                  <v-btn
-                    text="نعم"
-                    @click="
-                      isActive.value = false;
-                      onDeleteMarket(item.id)
-                    "
-                  />
-                </v-card-actions>
-              </v-card>
-            </template>
-          </v-dialog>
         </div>
       </template>
     </v-data-table-server>
   </div>
 </template>
 <script setup lang="ts">
-import { mdiPlus, mdiTagEdit, mdiCancel, mdiCheck, mdiEye } from '@mdi/js'
+import { mdiPlus, mdiCancel, mdiCheck, mdiEye, mdiPencil } from '@mdi/js'
 import { ref } from 'vue'
-import { getMarkets, deleteMarket, changeStatus } from '../markets-service'
+import { getMarkets, changeStatus } from '../markets-service'
 import type { PaginationParams } from '@/core/models/pagination-params'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import debounce from 'lodash.debounce'
 import LoadingSkeleton from '@/core/components/LoadingSkeleton.vue'
 import { BASE_STATUS, type BaseStatus } from '@/core/models/base-status'
-import { mdiDelete } from '@mdi/js'
 
 const isStatusLoading = ref<boolean []>([])
-const searchValue = ref('')
-const listParams = ref<PaginationParams & { search_value: string }>({
+const search = ref('')
+const listParams = ref({
   page: 1,
   limit: 10,
-  search_value: ''
+  name: ''
 })
 
 const markets = useQuery({
   queryKey: ['markets', listParams],
-  queryFn: () => getMarkets(listParams.value, searchValue.value)
+  queryFn: () => getMarkets(listParams.value, listParams.value.name)
 })
 
 const headers = [
@@ -224,7 +195,7 @@ const onStatusChange = (marketId: number, status: BaseStatus, index: number) => 
 }
 
 const getStatusColor = (status: BaseStatus) => {
-  return status === BASE_STATUS.Activated ? 'success' : 'error'
+  return status === BASE_STATUS.Activated ? 'green-darken-4' : 'error'
 }
 
 const getStatusLabel = (status: BaseStatus) => {
@@ -240,26 +211,12 @@ const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   }
 }
 
-const handleSearch = debounce(() => {
-  listParams.value.search_value = searchValue.value
-}, 300)
+const onInputClear = () => {
+  listParams.value.name = ''
+ }
 
-const deleteMarketMutation = useMutation({
-  mutationFn: deleteMarket,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['markets'] })
-  },
-  onError: (error) => {
-    console.log(error)
-  }
-})
-
-const onDeleteMarket = (id: number) => {
-  deleteMarketMutation.mutate(id)
-}
-
-const dialogQuestion = (productCode: string) => {
-  return `حذف المحل ${productCode}# ؟`
-}
+ const handleSearch  = debounce(() => {
+   listParams.value.name = search.value
+}, 400)
 
 </script>

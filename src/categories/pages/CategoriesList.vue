@@ -11,6 +11,20 @@
     :category="subCategoryFormDialog.category"
   />
 
+  <EditCategoryDialog
+    v-if="editCategoryDialog.open"
+    v-model="editCategoryDialog.open"
+    :main-category="editCategoryDialog.mainCategory"
+    :category="editCategoryDialog.category!"
+  />
+
+  <EditSubCategoryDialog
+    v-if="editSubCategoryDialog.open"
+    v-model="editSubCategoryDialog.open"
+    :category="editSubCategoryDialog.category"
+    :sub-category="editSubCategoryDialog.subCategory!"
+  />
+
   <div class="min-h-[calc(100vh-80px)] flex flex-col">
     <h1 class="text-3xl font-medium">
       التصنيفات
@@ -21,14 +35,21 @@
     </h1>
 
     <div class="md:flex items-center justify-between mt-6 mb-4">
-      <div class="flex justify-between items-center bg-[#ebf2fc] rounded-xl py-1 px-4 mb-4 md:mb-0">
-        <input
-          placeholder="إبحث عن تصنيفات"
-          type="text"
-          class="w-56 border-none p-2 rounded-lg outline-none transition-all duration-100 placeholder:text-gray-700"
-        >
-        <SearchIcon custom-style="w-6 h-6" />
+      <div class="w-72">
+        <v-text-field
+          v-model="search"
+          label="إبحث بإسم التصنيف الأساسي"
+          bg-color="background"
+          clearable
+          variant="solo"
+          flat
+          density="comfortable"
+          rounded
+          @click:clear="onInputClear"
+          @input="handleSearch"
+        />
       </div>
+
       <v-btn
         :append-icon="mdiPlus"
         :to="{ name: 'add-main-category' }"
@@ -61,15 +82,15 @@
         :categories-array="categoriesArray"
         @open-category="onOpenCategoryDialog"
         @open-sub-category="onOpenSubCategoryDialog"
+        @open-edit-category="onOpenEditCategoryDialog"
+        @open-edit-sub-category="onOpenEditSubCategoryDialog"
       />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import SearchIcon from '@/core/components/icons/SearchIcon.vue'
-import type { PaginationParams } from '@/core/models/pagination-params'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { deleteCategory, getCategories } from '../services/categories-service'
+import { useQuery } from '@tanstack/vue-query'
+import { getCategories } from '../services/categories-service'
 import EmptyData from '@/core/components/EmptyData.vue'
 import {  mdiPlus } from '@mdi/js'
 import { computed, ref, watchEffect } from 'vue'
@@ -81,6 +102,10 @@ import CreateCategoryDialog from '../components/CreateCategoryDialog.vue'
 import type { MainCategory } from '../models/mainCategory'
 import CreateSubCategoryDialog from '../components/CreateSubCategoryDialog.vue'
 import type { Category } from '../models/Category'
+import debounce from 'lodash.debounce'
+import EditCategoryDialog from '../components/EditCategoryDialog.vue'
+import type { SubCategory } from '../models/subCategory'
+import EditSubCategoryDialog from '../components/EditSubCategoryDialog.vue'
 
 const categoriesArray = ref<CategoryArray []>()
 const isPending = computed(() => !categoriesArray.value)
@@ -101,14 +126,36 @@ const subCategoryFormDialog = ref<{
   category: null,
 });
 
-const listParams = ref<PaginationParams>({
+const editCategoryDialog = ref<{
+  open: boolean;
+  mainCategory: MainCategory | null ;
+  category: Category | null ;
+}>({
+  open: false,
+  mainCategory: null,
+  category: null
+});
+
+const editSubCategoryDialog = ref<{
+  open: boolean;
+  category: Category | null ;
+  subCategory: SubCategory | null ;
+}>({
+  open: false,
+  category: null,
+  subCategory: null
+});
+
+const search = ref('')
+const listParams = ref({
   page: 1,
-  limit: 100
+  limit: 500,
+  name: ''
 })
 
 const { data: mainCategories } = useQuery({
   queryKey: ['main-categories', listParams],
-  queryFn: () => getMainCategories(listParams.value)
+  queryFn: () => getMainCategories(listParams.value, listParams.value.name)
 })
 
 const { data: categories} = useQuery({
@@ -120,25 +167,6 @@ const { data: subCategories} = useQuery({
   queryKey: ['sub-categories', listParams],
   queryFn: () => getSubCategories(listParams.value)
 })
-
-const queryClient = useQueryClient()
-const deleteCategoriesMutation = useMutation({
-  mutationFn: deleteCategory,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['categories'] })
-  },
-  onError: (error) => {
-    console.log(error)
-  }
-})
-
-const onDeleteCategories = (id: number) => {
-  deleteCategoriesMutation.mutate(id)
-}
-
-const dialogQuestion = (categoryName: string) => {
-  return `حذف تصنيف ${categoryName} ؟`
-}
 
 const onOpenCategoryDialog = (mainCategory: MainCategory) => {
   categoryFormDialog.value = {
@@ -154,6 +182,22 @@ const onOpenSubCategoryDialog = (category: Category) => {
   }
 }
 
+const onOpenEditCategoryDialog = (category: Category, mainCategory: MainCategory) => {
+  editCategoryDialog.value = {
+    open: true,
+    category: category,
+    mainCategory: mainCategory
+  }
+}
+
+const onOpenEditSubCategoryDialog = (subCategory: SubCategory , category: Category) => {
+  editSubCategoryDialog.value = {
+    open: true,
+    category: category,
+    subCategory: subCategory
+  }
+}
+
 watchEffect(() => {
   if (mainCategories.value && categories.value && subCategories.value) {
     categoriesArray.value = 
@@ -166,5 +210,14 @@ watchEffect(() => {
       }))
   }
 })
+
+const onInputClear = () => {
+  listParams.value.name = ''
+ }
+
+ const handleSearch  = debounce(() => {
+   listParams.value.name = search.value
+    
+}, 400)
 
 </script>

@@ -9,7 +9,7 @@ type SubCategory = {
 type CreateOrPatchSubCategory = {
   name: string
   description: string
-  image_path: File
+  image_path: File | string
   cat_id: number
 }
 

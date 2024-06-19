@@ -8,7 +8,7 @@ type MainCategory = {
 type PostMainCategoryRequest = {
   name: string
   description: string
-  image_path: File
+  image_path: File | string
 }
 
 export type { MainCategory, PostMainCategoryRequest }

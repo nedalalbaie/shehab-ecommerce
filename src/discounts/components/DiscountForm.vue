@@ -134,13 +134,8 @@ watchEffect(() => {
   if (values.start_date) {
     
     const currentDate = new Date();
-    const day = currentDate.getDate();
-    const month = currentDate.getMonth() + 1; 
-    const year = currentDate.getFullYear();
-  
-   const start = `${values.start_date!.getDate()}/${values.start_date!.getMonth() + 1}/${values.start_date!.getFullYear()}`
     
-    if (start < `${day}/${month}/${year}`) {
+    if (values.start_date < currentDate) {
        startDateErrorMessage.value = 'لا يمكن إختيار تاريخ أقل من تاريخ اليوم'
     }
   

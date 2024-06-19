@@ -7,7 +7,7 @@
     <div class="flex items-center gap-4">
       <img
         class="w-10 h-10 bg-cover rounded-lg my-2 border border-gray-200"
-        :src="`${storage}/${mainCategory.image_path}`"
+        :src="`${storage}${mainCategory.image_path}`"
         alt=""
       >
       <p class="w-fit">
@@ -34,6 +34,7 @@
         variant="text"
         density="comfortable"
         icon
+        :to="{name: 'edit-mainCategory', params: { id: mainCategory.id}}"
       >
         <v-icon
           color="primary"
@@ -43,25 +44,9 @@
           activator="parent"
           location="bottom"
         >
-          تعديل
+          تعديل التصنيف الأساسي ' {{ mainCategory.name }} '
         </v-tooltip>
       </v-btn>
-
-      <!-- <v-btn
-        variant="text"
-
-        density="comfortable"
-        icon
-        color="primary"
-      >
-        <v-icon :icon="mdiEye" />
-        <v-tooltip
-          activator="parent"
-          location="bottom"
-        >
-          عرض
-        </v-tooltip>
-      </v-btn> -->
 
       <div
         class="h-[1px] flex-grow bg-gray-500"
@@ -91,7 +76,7 @@
         <div class="flex items-center gap-4 mb-2">
           <img
             class="w-10 h-10 bg-cover rounded-lg my-2 border border-gray-200"
-            :src="`${storage}/${category.image_path}`"
+            :src="`${storage}${category.image_path}`"
             alt=""
           >
         
@@ -119,6 +104,7 @@
             variant="text"
             density="comfortable"
             icon
+            @click="openEditCategoryDialog(category, mainCategory)"
           >
             <v-icon
               color="primary"
@@ -128,25 +114,9 @@
               activator="parent"
               location="bottom"
             >
-              تعديل
+              تعديل 
             </v-tooltip>
           </v-btn>
-
-          <!-- <v-btn
-            variant="text"
-
-            density="comfortable"
-            icon
-            color="primary"
-          >
-            <v-icon :icon="mdiEye" />
-            <v-tooltip
-              activator="parent"
-              location="bottom"
-            >
-              عرض
-            </v-tooltip>
-          </v-btn> -->
  
           <div
             class="h-[1px] flex-grow bg-gray-500"
@@ -175,7 +145,7 @@
             <div class="flex items-center gap-4 mb-2">
               <img
                 class="w-10 h-10 bg-cover rounded-lg my-2 border border-gray-200"
-                :src="`${storage}/${subCategory.image_path}`"
+                :src="`${storage}${subCategory.image_path}`"
                 alt=""
               >
 
@@ -187,6 +157,7 @@
                 variant="text"
                 density="comfortable"
                 icon
+                @click="openEditSubCategoryDialog(subCategory, category)"
               >
                 <v-icon
                   color="primary"
@@ -197,22 +168,6 @@
                   location="bottom"
                 >
                   تعديل
-                </v-tooltip>
-              </v-btn>
-
-              <v-btn
-                variant="text"
-
-                density="comfortable"
-                icon
-                color="primary"
-              >
-                <v-icon :icon="mdiEye" />
-                <v-tooltip
-                  activator="parent"
-                  location="bottom"
-                >
-                  عرض
                 </v-tooltip>
               </v-btn>
    
@@ -302,11 +257,12 @@
 </template>
 
 <script setup lang="ts">
-import { mdiArrowDownDropCircleOutline, mdiEye, mdiPencil, mdiPlusCircle } from '@mdi/js';
+import { mdiArrowDownDropCircleOutline, mdiPencil, mdiPlusCircle } from '@mdi/js';
 import type { CategoryArray } from '../models/categoriesArray';
 import { ref, watchEffect } from 'vue';
 import type { MainCategory } from '../models/mainCategory';
 import type { Category } from '../models/Category';
+import type { SubCategory } from '../models/subCategory';
 
 const props = defineProps<{
   categoriesArray: CategoryArray []
@@ -315,6 +271,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   'open-category': [value: MainCategory]
   'open-sub-category': [value: Category]
+  'open-edit-category': [category: Category, mainCategory: MainCategory]
+  'open-edit-sub-category': [value: SubCategory, category: Category]
 }>()
 
 const storage = import.meta.env.VITE_API_Storage
@@ -344,6 +302,15 @@ const openCategoryDialog = (mainCategory: MainCategory) => {
 
 const openSubCategoryDialog = (category: Category) => {
   emit('open-sub-category', category)
+}
+
+
+const openEditCategoryDialog = (category: Category, mainCategory: MainCategory) => {
+  emit('open-edit-category', category, mainCategory)
+}
+
+const openEditSubCategoryDialog = (subCategory: SubCategory, category: Category) => {
+  emit('open-edit-sub-category', subCategory, category)
 }
 
 </script>

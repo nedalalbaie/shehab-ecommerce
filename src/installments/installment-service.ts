@@ -37,7 +37,7 @@ const postInstallment = (body: Omit<Installment , 'id'>): Promise<Installment> =
 const deleteInstallment = (id: number) => {
   return apiClient.url(`/installments/${id}`).delete().json( ()=> {
     alertStore.show({
-      message: 'تم حذف القسط بنجاح',
+      message: 'تم تغيير الحالة بنجاح',
       type: 'info'
     })
   })

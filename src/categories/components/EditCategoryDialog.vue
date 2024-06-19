@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import type { MainCategory } from '../models/mainCategory'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import type { Category } from '../models/Category'
-import SubCategoryForm from './SubCategoryForm.vue'
-import type { CreateOrPatchSubCategory } from '../models/subCategory'
-import { addSubCategory } from '../services/subCategories-service'
+import { editCategory } from '../services/categories-service'
+import CategoryForm from './CategoryForm.vue'
+import type { AddCategoryRequest, Category } from '../models/Category'
 
-defineProps<{
-  category: Category | null,
+ const props = defineProps<{
+  mainCategory: MainCategory | null,
+  category: Category,
   modelValue: boolean
 }>()
 
@@ -15,10 +16,10 @@ const emit = defineEmits<{
 }>()
 
 const queryClient = useQueryClient()
-const addSubCategoryMutation = useMutation({
-  mutationFn: addSubCategory,
+const patchCategoryMutation = useMutation({
+  mutationFn: ({ id, body }: { id: number, body: AddCategoryRequest, }) => editCategory(id, body),
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['sub-categories'] })
+    queryClient.invalidateQueries({ queryKey: ['categories'] })
     emit('update:modelValue', false)
   },
   onError: (error) => {
@@ -26,8 +27,8 @@ const addSubCategoryMutation = useMutation({
   }
 })
 
-const handleSubmit = (payload: CreateOrPatchSubCategory) => {
-  addSubCategoryMutation.mutate(payload)
+const handleSubmit = (body: AddCategoryRequest) => {
+  patchCategoryMutation.mutate({ id: props.category.id , body })
 }
 </script>
 
@@ -41,15 +42,16 @@ const handleSubmit = (payload: CreateOrPatchSubCategory) => {
       <div class="p-8">
         <div class="flex justify-between">
           <h1 class="text-2xl font-medium"> 
-            إضافة تصنيف فرعي جديد إلي تصنيفات 
+            تعديل التصنيف الثانوي  
             <span class="bg-gray-200 px-2 rounded-lg">
               {{ 'ال' + category?.name }}
             </span>
           </h1>
         </div>
-        <SubCategoryForm
-          :category-id="category?.id!"
-          :is-loading="addSubCategoryMutation.isPending.value"
+        <CategoryForm
+          :main-category-id="mainCategory?.id!"
+          :category="category"
+          :is-loading="patchCategoryMutation.isPending.value"
           @close-dialog="$emit('update:modelValue', false)"
           @submit="handleSubmit"
         />

@@ -42,16 +42,23 @@
       </div>
     </div>
 
+    <p
+      v-if="startDateErrorMessage"
+      class="text-red-600 text-sm mt-1 duration-150"
+    >
+      {{ startDateErrorMessage }}
+    </p>
+
     <div class="mt-3">
       <v-btn
-        :disabled="!meta.valid"
+        :disabled="!meta.valid || startDateErrorMessage !== null"
         size="large"
         variant="elevated"
         color="primary"
         type="submit"
         :loading="props.isLoading"
       >
-        {{ editMode ? 'تعديل الكوبون' : 'إضافة' }}
+        {{ editMode ? 'تحديث' : 'إضافة' }}
       </v-btn>
     </div>
   </form>
@@ -61,7 +68,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
 import { object, string, number, date } from 'zod';
 import type { Coupon, CouponFormRequest } from "../models/coupon";
-import { computed, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { formatToDatePicker, fromatDatePickerToDate } from '@/core/helpers/format-date';
 
 const props = defineProps<{
@@ -73,6 +80,7 @@ const emit = defineEmits<{
 }>()
 
 const editMode = computed(() => !!props.coupon)
+const startDateErrorMessage = ref<string | null>(null)
 
 const validationSchema = toTypedSchema(
     object({
@@ -83,7 +91,7 @@ const validationSchema = toTypedSchema(
     })
 );
 
-const { handleSubmit, errors, meta, setValues } = useForm({
+const { handleSubmit, errors, meta, setValues, values } = useForm({
     validationSchema
 });
 
@@ -99,6 +107,25 @@ watchEffect(() => {
            expire_date: formatToDatePicker(props.coupon.expire_date)
         })
     }
+})
+
+watchEffect(() => {
+  if (values.expire_date) {
+    
+    const currentDate = new Date();
+  //   const day = currentDate.getDate();
+  //   const month = currentDate.getMonth() + 1; 
+  //   const year = currentDate.getFullYear();
+  
+  //  const expireDate = `${values.expire_date!.getDate()}/${values.expire_date!.getMonth() + 1}/${values.expire_date!.getFullYear()}`
+    
+    if (values.expire_date < currentDate) {
+       startDateErrorMessage.value = 'لا يمكن إختيار تاريخ أقل من تاريخ اليوم'
+    } else {
+      startDateErrorMessage.value = null
+    }
+  }
+
 })
 
 const submit = handleSubmit(values => {
