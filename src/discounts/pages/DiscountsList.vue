@@ -32,6 +32,8 @@
       :to="{ name: 'add-discount' }"
       color="primary"
       variant="elevated"
+      rounded="xl"
+      size="large"
     >
       إضافة تخفيض
     </v-btn>
@@ -52,6 +54,12 @@
         :items="discounts.data.value"
         @update:options="onTableOptionsChange({ page: $event.page, limit: $event.itemsPerPage })"
       >
+        <template #[`item.discountType`]="{ item }">
+          <p>
+            {{ item.discount_type == 'fixed' ? 'قيمة ثابت' : 'نسبة مئوية' }}
+          </p>
+        </template>
+
         <template #[`item.actions`]="{ item }">
           <div class="flex gap-2">
             <!-- <v-btn
@@ -64,57 +72,62 @@
               تعديل 
             </v-btn> -->
 
-            <v-dialog width="500">
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  size="small"
-                  variant="elevated"
-                  color="#004C6B"
-                  type="submit"
-                >
-                  حذف
-                  <template #prepend>
-                    <DeleteIcon fill="fill-white" />
-                  </template>
-                </v-btn>
-              </template>
-  
-              <template #default="{ isActive }">
-                <v-card
-                  :title="dialogQuestion(item.code)"
-                  rounded="lg"
-                  color="#EFE9F5"
-                  style="padding-block: 1.75rem !important ;"
-                >
-                  <v-card-text>
-                    سيتم حذف هذه التخفيض بشكل نهائي .
-                  </v-card-text>
-  
-                  <v-card-actions>
-                    <v-spacer />
-  
-                    <v-btn
-                      text="لا"
-                      @click="isActive.value = false"
-                    />
-                    <v-btn
-                      text="نعم"
-                      @click="isActive.value = false; onDeleteDiscount(item.id)"
-                    />
-                  </v-card-actions>
-                </v-card>
-              </template>
-            </v-dialog>
+            <v-btn
+              variant="text"
+              class="mx-1"
+              density="comfortable"
+              icon
+              color="error"
+              @click="openDeleteDialog(item)"
+            >
+              <v-icon :icon="mdiDelete" />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                حذف
+              </v-tooltip>
+            </v-btn>
           </div>
         </template>
       </v-data-table-server>
     </div>
   </div>
+
+  <v-dialog
+    v-model="deleteDialog.open"
+    width="500"
+  >
+    <v-card
+      :title="dialogQuestion()"
+      rounded="lg"
+      color="#EFE9F5"
+      style="padding-block: 1.75rem !important ;"
+    >
+      <v-card-text>
+        سيتم حذف هذه التخفيض بشكل نهائي .
+      </v-card-text>
+  
+      <v-card-actions>
+        <v-spacer />
+  
+        <v-btn
+          text="لا"
+          @click="deleteDialog.open = false"
+        />
+        <v-btn
+          :loading="deleteDiscountMutation.isPending.value"
+          text="نعم"
+          @click=" onDeleteDiscount()"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 <script setup lang="ts">
 import {
   mdiArrowLeft,
+  mdiDelete,
   mdiPlus
 } from '@mdi/js'
 import { ref } from "vue";
@@ -123,7 +136,15 @@ import type { PaginationParams } from '@/core/models/pagination-params'
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import debounce from 'lodash.debounce'
 import LoadingSkeleton from "@/core/components/LoadingSkeleton.vue"
-import DeleteIcon from '@/core/components/icons/DeleteIcon.vue';
+import type { Discount } from '../models/discount';
+
+const deleteDialog = ref<{
+  open: boolean,
+  discount: Discount | null
+}>({
+ open: false,
+ discount: null
+})
 
 const searchValue = ref('');
 const listParams = ref<PaginationParams>({
@@ -137,9 +158,8 @@ const discounts = useQuery({
 }) 
 
 const headers = [
-  { title: 'الكود', value: 'code', width: '300px', sortable: false, },
-  { title: 'نوع التخفيض', value: 'discount_type', width: '300px', sortable: false },
-  { title: 'نسبة التخفيض', value: 'amount', width: '300px', sortable: false },
+  { title: 'نوع التخفيض', value: 'discount_type', key:'discountType' , width: '300px', sortable: false },
+  { title: 'قيمة التخفيض', value: 'discount_value', width: '300px', sortable: false },
   { title: 'تاريخ بداية التخفيض', value: 'start_date', width: '300px', sortable: false },
   { title: 'تاريخ إنتهاء الصلاحية', value: 'end_date', width: '300px', sortable: false },
   { title: 'الإجرائات', key: 'actions', width: '300px', sortable: false }
@@ -158,7 +178,7 @@ const handleSearch = debounce(() => {
 }, 300)
 
 const queryClient = useQueryClient()
-const deleteCouponMutation = useMutation({
+const deleteDiscountMutation = useMutation({
   mutationFn: deleteDiscount,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['discounts'] })
@@ -168,12 +188,19 @@ const deleteCouponMutation = useMutation({
   }
 })
 
-const onDeleteDiscount = (id: number) => {
-  deleteCouponMutation.mutate(id)
+const onDeleteDiscount = () => {
+  deleteDiscountMutation.mutate(deleteDialog.value.discount!.id)
 }
 
-const dialogQuestion = (productCode: string) => {
-  return `حذف التخفيض ${productCode}# ?`
+const dialogQuestion = () => {
+  return `حذف التخفيض ${deleteDialog.value.discount!.discount_value}# ?`
+}
+
+const openDeleteDialog = (discount: Discount) => {
+  deleteDialog.value = {
+    open: true,
+    discount: discount
+  }
 }
 
 </script>

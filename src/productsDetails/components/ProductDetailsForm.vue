@@ -9,8 +9,8 @@
         :items="markets.data.value?.data"
         :loading="markets.isPending.value"
         hide-selected
-        label="المحلات"
-        placeholder="المحلات"
+        label="المحلات *"
+        placeholder="المحلات *"
         variant="outlined"
         color="primary"
         auto-select-first
@@ -32,8 +32,8 @@
         item-value="id"
         :items="products.data.value?.data"
         hide-selected
-        label="المنتجات"
-        placeholder="المنتجات"
+        label="المنتجات *"
+        placeholder="المنتجات *"
         variant="outlined"
         color="primary"
         auto-select-first
@@ -50,24 +50,36 @@
 
       <v-text-field
         v-model="inventory"
-        label="الكمية"
+        label="الكمية *"
         type="number"
         variant="outlined"
         color="primary"
-        placeholder="الكمية"
+        placeholder="الكمية *"
         :error-messages="errors.inventory"
         @input="convertinventoryToNumber"
       />
 
       <v-text-field
         v-model="saller_price"
-        label="سعر البيع"
+        label="سعر البيع *"
         type="number"
         variant="outlined"
         color="primary"
-        placeholder="سعر البيع"
+        placeholder="سعر البيع *"
         :error-messages="errors.saller_price"
         @input="convertMinimumQuantityToNumber"
+      />
+
+      <v-text-field
+        v-if="editMode"
+        v-model="price"
+        label="*السعر"
+        type="number"
+        variant="outlined"
+        color="primary"
+        placeholder="*السعر"
+        :error-messages="errors.price"
+        @input="convertPriceToNumber"
       />
     </div>
 
@@ -80,7 +92,7 @@
         type="submit"
         :loading="props.isLoading"
       >
-        إضافة
+        {{ editMode ? 'تحديث' : 'إضافة' }}
       </v-btn>
     </div>
   </form>
@@ -88,28 +100,25 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
-import { object, number, string } from 'zod';
-import { computed, ref, watchEffect } from "vue";
+import { object, number } from 'zod';
+import { ref, watchEffect } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import type { CreateProductDetails } from '../models/productDetails';
+import type { CreateProductDetails, ProductDetails } from '../models/productDetails';
 import { getMarkets } from '@/markets/markets-service';
 import { getProducts } from '@/products/products-service';
 
-
 const props = defineProps<{
+  editMode?: boolean,
   isLoading: boolean,
+  productDetail?: ProductDetails
 }>()
 const emit = defineEmits<{
-  submit: [value: CreateProductDetails]
+  submit: [value: CreateProductDetails & { price?: number}]
 }>()
 
-const selectedImagesState = ref<"filled" | "empty">("empty")
-
-// const editMode = computed(() => !!props.product)
-const isDisabled = computed(() => !meta.value.valid || selectedImagesState.value == "empty")
 const listParams = ref({
   page: 1,
-  limit: 50,
+  limit: 200,
 })
 
 const markets = useQuery({
@@ -124,29 +133,31 @@ const products = useQuery({
 
 const validationSchema = toTypedSchema(
   object({
-    saller_price: number().min(1, 'سعر البيع'),
+    saller_price: number().min(1, 'يجب إدخال سعر البيع'),
     inventory: number().min(1, 'يجب إدخال الكمية'), // inventory must not be greater than 1000
     market_id: number().min(1, 'يجب إختيار المحل'),
     product_id: number().min(1, 'يجب إختيار المنتج'),
+    price: !props.editMode ? number().optional() : number().min(1, 'يجب إدخال السعر')
   })
 );
 
-const { handleSubmit, errors, meta, setValues } = useForm({
+const { handleSubmit, errors, meta } = useForm({
   validationSchema
 });
 
 const { value: saller_price } = useField<number>('saller_price');
 const { value: inventory } = useField<number>('inventory');
 const { value: market_id } = useField<number>('market_id');
-const { value: product_id } = useField<string>('product_id');
+const { value: product_id } = useField<number>('product_id');
+const { value: price } = useField<number>('price');
 
 watchEffect(() => {
-  // if (props.product) {
-  //   setValues({
-  //     ...props.product,
-  //     market_id: props.product.category_id
-  //   })
-  // }
+  if (props.productDetail) {
+    inventory.value = props.productDetail.inventory
+    saller_price.value = props.productDetail.saller_price
+    product_id.value = props.productDetail.product_info.id
+    market_id.value = props.productDetail.market_info.id
+  }
 })
 
 const convertinventoryToNumber = () => {
@@ -155,6 +166,10 @@ const convertinventoryToNumber = () => {
 
 const convertMinimumQuantityToNumber = () => {
   saller_price.value = Number(saller_price.value)
+}
+
+const convertPriceToNumber = () => {
+  price.value = Number(price.value)
 }
 
 const submit = handleSubmit(values => {

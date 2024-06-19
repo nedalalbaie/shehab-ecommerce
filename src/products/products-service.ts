@@ -80,4 +80,20 @@ const changeStatus = (body: ProductStatusChangeBody): Promise<void> => {
     })
 }
 
-export { getProducts, getProduct, postProduct, editProduct, deleteProduct, changeStatus }
+const addProductDiscount = (body: {
+  id: number,
+  discount_id: number
+}): Promise<void> => {
+  return apiClient
+    .url('/products/add-discount')
+    .post(body)
+    .json((res) => {
+      alertStore.show({
+        message: 'تم إضافة التخفيض بنجاح',
+        type: 'success'
+      })
+      return res
+    })
+}
+
+export { getProducts, getProduct, postProduct, editProduct, deleteProduct, changeStatus, addProductDiscount }

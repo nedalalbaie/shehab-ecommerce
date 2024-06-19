@@ -1,6 +1,6 @@
 import apiClient from '@/core/helpers/api-client'
 import queryString from 'wretch/addons/queryString'
-import type { CreateProductDetails, ProductDetails } from './models/productDetails'
+import type { CreateProductDetails, PatchProductDetails, ProductDetails } from './models/productDetails'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import { alertStore } from '@/core/stores/alert.store'
 import type { List } from '@/core/models/list'
@@ -18,6 +18,10 @@ const getProductDetails = (params: PaginationParams): Promise<List<ProductDetail
     .json()
 }
 
+const getProductDetail = (id: number): Promise<ProductDetails> => {
+  return apiClient.url(`/details/${id}`).get().json()
+}
+
 const postProductDetails = (body: CreateProductDetails): Promise<ProductDetails> => {
   return apiClient
     .url('/details')
@@ -31,19 +35,20 @@ const postProductDetails = (body: CreateProductDetails): Promise<ProductDetails>
     })
 }
 
-// const editProduct = (id: number, body: Partial<AddProductRequest>): Promise<Product> => {
-//   return apiClient
-//     .addon(formData)
-//     .url(`/products/${id}`)
-//     .formData(body)
-//     .patch()
-//     .json((res) => {
-//       return res
-//     })
-// }
+const editProductDetails = (id: number, body: PatchProductDetails): Promise<void> => {
+  return apiClient
+    .url(`/details/${id}`)
+    .post({
+      ...body,
+      _method: 'patch'
+    })
+    .json((res) => {
+      return res
+    })
+}
 
 // const deleteProduct = (id: number) => {
 //   return apiClient.url(`/products/${id}`).delete().json()
 // }
 
-export { getProductDetails, postProductDetails }
+export { getProductDetails, getProductDetail, postProductDetails, editProductDetails }

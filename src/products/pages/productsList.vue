@@ -82,8 +82,11 @@
             class="relative h-64 bg-cover bg-center mt-2"
             :style="getBackgroundImage(product.image1_path)"
           >
-            <p class="absolute top-0 left-0 bg-red-600 rounded-br-xl text-white px-3">
-              20%
+            <p
+              v-if="product.discount"
+              class="absolute top-0 left-0 bg-red-600 rounded-br-xl text-white px-3"
+            >
+              {{ product.discount.discount_value }}
             </p>
             <p class="absolute bottom-0 right-0 bg-gray-600 rounded-tl-xl text-white px-3 py-2">
               {{ product.price }} دل
@@ -148,18 +151,7 @@
               </v-chip>
             </p>
           </div>
-          <div class="flex justify-center gap-1 mt-6 text-white">
-            <!-- <v-btn
-              rounded="xl"
-              variant="elevated"
-              color="primary"
-              :to="{ name: 'edit-product', params: { id: product.id } }"
-            >
-              تعديل
-              <template #prepend>
-                <EditIcon />
-              </template>
-            </v-btn> -->
+          <div class="flex gap-2 mt-6 pb-2 text-white border-b border-gray-700">
             <v-btn
               :to="{
                 name: 'product-details',
@@ -168,11 +160,24 @@
               variant="tonal"
               rounded="xl"
               :append-icon="mdiEye"
-              color="primary"
+              color="#424242"
             >
               عرض
             </v-btn>
 
+            <v-btn
+              v-if="!product.discount"
+              :append-icon="mdiPlus"
+              color="#424242"
+              rounded="xl"
+              variant="tonal"
+              @click="openAddDiscountDialog(product.id, product.name)"
+            >
+              إضافة تخفيض
+            </v-btn>
+          </div>
+
+          <div class="mt-4">
             <v-btn
               v-if="product.active_product === BASE_STATUS.Activated"
               :loading="isStatusLoading[index]"
@@ -207,6 +212,13 @@
       </div>
     </div>
   </div>
+
+  <AddDiscountDialog
+    v-if="addDiscountDialog.productId"
+    v-model="addDiscountDialog.isOpen"
+    :product-id="addDiscountDialog.productId"
+    :product-name="addDiscountDialog.productName"
+  />
 </template>
 
 <script setup lang="ts">
@@ -227,8 +239,19 @@ import debounce from "lodash.debounce";
 import { type BaseStatus } from "@/core/models/base-status";
 import { BASE_STATUS } from "@/core/models/base-status";
 import DiscountIcon from "@/core/components/icons/DiscountIcon.vue"
+import AddDiscountDialog from "../components/AddDiscountDialog.vue";
 
 const isStatusLoading = ref<boolean []>([])
+const addDiscountDialog = ref<{
+  productId: number | null,
+  isOpen: boolean,
+  productName: string
+}>({
+  productId: null,
+  isOpen: false,
+  productName: ''
+})
+
 const search= ref('');
 const listParams = ref<PaginationParams & {productName?: string}>({
   page: 1,
@@ -276,6 +299,12 @@ const getStatusColor = (status: BaseStatus) => {
 
 const getStatusLabel = (status: BaseStatus) => {
   return status === BASE_STATUS.Activated ? 'مفعل' : 'غير مفعل'
+}
+
+const openAddDiscountDialog = (productId: number, productName: string) => {
+  addDiscountDialog.value.isOpen = true
+  addDiscountDialog.value.productId = productId
+  addDiscountDialog.value.productName = productName
 }
 
 </script>

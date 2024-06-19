@@ -39,7 +39,7 @@
       rounded="xl"
       size="large"
     >
-      ربط منتج بمحل
+      ربط المنتج بالمحل
     </v-btn>
   </div>
 
@@ -67,74 +67,17 @@
         </v-chip>
       </template>
 
-      <!-- <template #[`item.actions`]="{ item, index }">
+      <template #[`item.actions`]="{ item }">
         <div class="flex gap-1">
           <v-btn
-            v-if="item.active_market === BASE_STATUS.Activated"
-            :loading="isStatusLoading[index]"
-            variant="tonal"
-            class="mx-1"
-            density="comfortable"
-            icon
-            color="warning"
-            @click="onStatusChange(item.id, BASE_STATUS.Deactivated, index)"
-          >
-            <v-icon :icon="mdiCancel" />
-            <v-tooltip
-              activator="parent"
-              location="bottom"
-            >
-              الغاء التفعيل
-            </v-tooltip>
-          </v-btn>
-          <v-btn
-            v-if="item.active_market === BASE_STATUS.Deactivated"
-            :loading="isStatusLoading[index]"
-            variant="tonal"
-            class="mx-1"
-            density="comfortable"
-            icon
-            color="success"
-            @click="onStatusChange(item.id, BASE_STATUS.Activated, index)"
-          >
-            <v-icon :icon="mdiCheck" />
-            <v-tooltip
-              activator="parent"
-              location="bottom"
-            >
-              إعادة التفعيل
-            </v-tooltip>
-          </v-btn>
-
-          <v-btn
-            :to="{
-              name: 'market-details',
-              params: { id: item.id },
-            }"
+            :to="{ name: 'edit-product-details', params: { id: item.id}}"
             variant="tonal"
             class="mx-1"
             density="comfortable"
             icon
             color="primary"
           >
-            <v-icon :icon="mdiEye" />
-            <v-tooltip
-              activator="parent"
-              location="bottom"
-            >
-              عرض
-            </v-tooltip>
-          </v-btn>
-
-          <v-btn
-            :to="{ name: 'edit-market', params: { id: item.id } }"
-            variant="tonal"
-            class="mx-1"
-            density="comfortable"
-            icon
-            color="grey-darken-2"
-          >
-            <v-icon :icon="mdiTagEdit" />
+            <v-icon :icon="mdiPencil" />
             <v-tooltip
               activator="parent"
               location="bottom"
@@ -142,70 +85,22 @@
               تعديل
             </v-tooltip>
           </v-btn>
-
-          <v-dialog width="500">
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                variant="text"
-                class="mx-1"
-                density="comfortable"
-                icon
-                color="error"
-              >
-                <v-icon :icon="mdiDelete" />
-                <v-tooltip
-                  activator="parent"
-                  location="bottom"
-                >
-                  حذف
-                </v-tooltip>
-              </v-btn>
-            </template>
-
-            <template #default="{ isActive }">
-              <v-card
-                :title="dialogQuestion(item.name)"
-                rounded="lg"
-                color="#EFE9F5"
-                style="padding-block: 1.75rem !important "
-              >
-                <v-card-text> سيتم حذف هذه المحل بشكل نهائي . </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer />
-
-                  <v-btn
-                    text="لا"
-                    @click="isActive.value = false"
-                  />
-                  <v-btn
-                    text="نعم"
-                    @click="
-                      isActive.value = false;
-                      onDeleteMarket(item.id)
-                    "
-                  />
-                </v-card-actions>
-              </v-card>
-            </template>
-          </v-dialog>
         </div>
-      </template> -->
+      </template> 
     </v-data-table-server>
   </div>
 </template>
 <script setup lang="ts">
-import { mdiPlus } from '@mdi/js'
+import { mdiPencil, mdiPlus } from '@mdi/js'
 import { ref } from 'vue'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import { useQuery } from '@tanstack/vue-query'
-import debounce from 'lodash.debounce'
+// import debounce from 'lodash.debounce'
 import LoadingSkeleton from '@/core/components/LoadingSkeleton.vue'
 import { BASE_STATUS, type BaseStatus } from '@/core/models/base-status'
 import { getProductDetails } from '../productDetails-service'
 
-const searchValue = ref('')
+// const searchValue = ref('')
 const listParams = ref<PaginationParams & { search_value: string }>({
   page: 1,
   limit: 10,
@@ -225,6 +120,7 @@ const headers = [
   { title: 'إسم مالك المحل', value: 'market_info.owner_name', width: '300px', sortable: false },
   { title: 'الكمية', value: 'inventory', width: '300px', sortable: false },
   { title: 'سعر البيع', value: 'product_info.price', width: '250px', sortable: false },
+  { title: '', key: 'actions', width: '250px', sortable: false },
 ]
 
 
@@ -243,7 +139,6 @@ const getStatusLabel = (status: BaseStatus) => {
   return status === BASE_STATUS.Activated ? 'مفعل' : 'غير مفعل'
 }
 
-
 const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   listParams.value = {
     ...listParams.value,
@@ -252,9 +147,9 @@ const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   }
 }
 
-const handleSearch = debounce(() => {
-  listParams.value.search_value = searchValue.value
-}, 300)
+// const handleSearch = debounce(() => {
+//   listParams.value.search_value = searchValue.value
+// }, 300)
 
 // const deleteMarketMutation = useMutation({
 //   mutationFn: deleteMarket,

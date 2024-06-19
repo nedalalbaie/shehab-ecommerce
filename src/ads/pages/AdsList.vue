@@ -5,8 +5,8 @@
         :append-icon="mdiPlus"
         :to="{ name: 'add-ad' }"
         color="primary"
-        size="large"
         rounded="xl"
+        size="large"
         variant="elevated"
       >
         إضافة إعلان
@@ -17,16 +17,8 @@
         الإعلانات
         <span>(3)</span>
       </h1>
-      <div class="flex gap-4">
-        <button class="bg-sky-200 py-1 px-2 rounded-md flex items-center gap-2">
-          مفعل
-          <CheckIcon fill="black" />
-        </button>
-        <button class="py-1 px-2 rounded-md flex items-center gap-2 border-2 border-gray-300">
-          معطل
-          <CheckIcon fill="black" />
-        </button>
-      </div>
+      
+      <AddsStatusFilters v-model="show" />
     </div>
 
     <div v-if="!ads.data.value">
@@ -39,7 +31,7 @@
     >
       <EmptyData v-if="ads.data.value.data.length === 0" />
 
-      <div class="grid grid-cols-2 gap-6">
+      <div class="grid gap-6">
         <div
           v-for="ad in ads.data.value?.data"
           :key="ad.id"
@@ -47,7 +39,7 @@
         >
           <div class="px-4 flex flex-col gap-8">
             <div>
-              <div class="flex gap-2 text-2xl font-medium mt-4">
+              <div class="flex gap-2 text-xl font-normal mt-4">
                 <p>{{ ad.name }}</p>
                 <p class="text-green-700">
                   - {{ ad.show === 1 ? "مفعل" : "معطل" }}
@@ -68,51 +60,18 @@
                 </template>
               </v-btn>
 
-              <v-dialog
-                width="500"
+              <v-btn
+                rounded="xl"
+                variant="elevated"
+                color="error"
+                type="submit"
+                @click="openDeleteDialog(ad)"
               >
-                <template #activator="{ props }">
-                  <v-btn
-                    v-bind="props"
-  
-                    rounded="xl"
-                    variant="elevated"
-                    color="#004C6B"
-                    type="submit"
-                  >
-                    حذف
-                    <template #prepend>
-                      <DeleteIcon fill="fill-white" />
-                    </template>
-                  </v-btn>
+                حذف
+                <template #prepend>
+                  <DeleteIcon fill="fill-white" />
                 </template>
-
-                <template #default="{ isActive }">
-                  <v-card
-                    :title="dialogQuestion(ad.name)"
-                    rounded="lg"
-                    color="#EFE9F5"
-                    style="padding-block: 1.75rem !important ;"
-                  >
-                    <v-card-text>
-                      سيتم الغاء هذا الإعلان بشكل نهائي .
-                    </v-card-text>
-
-                    <v-card-actions>
-                      <v-spacer />
-
-                      <v-btn
-                        text="لا"
-                        @click="isActive.value = false"
-                      />
-                      <v-btn
-                        text="نعم"
-                        @click="isActive.value = false; onCancelAd(ad.id)"
-                      />
-                    </v-card-actions>
-                  </v-card>
-                </template>
-              </v-dialog>
+              </v-btn>
             </div>
           </div>
 
@@ -127,6 +86,36 @@
       </div>
     </div>
   </div>
+
+  <v-dialog
+    v-model="deleteAdDialog.open"
+    width="500"
+  >
+    <v-card
+      :title="dialogQuestion()"
+      rounded="lg"
+      color="#EFE9F5"
+      style="padding-block: 1.75rem !important ;"
+    >
+      <v-card-text>
+        لا يمكن التراجع عن هذه العملية.
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer />
+
+        <v-btn
+          text="لا"
+          @click="deleteAdDialog.open = false"
+        />
+        <v-btn
+          :loading="cancelAdMutation.isPending.value"
+          text="نعم"
+          @click=" onCancelAd()"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 <script setup lang="ts">
 import { getAds, deleteAd } from "../ads-service"
@@ -139,12 +128,25 @@ import {
 } from '@mdi/js'
 import LoadingAds from "../components/LoadingAds.vue"
 import EmptyData from "@/core/components/EmptyData.vue";
+import { ref } from "vue";
+import type { Ad } from "../models/ads";
+import AddsStatusFilters from "../components/AddsStatusFilters.vue";
 
 const storage = import.meta.env.VITE_API_Storage
+
+const deleteAdDialog = ref<{
+  open: boolean,
+  ad: Ad | null
+}>({
+ open: false,
+ ad: null
+})
+
+const show = ref<1| 0>(1)
   
 const ads = useQuery({
-  queryKey: ['ads'],
-  queryFn: () => getAds()
+  queryKey: ['ads', show],
+  queryFn: () => getAds(show.value)
 })
 
 const queryClient = useQueryClient()
@@ -152,18 +154,26 @@ const cancelAdMutation = useMutation({
   mutationFn: deleteAd,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['ads'] })
+    deleteAdDialog.value.open = false
   },
   onError: (error) => {
     console.log(error)
   }
 })
 
-const onCancelAd = (id: number) => {
-  cancelAdMutation.mutate(id)
+const openDeleteDialog = (ad: Ad) => {
+  deleteAdDialog.value = {
+    open: true,
+    ad: ad
+  }
 }
 
-const dialogQuestion = (orderCode: string) => {
-  return `حذف الإعلان ${orderCode} ?`
+const onCancelAd = () => {
+  cancelAdMutation.mutate(deleteAdDialog.value.ad!.id)
+}
+
+const dialogQuestion = () => {
+  return `حذف إعلان "${deleteAdDialog.value.ad!.name}" ؟`
 }
 
 </script>

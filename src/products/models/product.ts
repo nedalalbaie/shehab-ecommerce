@@ -1,3 +1,5 @@
+import type { Discount } from "@/discounts/models/discount"
+
 type Product = {
   id: number
   name: string
@@ -13,16 +15,22 @@ type Product = {
   active_product: number
   selling_method: string
   minimum_quantity: number
+  discount: Discount
 }
 
-type AddProductRequest = Omit<
-  Product,
-  'id' | 'image1_path' | 'image2_path' | 'image3_path' | 'image4_path'
-> & {
+type AddProductRequest = {
+  name: string
+  product_code: string
+  price: number
+  sub_category_id: number
+  description: string
+  hex_codes: string
   image1_path: File
   image2_path: File
   image3_path: File
   image4_path: File
+  selling_method: string
+  minimum_quantity: number
 }
 
 const sellingMethods = [

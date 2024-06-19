@@ -1,15 +1,6 @@
 <template>
   <form @submit.prevent="submit">
     <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-4 mt-6">
-      <v-text-field
-        v-model="code"
-        label="كود التخفيض"
-        variant="outlined"
-        color="primary"
-        placeholder="كود التخفيض"
-        :error-messages="errors.code"
-      />
-
       <v-autocomplete
         v-model="discount_type"
         :hide-no-data="false"
@@ -34,18 +25,22 @@
       </v-autocomplete>
 
       <v-text-field
-        v-model="amount"
-        label="نسبة التخفيض"
+        v-model="discount_value"
+        label="قيمة التخفيض"
         type="number"
         variant="outlined"
         color="primary"
-        placeholder="نسبة التخفيض"
-        :error-messages="errors.amount"
+        placeholder="قيمة التخفيض"
+        :error-messages="errors.discount_value"
         @input="convertAmountToNumber"
       />
     </div>
 
-    <div class="flex gap-14 mt-10">
+    <p class="mt-6">
+      ملاحطة: تاريخ بداية التخفيض يجب أن يكون أصغر من تاريخ النهاية .
+    </p>
+
+    <div class="flex gap-14 mt-6">
       <v-date-picker
         v-model="start_date"
         color="primary"
@@ -66,16 +61,23 @@
       />
     </div>
 
-    <div class="mt-3">
+    <p
+      v-if="startDateErrorMessage"
+      class="text-red-600 text-sm mt-1 duration-150"
+    >
+      {{ startDateErrorMessage }}
+    </p>
+
+    <div class="mt-6">
       <v-btn
-        :disabled="!meta.valid"
+        :disabled="!meta.valid || startDateErrorMessage !== null"
         size="large"
         variant="elevated"
         color="primary"
         type="submit"
         :loading="props.isLoading"
       >
-        {{ editMode ? 'تعديل ' : 'حفظ ' }}
+        {{ editMode ? 'تحديث ' : 'إضافة ' }}
       </v-btn>
     </div>
   </form>
@@ -86,7 +88,7 @@ import { useForm, useField } from 'vee-validate';
 import { object, string, literal, date } from 'zod';
 import type { Discount, DiscountFormRequest } from "../models/discount";
 import { discountTypeOptions } from "../models/discountType";
-import { computed, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { formatToDatePicker, fromatDatePickerToDate } from '@/core/helpers/format-date';
 
 const props = defineProps<{
@@ -98,24 +100,23 @@ const emit = defineEmits<{
 }>()
 
 const editMode = computed(() => !!props.discount)
+const startDateErrorMessage = ref<string | null>(null)
 
 const validationSchema = toTypedSchema(
   object({
-    code: string().min(1, 'يجب إدخال كود الكوبون '),
     discount_type: literal('percentage').or(literal('fixed')),
-    amount: string().min(1, 'يجب إدخال نسبة التخفيض  '),
+    discount_value: string().min(1, 'يجب إدخال قيمة التخفيض  '),
     start_date: date(),
     end_date: date()
   })
 );
 
-const { handleSubmit, errors, meta, setValues } = useForm({
+const { handleSubmit, errors, meta, setValues, values } = useForm({
   validationSchema
 });
 
-const { value: code } = useField<string>('code');
 const { value: discount_type } = useField<string>('discount_type');
-const { value: amount } = useField<string>('amount');
+const { value: discount_value } = useField<string>('discount_value');
 const { value: start_date } = useField<Date>('start_date');
 const { value: end_date } = useField<Date>('end_date');
 
@@ -129,6 +130,29 @@ watchEffect(() => {
   }
 })
 
+watchEffect(() => {
+  if (values.start_date) {
+    
+    const currentDate = new Date();
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth() + 1; 
+    const year = currentDate.getFullYear();
+  
+   const start = `${values.start_date!.getDate()}/${values.start_date!.getMonth() + 1}/${values.start_date!.getFullYear()}`
+    
+    if (start < `${day}/${month}/${year}`) {
+       startDateErrorMessage.value = 'لا يمكن إختيار تاريخ أقل من تاريخ اليوم'
+    }
+  
+    else if (values.end_date! <= values.start_date!) {
+       startDateErrorMessage.value = 'تاريخ النهاية يجب أن يكون أكبر من تاريخ البداية '
+    } else {
+      startDateErrorMessage.value = null
+    }
+  }
+
+})
+
 const submit = handleSubmit(values => {
   emit("submit", {
     ...values,
@@ -138,7 +162,7 @@ const submit = handleSubmit(values => {
 })
 
 const convertAmountToNumber = () => {
-  amount.value = amount.value.toString()
+  discount_value.value = discount_value.value.toString()
 }
 
 </script>

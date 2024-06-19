@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="submit">
-    <div class="grid gap-x-8 gap-y-2 mt-6">
+    <div class="grid gap-x-8 gap-y-2 mt-6 mb-4">
       <v-text-field
         v-model="name"
         class="lg:w-1/2"
@@ -12,7 +12,11 @@
       />
     </div>
 
-    <div class="flex gap-14 mt-10">
+    <p>
+      ملاحطة: تاريخ بداية الإعلان يجب أن يكون أصغر من تاريخ النهاية
+    </p>
+
+    <div class="flex gap-14 mt-6">
       <v-date-picker
         v-model="start_date"
         color="primary"
@@ -33,10 +37,18 @@
       />
     </div>
 
+    <p
+      v-if="startDateErrorMessage"
+      class="text-red-600 text-sm mt-1 duration-150"
+    >
+      {{ startDateErrorMessage }}
+    </p>
+
     <div class="mt-4">
       <v-switch
         v-model="show"
         :true-value="1"
+        :false-value="0"
         inset
         :center-affix="true"
         color="primary"
@@ -54,14 +66,14 @@
 
     <div class="mt-6">
       <v-btn
-        :disabled="isDisabled"
+        :disabled="isDisabled || startDateErrorMessage !== null"
         size="large"
         variant="elevated"
         color="primary"
         type="submit"
         :loading="props.isLoading"
       >
-        {{ editMode ? 'تعديل ' : 'حفظ' }}
+        {{ editMode ? 'نحديث ' : 'إضافة' }}
       </v-btn>
     </div>
   </form>
@@ -85,10 +97,14 @@ const emit = defineEmits<{
   submit: [value: PostOrPatchAdRequest]
 }>()
 
+const storage = import.meta.env.VITE_API_Storage
+
 const selectedImageState = ref<"filled" | "empty">("empty")
 const imageFile = ref<File>()
 const editMode = computed(() => !!props.ad)
 const isDisabled = computed(() => !meta.value.valid || selectedImageState.value == "empty")
+
+const startDateErrorMessage = ref<string | null>(null)
 
 const validationSchema = toTypedSchema(
   object({
@@ -97,12 +113,13 @@ const validationSchema = toTypedSchema(
       literal(0),
       literal(1),
     ]),
-    start_date: date(),
+
+    start_date: date() ,
     end_date: date()
   })
 );
 
-const { handleSubmit, errors, meta, setValues } = useForm({
+const { handleSubmit, errors, meta, setValues, values } = useForm({
   validationSchema,
   initialValues: {
     show: 0
@@ -124,7 +141,8 @@ watchEffect(() => {
 
     selectedImageState.value = props.ad.url ? "filled" : "empty"
 
-    pathToFile(props.ad.url, props.ad.url.substring(props.ad.url.lastIndexOf("/") + 1))
+    const imageUrl = `${storage}/${props.ad.url}`
+    pathToFile(imageUrl, imageUrl.substring(imageUrl.lastIndexOf("/") + 1))
       .then((file: File) => {
         imageFile.value = file
       })
@@ -148,5 +166,27 @@ const handleImage = (imageFileParam: File | null, state: "filled" | "empty") => 
   selectedImageState.value = state
 }
 
+watchEffect(() => {
+  if (values.start_date) {
+
+  const currentDate = new Date();
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth() + 1; 
+    const year = currentDate.getFullYear();
+  
+   const start = `${values.start_date!.getDate()}/${values.start_date!.getMonth() + 1}/${values.start_date!.getFullYear()}`
+    
+    if (start < `${day}/${month}/${year}`) {
+       startDateErrorMessage.value = 'لا يمكن إختيار تاريخ أقل من تاريخ اليوم'
+    }
+    
+  else if (values.end_date! <= values.start_date!) {
+     startDateErrorMessage.value = 'تاريخ النهاية يجب أن يكون أكبر من تاريخ البداية '
+  } else {
+    startDateErrorMessage.value = null
+  }
+
+ }
+})
 
 </script>

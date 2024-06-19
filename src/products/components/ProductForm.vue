@@ -265,7 +265,7 @@ import type { CreateProductDetails } from '@/productsDetails/models/productDetai
 import { getMainCategories } from '@/mainCategories/mainCategories-service';
 import { getCategoriesByMainCategoryId } from '@/categories/services/categories-service';
 
-type ProductForm = AddProductRequest & Omit<CreateProductDetails, "product_id">
+type ProductForm = AddProductRequest & Omit<CreateProductDetails, "product_id" | "discount">
 
 const props = defineProps<{
   isLoading: boolean,

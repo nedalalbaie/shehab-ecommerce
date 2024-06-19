@@ -1,8 +1,7 @@
 type Discount = {
   id: number
-  code: string
   discount_type: 'percentage' | 'fixed'
-  amount: string
+  discount_value: string
   start_date: string
   end_date: string
 }

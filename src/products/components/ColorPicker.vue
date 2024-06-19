@@ -81,25 +81,8 @@ const addColor = () => {
 }
 
 const removeColor = (selectedColor: string) => {
-    // if (hexCodes.value) {
-    //     if (hexCodes.value.length < 2) {
-    //         hexCodes.value.splice(index, 1)
-    //     } else {
-    //         hexCodes.value = hexCodes.value.filter(color => color !== selectedColor)
-    //     }
-    // }
-
     hexCodes.value = hexCodes.value.filter(color => color !== selectedColor)
 }
-
-// watchEffect(() => {
-//   if (props.hexCodesProp) {
-//     hexCodes.value = props.hexCodesProp
-//     colors.value = colors.value.filter((color: string) => {
-//       return  props.hexCodesProp?.every(item => item !== color)
-//     })
-//   }
-// })
 
 </script>
 
