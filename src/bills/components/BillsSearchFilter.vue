@@ -55,7 +55,6 @@ import { ref } from 'vue';
 
  const handleSearch  = debounce(() => {
    billsPaginationParams.value.bill_number = search.value
-    
 }, 400)
 
 </script>

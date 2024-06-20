@@ -3,49 +3,86 @@
     <h1 class="text-3xl font-medium mt-6">
       الزبائن
       <span
-        v-if="customers.data.value?.total"
+        v-if="customers?.total"
         class="bg-gray-200 px-2 rounded-lg text-2xl"
-      >{{ customers.data.value?.total }}</span>
+      >{{ customers?.total }}</span>
     </h1>
     <div class="flex justify-between">
       <div class="w-72  mt-8">
         <v-text-field
-          v-model="searchValue"
-          label="البحث"
-          variant="outlined"
-          color="primary"
+          v-model="search"
+          label="إبحث بإسم الزبون"
+          bg-color="background"
           clearable
-          placeholder="البحث"
-          density="compact"
+          variant="solo"
+          flat
+          density="comfortable"
+          rounded
+          @click:clear="onInputClear"
           @input="handleSearch"
         />
       </div>
     </div>
 
-    <div v-if="!customers.data.value?.data">
-      <LoadingSkeleton v-if="customers.isPending.value" />
+    <div
+      v-if="isPending"
+      class="w-full h-96 flex items-center justify-center"
+    >
+      <v-progress-circular
+        size="50"
+        width="4"
+        indeterminate
+        color="primary"
+      />
     </div>
 
+    <v-alert
+      v-else-if="isError"
+      type="error"
+      class="my-6"
+      title="خطأ في الوصول الى بيانات المحلات"
+      text="الرجاء اعادة المحاولة مرة أخرى."
+    />
+
     <div
-      v-if="customers.data.value"
+      v-else-if="customers"
       class="mt-8"
     >
-      <EmptyData v-if="customers.data.value.data.length === 0" />
+      <div class="flex gap-4">
+        <v-btn
+          :loading="isTrustStatusLoading"
+          :prepend-icon="mdiCheck"
+          color="green-darken-3"
+          rounded="xl"
+          :disabled="selected.length < 1"
+          @click="onGroupTrustChange(BASE_STATUS.Activated)"
+        >
+          توثيق الحسابات
+        </v-btn>
 
-      <!-- :item-selectable="(item) => item.name == 'client2'" -->
-      <div
-        v-if="customers.data.value"
-        class="shadow-lg rounded-lg mt-4 border border-gray-200"
-      >
+        <v-btn
+          :loading="isUnTrustStatusLoading"
+          :prepend-icon="CircleX"
+          color="grey-darken-3"
+          variant="elevated"
+          rounded="xl"
+          :disabled="selected.length < 1"
+          @click="onGroupTrustChange(BASE_STATUS.Deactivated)"
+        >
+          إلفاء توثيق الحسابات
+        </v-btn>
+      </div>
+
+      <div class="mt-4 border border-gray-200 shadow-lg rounded-lg">
         <v-data-table-server
           v-model="selected"
           sticky
           :items-per-page="listParams.limit"
           :page="listParams.page"
           :headers="headers"
-          :items-length="customers.data.value.total"
-          :items="customers.data.value.data"
-          :loading="customers.isPending.value"
+          :items-length="customers.total"
+          :items="customers.data"
+          :loading="isPending"
           show-select
           item-value="id"
           @update:options="onTableOptionsChange({ page: $event.page, limit: $event.itemsPerPage })"
@@ -71,7 +108,7 @@
               </v-tooltip>
             </v-btn>
           </template>
-
+  
           <template #[`item.status`]="{ value, item, index }">
             <v-chip
               :color="getStatusColor(value)"
@@ -103,7 +140,7 @@
               class="mx-1"
               density="comfortable"
               icon
-              color="success"
+              color="green-darken-3"
               @click="onStatusChange(item.id, BASE_STATUS.Activated, index)"
             >
               <v-icon :icon="mdiCheck" />
@@ -115,50 +152,50 @@
               </v-tooltip>
             </v-btn>
           </template>
-          <template #[`item.is_trusted`]="{ item, index, value }">
+          <template #[`item.is_trusted`]="{ value }">
             <div class="flex gap-2">
               <v-chip
                 :color="getStatusColor(value)"
               >
                 {{ getTrustedStatusLabel(value) }}
               </v-chip>
-
-              <v-btn
-                v-if="item.is_trusted === BASE_STATUS.Activated"
-                :loading="isStatusLoading[index]"
-                variant="tonal"
-                class="mx-1"
-                density="comfortable"
-                icon
-                color="warning"
-                @click="onTrustStatusChange(item.id, BASE_STATUS.Deactivated, index)"
-              >
-                <v-icon :icon="mdiCancel" />
-                <v-tooltip
-                  activator="parent"
-                  location="bottom"
+  
+              <!-- <v-btn
+                  v-if="item.is_trusted === BASE_STATUS.Activated"
+                  :loading="isTrustStatusLoading[index]"
+                  variant="tonal"
+                  class="mx-1"
+                  density="comfortable"
+                  icon
+                  color="warning"
+                  @click="onTrustStatusChange(item.id, BASE_STATUS.Deactivated, index)"
                 >
-                  الغاء الثقة بالمستخدم
-                </v-tooltip>
-              </v-btn>
-              <v-btn
-                v-if="item.is_trusted === BASE_STATUS.Deactivated"
-                :loading="isStatusLoading[index]"
-                variant="tonal"
-                class="mx-1"
-                density="comfortable"
-                icon
-                color="success"
-                @click="onTrustStatusChange(item.id, BASE_STATUS.Activated, index)"
-              >
-                <v-icon :icon="mdiCheck" />
-                <v-tooltip
-                  activator="parent"
-                  location="bottom"
+                  <v-icon :icon="mdiCancel" />
+                  <v-tooltip
+                    activator="parent"
+                    location="bottom"
+                  >
+                    الغاء الثقة بالمستخدم
+                  </v-tooltip>
+                </v-btn> -->
+              <!-- <v-btn
+                  v-if="item.is_trusted === BASE_STATUS.Deactivated"
+                  :loading="isTrustStatusLoading[index]"
+                  variant="tonal"
+                  class="mx-1"
+                  density="comfortable"
+                  icon
+                  color="success"
+                  @click="onTrustStatusChange(item.id, BASE_STATUS.Activated, index)"
                 >
-                  تحويل إلي  مستخدم موثوق
-                </v-tooltip>
-              </v-btn>
+                  <v-icon :icon="mdiCheck" />
+                  <v-tooltip
+                    activator="parent"
+                    location="bottom"
+                  >
+                    تحويل إلي  مستخدم موثوق
+                  </v-tooltip>
+                </v-btn> -->
             </div>
           </template>
         </v-data-table-server>
@@ -171,8 +208,6 @@ import { ref, watchEffect } from "vue";
 import { changeStatus, getCustomers, changeTrustStatus } from "../customers-service"
 import type { PaginationParams } from '@/core/models/pagination-params'
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
-import LoadingSkeleton from "@/core/components/LoadingSkeleton.vue";
-import EmptyData from "@/core/components/EmptyData.vue";
 import {
     mdiCheck,
     mdiCancel,
@@ -181,6 +216,7 @@ import {
 import type { BaseStatus } from "@/core/models/base-status";
 import {BASE_STATUS} from "@/core/models/base-status"
 import debounce from "lodash.debounce";
+import CircleX from "../components/icons/CircleX.vue";
 
 const headers = [
   { title: 'إسم الزبون', value: 'name', width: '300px', sortable: false, },
@@ -192,19 +228,22 @@ const headers = [
 ]
 
 const isStatusLoading = ref<boolean []>([])
-  const selected = ref<string[]>([]);
-const searchValue = ref('');
-const listParams = ref<PaginationParams  & { search_value: string }>({
+const isTrustStatusLoading = ref(false)
+const isUnTrustStatusLoading = ref(false)
+
+const selected = ref<number[]>([]);
+const search = ref('');
+const listParams = ref({
   page: 1,
   limit: 10,
-  search_value: ""
+  name: ""
 })
 
 const queryClient = useQueryClient()
 
-const customers = useQuery({
+const { data: customers, isPending, isError} = useQuery({
   queryKey: ['customers', listParams],
-  queryFn: () => getCustomers(listParams.value, searchValue.value)
+  queryFn: () => getCustomers(listParams.value, listParams.value.name)
 })
 
 const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
@@ -215,9 +254,13 @@ const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   }
 }
 
-const handleSearch = debounce(() => {
-  listParams.value.search_value = searchValue.value
-}, 300)
+const onInputClear = () => {
+  listParams.value.name = ''
+ }
+
+ const handleSearch  = debounce(() => {
+   listParams.value.name = search.value
+}, 400)
 
 const onStatusChange = (customerId: number, status: BaseStatus, index: number) => {
   isStatusLoading.value[index] = true
@@ -227,12 +270,26 @@ const onStatusChange = (customerId: number, status: BaseStatus, index: number) =
    .finally(() => isStatusLoading.value[index] = false)
 }
 
-const onTrustStatusChange = (customerId: number, status: BaseStatus, index: number) => {
-  isStatusLoading.value[index] = true
+const onTrustStatusChange = (customerId: number, status: BaseStatus) => {
+  if (status == BASE_STATUS.Activated) {
+    isTrustStatusLoading.value = true
+  } else {
+    isUnTrustStatusLoading.value = true
+  }
 
   changeTrustStatus({id: customerId, is_trusted: status})
    .then(() => queryClient.invalidateQueries({ queryKey: ['customers'] }))
-   .finally(() => isStatusLoading.value[index] = false)
+   .finally(() => {
+     isTrustStatusLoading.value = false
+     isUnTrustStatusLoading.value = false
+   }
+  )
+}
+
+const onGroupTrustChange = (status: BaseStatus) => {
+  selected.value.forEach((customerId) => {
+    onTrustStatusChange(customerId, status )
+  })
 }
 
 const getStatusColor = (status: BaseStatus) => {

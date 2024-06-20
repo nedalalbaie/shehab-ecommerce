@@ -31,7 +31,7 @@
         size="large"
         :append-icon="mdiArrowLeft"
       >
-        الرجوع الى الزبائن
+        الرجوع إلي الزبائن
       </v-btn>
     </div>
 
@@ -64,7 +64,7 @@
     </div>
 
     <v-card class="mt-4">
-      <div class="w-1/2 grid grid-cols-2 gap-4 p-4">
+      <div class="w-1/2 grid grid-cols-2 gap-10 p-4">
         <div>
           <p class="text-lg font-medium">
             الإسم
@@ -84,7 +84,7 @@
           <p> {{ customer.email }} </p>
         </div>
         <div>
-          <p class="text-lg font-medium">
+          <p class="text-lg font-medium mb-1">
             التوثيق
           </p> 
           <v-chip

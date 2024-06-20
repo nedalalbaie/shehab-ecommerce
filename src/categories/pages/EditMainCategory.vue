@@ -22,7 +22,7 @@
     
     <script setup lang="ts">
     import { mdiArrowLeft } from "@mdi/js";
-    import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+    import { useMutation, useQuery } from '@tanstack/vue-query'
     import router from "@/router";
     import { getMainCategory, editMainCategory } from '../services/mainCategories-service';
     import { useRoute } from 'vue-router';
@@ -37,12 +37,10 @@
       queryFn: () => getMainCategory(id)
     })
     
-    const queryClient = useQueryClient()
     const patchMainCategoryMutation = useMutation({
       mutationFn: ({ id, body }: { id: number, body: PostMainCategoryRequest, }) => editMainCategory(id, body),
       onSuccess: () => {
         router.replace({ name: 'categories' })
-        queryClient.invalidateQueries({ queryKey: ['main-categories'] })
       },
       onError: (error) => {
         console.log(error)

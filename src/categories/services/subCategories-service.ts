@@ -51,8 +51,11 @@ const editSubCategory = (id: number, body: CreateOrPatchSubCategory): Promise<Su
   return apiClient
     .addon(formData)
     .url(`/subCategories/${id}`)
-    .formData(body)
-    .put()
+    .formData({
+      ...body,
+      _method: 'put'
+    })
+    .post()
     .json((res) => {
       alertStore.show({
         message: 'تم تعديل التصنيف الفرعي بنجاح',
