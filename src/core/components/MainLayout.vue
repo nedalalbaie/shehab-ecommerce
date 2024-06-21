@@ -12,7 +12,7 @@
   import CategoryIcon from "./icons/CategoryIcon.vue"
   import AdsIcon from "./icons/AdsIcon.vue"
   import Statistics from "./icons/StatisticsIcon.vue"
-  // import DiscountIcon from "./icons/DiscountIcon.vue"
+  import intallmentIcon from "./icons/intallmentIcon.vue"
   import OrderSvg from "./icons/OrderSvg.vue"
   import { ref } from "vue";
   import { useDisplay } from "vuetify";
@@ -33,30 +33,18 @@
 
   const navRoutes = [
     { title: 'التصنيفات', icon: CategoryIcon, alt: 'Categories',  route: '/categories' },
-    { title: 'إدارة الأقساط', icon: mdiAccountMultiple, alt: 'Installment', route: '/installments' },
+    { title: 'إدارة الأقساط', icon: intallmentIcon, alt: 'Installment', route: '/installments' },
     { title: 'الطلبات', icon: OrderSvg, alt: 'Orders', route: '/orders' },
     { title: 'الفواتير', icon: mdiTicketPercentOutline, alt: 'bills', route: '/bills' },
     { title: 'الزبائن', icon: mdiAccountMultiple, alt: 'Users', route: '/customers' },
     { title: 'الإعلانات', icon: AdsIcon, alt: 'Ads', route: '/ads' },
-    { title: 'الإحصائيات', icon: Statistics, alt: 'statistics', route: '/' },
 ]
 
   const productCatalogRoutes = [
       { title: 'المحلات', icon: mdiShoppingOutline, alt: 'Products', route: '/markets' },
       { title: 'المنتجات', icon: ProductIcon, alt: 'Products', route: '/products' },
-      { title: 'تفاصيل المنتجات', icon: ProductIcon, alt: 'Products Details', route: '/productsDetails' },
+      { title: 'تفاصيل المنتجات', icon: ProductIcon, alt: 'Products Details', route: '/productsDetails' }
   ]
-
-  // const categoriesRoutes = [
-  //   { title: 'الأساسية', icon: CategoryIcon, alt: 'MainCategories',  route: '/mainCategories' },
-   
-  //   { title: ' الفرعية', icon: SubCategoryIcon, alt: 'Sub Categories',  route: '/subCategories' },
-  // ]
-
-  // const promotionsRoutes = [
-  //     { title: 'الكوبونات', icon: mdiTicketPercentOutline, alt: 'coupons', route: '/coupons' },
-  //     { title: 'النخفيضات', icon: DiscountIcon, alt: 'discounts', route: '/discounts' },
-  // ]
 
 </script>
 
@@ -96,6 +84,19 @@
       location="start"
     >
       <v-list nav>
+        <v-list-item
+          color="primary"
+          link
+          exact
+          :to="{name: 'dashboard'}"
+        >
+          <template #prepend>
+            <v-icon :icon="Statistics" />
+          </template>
+
+          <v-list-item-title>الإحصائيات</v-list-item-title>
+        </v-list-item>
+      
         <v-list-group>
           <template #activator="{ props }">
             <v-list-item

@@ -49,20 +49,31 @@
         item-value="value"
       />
 
-      <v-btn
-        v-if="orderDetails.order_details.status == STATUS.CONFIRMED"
-        size="large"
-        rounded="xl"
-        variant="elevated"
-        color="primary"
-        :loading="makeBillMutation.isPending.value"
-        @click="onMakeBill"
-      >
-        إنشاء فاتورة
-        <template #prepend>
-          <v-icon :icon="BillIcon" />
-        </template>
-      </v-btn>
+      <div v-if="orderDetails.order_details.status == STATUS.CONFIRMED">
+        <v-btn
+          v-if="orderDetails.order_details.has_bill == 0"
+          size="large"
+          rounded="xl"
+          variant="elevated"
+          color="primary"
+          :loading="makeBillMutation.isPending.value"
+          @click="onMakeBill"
+        >
+          إنشاء فاتورة
+          <template #prepend>
+            <v-icon :icon="BillIcon" />
+          </template>
+        </v-btn>
+  
+        <v-chip
+          v-else
+          color=""
+          size="large"
+          :append-icon="mdiCheck"
+        >
+          تم إنشاء فاتورة مسبقا
+        </v-chip>
+      </div>
 
       <v-btn
         :to="{ name: 'edit-order', params: { id: orderDetails.order_details.id } }"
@@ -192,7 +203,7 @@ import { cancelOrder, changeOrderStatus, getOrder } from '../orders-service'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useRoute } from 'vue-router'
 import OrderDetails from '../components/OrderDetails.vue'
-import { mdiArrowRight, mdiPencil } from '@mdi/js'
+import { mdiArrowRight, mdiCheck, mdiPencil } from '@mdi/js'
 import { STATUS, statusOptions, type OrderStatus } from '../models/status'
 import { checkStatus } from '@/core/helpers/check-status'
 import { formatDateWithTime } from '@/core/helpers/format-date'

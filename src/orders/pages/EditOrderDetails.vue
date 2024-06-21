@@ -1,4 +1,10 @@
 <template>
+  <ColorPickerDialog
+    v-model="updateColorsDialog.open"
+    :colors="updateColorsDialog.colors"
+    @update="onUpdateColors"
+  /> 
+
   <v-dialog
     v-if="deleteProducteDialog.product"
     v-model="deleteProducteDialog.open"
@@ -69,8 +75,34 @@
             @input="convertQuantityToNumber(index)"
           />
 
-          <div />
+          <div class="flex gap-4">
+            <div class="flex flex-wrap gap-2">
+              <div
+                v-for="(hexColor, colorIndex) in convertToObject(product.hex_codes)"
+                :key="colorIndex"
+                class="w-8 h-8 rounded-[50%] shadow-full-white flex items-end border"
+                :style="{ 'background-color': hexColor }"
+              />
+            </div>
 
+            <v-btn
+              variant="tonal"
+              class="mx-1"
+              density="comfortable"
+              icon
+              color="black"
+              @click="openColorsDialog(convertToObject(product.hex_codes), index)"
+            >
+              <v-icon :icon="mdiPencil" />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                تعديل الألوان
+              </v-tooltip>
+            </v-btn>
+          </div>
+          
           <div class="flex items-start gap-6">
             <p>
               {{ product.price }}
@@ -87,10 +119,10 @@
 
         <div class="flex justify-end">
           <v-btn
-            size="small"
+            :prepend-icon="mdiPlusCircle"
             rounded="xl"
             variant="elevated"
-            color="#004C6B"
+            color="#CCEDA4"
             @click="addProducteDialog.open = true"
           >
             إضافة منتج  
@@ -151,30 +183,30 @@
           </v-card>
         </v-dialog>
 
-        <div class="mt-2 w-3/4 rounded-tl-lg bg-white shadow-md p-3 mb-6 text-xl">
-          <div class="flex gap-8 mb-2">
+        <div class="mt-2 md:w-3/4 lg:w-2/5 rounded-l-xl bg-primary py-3 px-5 mb-6 text-xl">
+          <div class="flex justify-between mb-2">
             <p>الإجمالي :</p>
             <p> {{ total }} د.ل</p>
           </div>
 
-          <div class="flex gap-8 mt-3">
+          <div class="flex justify-between mt-3">
             <p>تاريخ الدفع :</p>
             <p> {{ formatDate(orderDetails.order_details.due_date) }}</p>
           </div>
 
           <div v-if="orderDetails.order_details.payment_method == 'installments'">
-            <div class="flex gap-8 mt-3">
+            <div class="flex justify-between mt-3">
               <p> الإجمالي بعد الكوبون :</p>
               <p> {{ orderDetails.order_details.total_price_with_copupon }}</p>
             </div>
 
-            <div class="flex gap-8 mt-3">
+            <div class="flex justify-between mt-3">
               <p>معدل الفائدة :</p>
               <p> {{ orderDetails.order_details.debt_ratio }}</p>
             </div>
 
             <div
-              class="grid grid-cols-2 gap-4 mt-8"
+              class="grid gap-4 mt-8"
             >
               <div class="flex gap-3 justify-between mt-1">
                 <v-text-field
@@ -238,13 +270,14 @@ import router from "@/router";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/vue-query";
 import { patchOrder, getOrder } from "../orders-service";
 import type { PatchOrderRequest } from "../models/order";
-import { mdiArrowRight } from "@mdi/js";
+import { mdiArrowRight, mdiPencil, mdiPlusCircle } from "@mdi/js";
 import { toTypedSchema } from "@vee-validate/zod";
 import { number, object, string } from "zod";
 import { formatDate } from "@/core/helpers/format-date"
 import { useField, useForm } from "vee-validate";
 import type { Product } from "@/products/models/product";
 import { getProducts } from "@/products/products-service";
+import ColorPickerDialog from "../components/ColorPickerDialog.vue";
 
 const quantityInputs = ref<any[]>([]);
 const priceInputs = ref<number[]>([]);
@@ -257,6 +290,16 @@ const selectedProduct = ref<Product>()
 const addProducteDialog = ref({
   open: false,
   product: 0
+})
+
+const updateColorsDialog = ref<{
+  open: boolean,
+  colors: string [],
+  index: number
+}>({
+  open: false,
+  colors: [],
+  index: 0
 })
 
 const deleteProducteDialog = ref<{
@@ -391,6 +434,24 @@ const onDeleteProduct = (product: Product, index: number) => {
   deleteProducteDialog.value.open = true
   deleteProducteDialog.value.index = index
   deleteProducteDialog.value.product = product
+}
+
+const convertToObject = (hexCodesParam: string) => {
+ return JSON.parse(hexCodesParam) as string[]
+}
+
+const openColorsDialog = (colors: string [], index: number) => {
+  updateColorsDialog.value = {
+    open: true,
+    colors: colors,
+    index: index
+  }
+}
+
+const onUpdateColors = (colors: string []) => {
+  // color_selected.value = colors
+  console.log(colors);
+  
 }
 
 </script>

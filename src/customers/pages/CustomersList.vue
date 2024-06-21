@@ -204,7 +204,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref } from "vue";
 import { changeStatus, getCustomers, changeTrustStatus } from "../customers-service"
 import type { PaginationParams } from '@/core/models/pagination-params'
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
@@ -270,7 +270,7 @@ const onStatusChange = (customerId: number, status: BaseStatus, index: number) =
    .finally(() => isStatusLoading.value[index] = false)
 }
 
-const onTrustStatusChange = (customerId: number, status: BaseStatus) => {
+const onTrustStatusChange = (customerId: number, status: BaseStatus, index: number) => {
   if (status == BASE_STATUS.Activated) {
     isTrustStatusLoading.value = true
   } else {
@@ -278,7 +278,11 @@ const onTrustStatusChange = (customerId: number, status: BaseStatus) => {
   }
 
   changeTrustStatus({id: customerId, is_trusted: status})
-   .then(() => queryClient.invalidateQueries({ queryKey: ['customers'] }))
+   .then(() => {
+    if (selected.value.length == index + 1) {
+      queryClient.invalidateQueries({ queryKey: ['customers'] })
+    }
+   })
    .finally(() => {
      isTrustStatusLoading.value = false
      isUnTrustStatusLoading.value = false
@@ -287,8 +291,8 @@ const onTrustStatusChange = (customerId: number, status: BaseStatus) => {
 }
 
 const onGroupTrustChange = (status: BaseStatus) => {
-  selected.value.forEach((customerId) => {
-    onTrustStatusChange(customerId, status )
+  selected.value.forEach((customerId, index) => {
+    onTrustStatusChange(customerId, status, index )
   })
 }
 
@@ -303,12 +307,5 @@ const getStatusLabel = (status: BaseStatus) => {
 const getTrustedStatusLabel = (status: BaseStatus) => {
   return status === BASE_STATUS.Activated ? 'موثوق' : 'غير موثوق'
 }
-
-
-
-watchEffect(() => {
-  console.log(selected.value);
-  
-})
 
 </script>

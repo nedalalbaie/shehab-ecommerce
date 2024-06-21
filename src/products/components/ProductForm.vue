@@ -254,7 +254,7 @@ import { useForm, useField } from 'vee-validate';
 import { object, string, number } from 'zod';
 import type { AddProductRequest, Product } from "../models/product";
 import { computed, reactive, ref, watch, watchEffect } from "vue";
-import {  getsubCategoriesByCategoryId } from "@/subCategories/subCategories-service";
+import {  getsubCategoriesByCategoryId } from "@/categories/services/subCategories-service";
 import { useQuery } from "@tanstack/vue-query";
 import ImageUpload from "@/core/components/ImageUpload.vue"
 import ColorPicker from "../components/ColorPicker.vue"
@@ -262,7 +262,7 @@ import { pathToFile } from '@/core/helpers/pathToFile';
 import { sellingMethods } from "../models/product"
 import { getMarkets } from '@/markets/markets-service';
 import type { CreateProductDetails } from '@/productsDetails/models/productDetails';
-import { getMainCategories } from '@/mainCategories/mainCategories-service';
+import { getMainCategories } from '@/categories/services/mainCategories-service';
 import { getCategoriesByMainCategoryId } from '@/categories/services/categories-service';
 
 type ProductForm = AddProductRequest & Omit<CreateProductDetails, "product_id" | "discount">
