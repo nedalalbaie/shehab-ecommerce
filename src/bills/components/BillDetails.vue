@@ -100,10 +100,9 @@
     </div>
   
     <div class="bg-white rounded-md shadow-md pt-6 mt-6">
-      <div class="bg-primary-100 text-white grid grid-cols-4 px-8 py-1">
+      <div class="bg-primary-100 text-white grid grid-cols-3 px-8 py-1">
         <p>العنصر</p>
         <p>الكمية</p>
-        <p>اللون</p>
         <p>السعر</p>
       </div>
   

@@ -168,7 +168,6 @@ import { STATUS } from "../models/status"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
 import ViewIconVue from "@/core/components/icons/ViewIcon.vue";
-import router from "@/router";
 import { checkStatus } from "@/core/helpers/check-status"
 import LoadingOrders from "../components/LoadingOrders.vue";
 import EmptyData from "@/core/components/EmptyData.vue";
@@ -188,7 +187,6 @@ const queryClient = useQueryClient()
 const cancelOrderMutation = useMutation({
   mutationFn: cancelOrder,
   onSuccess: () => {
-    router.replace({ name: 'orders' })
     queryClient.invalidateQueries({ queryKey: ['orders'] })
   },
   onError: (error) => {
@@ -212,7 +210,7 @@ const formatToDate = (date: string) => {
 }
 
 const quantityTotal = (quantites: number[]) => (
-   quantites.reduce((acc, quantity) => acc + quantity)
+  quantites ?  quantites.reduce((acc, quantity) => acc + quantity) : 0
 )
 
 </script>

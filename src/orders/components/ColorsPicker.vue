@@ -1,14 +1,10 @@
 <template>
-  <h1 class="text-xl">
-    الألوان
-  </h1>
-
-  <div class="flex gap-6 mt-2">
+  <div class="flex gap-6">
     <v-color-picker
       v-model="color"
       mode="hex"
     />
-
+  
     <div class="flex flex-col items-center gap-3 self-start shadow-md border p-4 rounded-md">
       <p class="text-center">
         إضفط علي الزر  لإضافة هذا اللون إلي ألوان المنتج
@@ -17,7 +13,7 @@
         class="w-14 h-14 rounded-[50%] shadow-full-white flex items-end"
         :style="{ 'background-color': color }"
       />
-
+  
       <v-btn
         :disabled="!color"
         variant="elevated"
@@ -29,10 +25,9 @@
       </v-btn>
     </div>
   </div>
-
+  
   <div
-    v-if="hexCodes.length > 0"
-    class="self-start shadow-md border p-4 rounded-md relative mt-4 w-1/2"
+    class="self-start shadow-md border p-4 rounded-md relative mt-4 w-full"
   >
     <p>
       الألوان المختارة للمنتج
@@ -45,6 +40,7 @@
         :style="{ 'background-color': hexColor }"
       >
         <div
+          v-if="hexCodes.length > 1"
           class="bg-red-700 w-6 h-6 grid place-content-center rounded-[50%] relative -bottom-4  shadow-full-white border border-neutral-300 cursor-pointer"
           @click="removeColor(hexColor)"
         >
@@ -60,31 +56,45 @@
     </div>
   </div>
 </template>
+  
+  <script setup lang="ts">
+  import { ref, watchEffect } from 'vue';
+  import MinusIcon from "@/products/components/icons/MinusIcon.vue"
+  import { alertStore } from '@/core/stores/alert.store';
+   
+  const hexCodes = defineModel<string []>({required: true})
+  
+  const color = ref()
+  
+  const addColor = () => {
+    if (hexCodes.value.some(code => code == color.value)) {
+      alertStore.show({
+          message: 'لقد قمت بإدخال هذا اللون مسبقا',
+          type: 'error'
+        })
+        return
+    }
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import MinusIcon from "./icons/MinusIcon.vue"
-import { alertStore } from '@/core/stores/alert.store';
- 
-const hexCodes = defineModel<string []>({required: true})
-
-const color = ref()
-
-const addColor = () => {
-  if (hexCodes.value.some(code => code == color.value)) {
-    alertStore.show({
-        message: 'لقد قمت بإدخال هذا اللون مسبقا',
-        type: 'error'
-      })
-      return
+    if (hexCodes.value.length >= 20) {
+      alertStore.show({
+          message: 'لا يمكنك تحديد أكثر من 20 لون',
+          type: 'error'
+        })
+        return
+    }
+  
+    hexCodes.value.push(color.value)
+  }
+  
+  const removeColor = (selectedColor: string) => {
+      hexCodes.value = hexCodes.value.filter(color => color !== selectedColor)
   }
 
-  hexCodes.value.push(color.value)
-}
-
-const removeColor = (selectedColor: string) => {
-    hexCodes.value = hexCodes.value.filter(color => color !== selectedColor)
-}
-
-</script>
-
+  watchEffect(() => {
+    console.log(hexCodes.value);
+    
+  })
+  
+  </script>
+  
+  

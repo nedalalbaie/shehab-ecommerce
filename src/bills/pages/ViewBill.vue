@@ -37,20 +37,12 @@
       <div
         v-for="product in bill.prodcts"
         :key="product.id"
-        class="grid grid-cols-4 px-8 py-3"
+        class="grid grid-cols-3 px-8 py-3"
       >
         <p class="border-b-2 border-neutral-600 pb-1 w-fit">
           {{ product.name }}
         </p>
         <p>{{ product.minimum_quantity }}</p>
-        <div class="w-4/5 flex gap-1">
-          <div
-            v-for="(color, colorIndex) in convertToObject(product.hex_codes)"
-            :key="colorIndex"
-            class="w-8 h-8 rounded-[50%] shadow-full-white border-2  flex items-end"
-            :style="{ 'background-color': `#${color}` }"
-          />
-        </div>
         <p>{{ product.price }}</p>
       </div>
   
@@ -87,9 +79,5 @@
     queryKey: ['bill'],
     queryFn: () => getBill(id)
   })
-  
-  const convertToObject = (hexCodesParam: string) => {
-    return JSON.parse(hexCodesParam) as string[]
-  }
   
   </script>

@@ -164,18 +164,18 @@
       <div
         v-for="(product, index) in orderDetails.products"
         :key="product.id"
-        class="grid grid-cols-4 px-8 py-3"
+        class="grid grid-cols-[1fr_1fr_30%_1fr] px-8 py-3"
       >
         <p class="border-b-2 border-neutral-600 pb-1 w-fit">
           {{ product.name }}
         </p>
         <p>{{ orderDetails.order_details.quantity_selected[index] }}</p>
-        <div class="w-4/5 flex gap-1">
+        <div class=" max-w-60 flex flex-wrap gap-2">
           <div
-            v-for="(color, colorIndex) in convertToObject(product.hex_codes)"
+            v-for="(color, colorIndex) in convertToObject(selectedColors[index])"
             :key="colorIndex"
-            class="w-8 h-8 rounded-[50%] shadow-full-white border-2 flex items-end"
-            :style="{ 'background-color': `#${color}` }"
+            class="w-8 h-8 rounded-[50%] shadow-full-white border-1 flex items-end border"
+            :style="{ 'background-color': `${color}` }"
           />
         </div>
         <p>{{ product.price }}</p>
@@ -191,7 +191,7 @@
           class="flex justify-between mt-2"
         >
           <p>متأخرات سداد الديون :</p>
-          <p>{{ orderDetails.order_details.paid_due_value }} د.ل</p>
+          <p>{{ orderDetails.order_details.debt_arrears }} د.ل</p>
         </div>
       </div>
     </template>
@@ -215,6 +215,8 @@ import { postBill } from '@/bills/bill-service'
 const status = ref<OrderStatus>()
 let statusCounter = 0
 
+const selectedColors = ref<string []>([])
+
 const cancelOrderDialog = ref({
   open: false
 })
@@ -231,10 +233,6 @@ const {
   queryFn: () => getOrder(id)
 })
 
-const convertToObject = (hexCodesParam: string) => {
-  return JSON.parse(hexCodesParam) as string[]
-}
-
 const dialogQuestion = () => {
   return `إلغاء الطلبية ${orderDetails.value?.order_details.order_number} ؟`
 }
@@ -243,7 +241,7 @@ const queryClient = useQueryClient()
 const cancelOrderMutation = useMutation({
   mutationFn: cancelOrder,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['orders'] })
+    queryClient.invalidateQueries({ queryKey: ['orderDetails'] })
     cancelOrderDialog.value.open = false
   },
   onError: (error) => {
@@ -283,9 +281,14 @@ const onMakeBill = () => {
   }
 }
 
+const convertToObject = (hexCodesParam: string) => {
+ return JSON.parse(hexCodesParam) as string[]
+}
+
 watchEffect(() => {
   if (orderDetails.value) {
     status.value = orderDetails.value.order_details.status
+    selectedColors.value = convertToObject(orderDetails.value.order_details.color_selected)
   }
 })
 

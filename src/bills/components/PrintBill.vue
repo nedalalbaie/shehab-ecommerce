@@ -76,30 +76,21 @@
     </div>
 
     <div class="bg-white rounded-md shadow-md pt-6 mt-6 w-full">
-      <div class="bg-primary-100 text-white grid grid-cols-4 px-8 py-1">
+      <div class="bg-primary-100 text-white grid grid-cols-3 px-8 py-1">
         <p>العنصر</p>
         <p>الكمية</p>
-        <p>اللون</p>
         <p>السعر</p>
       </div>
   
       <div
         v-for="product in products"
         :key="product.id"
-        class="grid grid-cols-4 px-8 py-3"
+        class="grid grid-cols-3 px-8 py-3"
       >
         <p class="border-b-2 border-neutral-600 pb-1 w-fit">
           {{ product.name }}
         </p>
         <p>{{ product.minimum_quantity }}</p>
-        <div class="w-4/5 flex gap-1">
-          <div
-            v-for="(color, colorIndex) in convertToObject(product.hex_codes)"
-            :key="colorIndex"
-            class="w-8 h-8 rounded-[50%] shadow-full-white border-2  flex items-end"
-            :style="{ 'background-color': `#${color}` }"
-          />
-        </div>
         <p>{{ product.price }}</p>
       </div>
     </div>
