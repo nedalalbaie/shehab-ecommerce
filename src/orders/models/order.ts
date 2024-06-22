@@ -16,7 +16,7 @@ type Order = {
   installment_id?: number
   product_codes: string[]
   quantity_selected: number[]
-  color_selected: string
+  color_selected: string [][]
   has_bill: 0 | 1
   created_at: string
   updated_at: string
@@ -34,7 +34,7 @@ type PatchOrderRequest = {
   // installment_id: number
   product_codes: string []
   quantity_selected: number []
-  color_selected: string
+  color_selected: string [][]
 }
 
 export type { Order, PatchOrderRequest }

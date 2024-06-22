@@ -95,6 +95,14 @@
   
           <div class="mt-4 flex items-center border-b border-gray-700 pb-1">
             <p class="w-1/2">
+              الكود
+            </p>
+            <p class="w-1/2 text-center">
+              {{ product.product_code }}
+            </p>
+          </div>
+          <div class="mt-4 flex items-center border-b border-gray-700 pb-1">
+            <p class="w-1/2">
               الوصف
             </p>
             <p class="w-1/2 text-center">
@@ -263,11 +271,9 @@ const products = useQuery({
   queryFn: () => getProducts(listParams.value)
 })
 
-const storage = import.meta.env.VITE_API_Storage
-
 const getBackgroundImage = (url: string) => {
   return {
-    backgroundImage: `url(${storage}${url})`
+    backgroundImage: `url(${url})`
   }
 }
 

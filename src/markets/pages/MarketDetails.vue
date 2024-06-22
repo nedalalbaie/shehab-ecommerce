@@ -170,8 +170,6 @@ const id = Number(route.params.id)
 
 const isLoading = computed(() => marketProducts.isPending.value || marketProducts.isRefetching.value)
 
-const storage = import.meta.env.VITE_API_Storage
-
 const marketProducts = useQuery({
   queryKey: ['market'],
   queryFn: () => getMarketProducts(id)
@@ -187,7 +185,7 @@ const getStatusLabel = (status: BaseStatus) => {
 
 const getBackgroundImage = (url: string) => {
   return {
-    backgroundImage: `url(${storage}${url})`,
+    backgroundImage: `url(${url})`,
   }
 }
 

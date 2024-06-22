@@ -44,7 +44,7 @@ const postBill = (orderNumber: string) : Promise<void> => {
 // const cancelBill = (id: number) => {
 //   return apiClient.url(`/bills/${id}`).delete().json(() => {
 //     alertStore.show({
-//       message: 'تم حذف الفاتورة بنجاح',
+//       message: 'تم إلغاء الفاتورة بنجاح',
 //       type: 'info'
 //     })
 //   })
@@ -53,7 +53,7 @@ const postBill = (orderNumber: string) : Promise<void> => {
 const changeBillStatus = (body: ChangeBillStatusBody) => {
   return apiClient.url(`/change-status-bill`).post(body).json(() => {
     alertStore.show({
-      message: 'تم تغيير حالة الفاتورة بنجاح',
+      message: 'تم إلغاء الفاتورة بنجاح',
       type: 'info'
     })
   })

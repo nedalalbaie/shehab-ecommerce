@@ -7,7 +7,7 @@
     <div class="flex items-center gap-4">
       <img
         class="w-10 h-10 bg-cover rounded-lg my-2 border border-gray-200"
-        :src="`${storage}${mainCategory.image_path}`"
+        :src="mainCategory.image_path"
         alt=""
       >
       <p class="w-fit">
@@ -76,7 +76,7 @@
         <div class="flex items-center gap-4 mb-2">
           <img
             class="w-10 h-10 bg-cover rounded-lg my-2 border border-gray-200"
-            :src="`${storage}${category.image_path}`"
+            :src="category.image_path"
             alt=""
           >
         
@@ -145,7 +145,7 @@
             <div class="flex items-center gap-4 mb-2">
               <img
                 class="w-10 h-10 bg-cover rounded-lg my-2 border border-gray-200"
-                :src="`${storage}${subCategory.image_path}`"
+                :src="subCategory.image_path"
                 alt=""
               >
 
@@ -274,8 +274,6 @@ const emit = defineEmits<{
   'open-edit-category': [category: Category, mainCategory: MainCategory]
   'open-edit-sub-category': [value: SubCategory, category: Category]
 }>()
-
-const storage = import.meta.env.VITE_API_Storage
 
 const showMainCategory = ref<boolean[]>([]);
 const showSubCategory = ref<boolean[][]>([]);

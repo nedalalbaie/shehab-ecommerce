@@ -38,6 +38,15 @@
 
         <v-card-actions>
           <v-btn
+            color="error"
+            type="button"
+            @click="isOpen = false"
+          >
+            الغاء
+          </v-btn>
+          
+          <v-btn
+            :disable="discountId == null"
             :loading="addProductDiscountMutation.isPending.value"
             color="primary"
             type="submit"
@@ -45,14 +54,6 @@
             @click="onAddDiscount"
           >
             إضافة
-          </v-btn>
-
-          <v-btn
-            color="error"
-            type="button"
-            @click="isOpen = false"
-          >
-            الغاء
           </v-btn>
         </v-card-actions>
       </div>
@@ -72,7 +73,7 @@ const props = defineProps<{
 }>()
 
 const isOpen = defineModel<boolean>({required: true})
-const discountId = ref()
+const discountId = ref<number | null>(null)
 
 const { data: discounts, isPending} = useQuery({
   queryKey: ['discounts'],
@@ -94,7 +95,7 @@ const addProductDiscountMutation = useMutation({
 const onAddDiscount = () => {
   const body = {
     id: props.productId,
-    discount_id: discountId.value
+    discount_id: discountId.value as number
   }
   addProductDiscountMutation.mutate(body)
 }

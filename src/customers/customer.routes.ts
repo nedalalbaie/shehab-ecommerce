@@ -16,8 +16,18 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'bills',
-        name: 'view-customer-bills',
-        component: () => import('./pages/ViewCustomerBills.vue')
+        children: [
+          {
+            path: '',
+            name: 'view-customer-bills',
+            component: () => import('./pages/ViewCustomerBills.vue')
+          },
+          {
+            path: ':billId',
+            name: 'view-customer-bill',
+            component: () => import('./pages/BillDetails.vue')
+          }
+        ]
       },
       {
         path: 'orders',

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-1/2 flex justify-between relative px-3 border border-gray-500 hover:border-gray-700 rounded-[4px] h-[3.49rem]  items-center cursor-pointer text-gray-500"
+    class="w-full flex justify-between relative px-3 border border-gray-500 hover:border-gray-700 rounded-[4px] h-[3.49rem]  items-center cursor-pointer text-gray-500"
     @click="isColorListOpen = !isColorListOpen"
   >
     <p>الألوان *</p>
@@ -41,18 +41,33 @@
     </div>
   </div>
   
-  <div class="mt-8 flex gap-4 relative">
-    <div
-      v-for="(color, index) in hexCodes"
-      :key="index"
-      class="w-14 h-14 rounded-[50%] shadow-full-white flex items-end"
-      :style="{ 'background-color': color }"
-    >
+  <div
+    v-if="hexCodes.length > 0"
+    class="self-start shadow-md border p-4 rounded-md relative mt-4 w-full mx-auto"
+  >
+    <p>
+      الألوان المختارة للمنتج
+    </p>
+    <div class="mt-8 flex gap-4 relative">
       <div
-        class="bg-red-700 w-6 h-6 grid place-content-center rounded-[50%] relative -bottom-4  shadow-full-white border border-neutral-300 cursor-pointer"
-        @click="removeColor(color, index)"
+        v-for="(color, index) in hexCodes"
+        :key="index"
+        class="w-14 h-14 rounded-[50%] shadow-full-white flex items-end"
+        :style="{ 'background-color': color }"
       >
-        <MinusIcon />
+        <div
+          v-if="hexCodes.length > 1"
+          class="bg-red-700 w-6 h-6 grid place-content-center rounded-[50%] relative -bottom-4  shadow-full-white border border-neutral-300 cursor-pointer"
+          @click="removeColor(color, index)"
+        >
+          <MinusIcon />
+          <v-tooltip
+            activator="parent"
+            location="bottom"
+          >
+            إزالة اللون
+          </v-tooltip>
+        </div>
       </div>
     </div>
   </div>
@@ -64,7 +79,8 @@ import MinusIcon from "./icons/MinusIcon.vue"
 import ArrowIcon from "./icons/ArrowIcon.vue"
 
 const props = defineProps<{
-  hexCodesProp?: string [] 
+  hexCodesProp?: string [] ,
+  colorsList: string []
 }>()
 const emit = defineEmits<{
   passHexcodes: [value: string []]
@@ -94,7 +110,13 @@ const removeColor = (selectedColor: string, index: number) => {
 
 watchEffect(() => {
   if (props.hexCodesProp) {
-    hexCodes.value = props.hexCodesProp
+    hexCodes.value = [...props.hexCodesProp]
+  }
+})
+
+watchEffect(() => {
+  if (props.colorsList) {
+    colors.value = props.colorsList
     colors.value = colors.value.filter((color: string) => {
       return  props.hexCodesProp?.every(item => item !== color)
     })

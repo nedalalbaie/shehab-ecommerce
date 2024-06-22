@@ -172,7 +172,7 @@
         <p>{{ orderDetails.order_details.quantity_selected[index] }}</p>
         <div class=" max-w-60 flex flex-wrap gap-2">
           <div
-            v-for="(color, colorIndex) in convertToObject(selectedColors[index])"
+            v-for="(color, colorIndex) in selectedColors[index]"
             :key="colorIndex"
             class="w-8 h-8 rounded-[50%] shadow-full-white border-1 flex items-end border"
             :style="{ 'background-color': `${color}` }"
@@ -215,7 +215,7 @@ import { postBill } from '@/bills/bill-service'
 const status = ref<OrderStatus>()
 let statusCounter = 0
 
-const selectedColors = ref<string []>([])
+const selectedColors = ref<string [][]>([])
 
 const cancelOrderDialog = ref({
   open: false
@@ -281,14 +281,14 @@ const onMakeBill = () => {
   }
 }
 
-const convertToObject = (hexCodesParam: string) => {
- return JSON.parse(hexCodesParam) as string[]
-}
+// const convertToObject = (hexCodesParam: string) => {
+//  return JSON.parse(hexCodesParam) as string[]
+// }
 
 watchEffect(() => {
   if (orderDetails.value) {
     status.value = orderDetails.value.order_details.status
-    selectedColors.value = convertToObject(orderDetails.value.order_details.color_selected)
+    selectedColors.value = orderDetails.value.order_details.color_selected
   }
 })
 

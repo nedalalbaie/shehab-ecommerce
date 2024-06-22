@@ -87,8 +87,7 @@ const deleteImage = () => {
 
 watchEffect(() => {
   if (props.imagePath) {
-    const storage = import.meta.env.VITE_API_Storage
-    base64Image.value = `${storage}/${props.imagePath}`
+    base64Image.value = props.imagePath
   }
 })
 </script>

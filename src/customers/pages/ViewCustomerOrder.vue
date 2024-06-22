@@ -50,20 +50,31 @@
         item-value="value"
       />
 
-      <v-btn
-        v-if="orderDetails.order_details.status == STATUS.CONFIRMED"
-        size="large"
-        rounded="xl"
-        variant="elevated"
-        color="primary"
-        :loading="makeBillMutation.isPending.value"
-        @click="onMakeBill"
-      >
-        إنشاء فاتورة
-        <template #prepend>
-          <v-icon :icon="BillIcon" />
-        </template>
-      </v-btn>
+      <div v-if="orderDetails.order_details.status == STATUS.CONFIRMED">
+        <v-btn
+          v-if="orderDetails.order_details.has_bill == 0"
+          size="large"
+          rounded="xl"
+          variant="elevated"
+          color="primary"
+          :loading="makeBillMutation.isPending.value"
+          @click="onMakeBill"
+        >
+          إنشاء فاتورة
+          <template #prepend>
+            <v-icon :icon="BillIcon" />
+          </template>
+        </v-btn>
+  
+        <v-chip
+          v-else
+          color=""
+          size="large"
+          :append-icon="mdiCheck"
+        >
+          تم إنشاء فاتورة مسبقا
+        </v-chip>
+      </div>
 
       <v-btn
         :to="{ name: 'edit-customer-order', params: { customerId, orderId: orderDetails.order_details.id } }"
@@ -162,10 +173,10 @@
         <p>{{ orderDetails.order_details.quantity_selected[index] }}</p>
         <div class="w-4/5 flex gap-1">
           <div
-            v-for="(color, colorIndex) in convertToObject(product.hex_codes)"
+            v-for="(color, colorIndex) in selectedColors[index]"
             :key="colorIndex"
             class="w-8 h-8 rounded-[50%] shadow-full-white border-2 flex items-end"
-            :style="{ 'background-color': `#${color}` }"
+            :style="{ 'background-color': `${color}` }"
           />
         </div>
         <p>{{ product.price }}</p>
@@ -193,7 +204,7 @@ import { cancelOrder, changeOrderStatus, getOrder } from '@/orders/orders-servic
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useRoute } from 'vue-router'
 import OrderDetails from '@/orders/components/OrderDetails.vue'
-import { mdiArrowRight, mdiPencil } from '@mdi/js'
+import { mdiArrowRight, mdiCheck, mdiPencil } from '@mdi/js'
 import { STATUS, statusOptions, type OrderStatus } from '@/orders/models/status'
 import { checkStatus } from '@/core/helpers/check-status'
 import { formatDateWithTime } from '@/core/helpers/format-date'
@@ -203,6 +214,7 @@ import BillIcon from '@/orders/components/icons/BillIcon.vue'
 import router from '@/router'
 import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
 
+const selectedColors = ref<string [][]>([])
 const status = ref<OrderStatus>()
 let statusCounter = 0
 
@@ -223,10 +235,6 @@ const {
   queryFn: () => getOrder(orderId)
 })
 
-const convertToObject = (hexCodesParam: string) => {
-  return JSON.parse(hexCodesParam) as string[]
-}
-
 const queryClient = useQueryClient()
 
 const changeOrderStatusMutation = useMutation({
@@ -246,6 +254,7 @@ const onchangeOrderStatus = (order_number: string, new_status: OrderStatus) => {
 watchEffect(() => {
   if (orderDetails.value) { 
     status.value = orderDetails.value.order_details.status
+    selectedColors.value = orderDetails.value.order_details.color_selected
   } 
 })
 

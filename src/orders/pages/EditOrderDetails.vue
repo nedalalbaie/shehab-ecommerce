@@ -1,7 +1,9 @@
 <template>
   <ColorPickerDialog
+    v-if="updateColorsDialog.productColors"
     v-model="updateColorsDialog.open"
     :colors="updateColorsDialog.colors"
+    :colors-list="updateColorsDialog.productColors!"
     @update="onUpdateColors"
   /> 
 
@@ -18,7 +20,7 @@
     >
       <v-card-text>
         سيتم حذف عدد {{ orderDetails?.order_details.quantity_selected[deleteProducteDialog.index] }} 
-        {{ orderDetails?.order_details.quantity_selected[deleteProducteDialog.index] === 1 ? 'عنصر' : 'عناصر' }} بقيمة {{ deleteProducteDialog.product.price }} د.ل من هذه الطلبية.
+        {{ orderDetails?.order_details.quantity_selected[deleteProducteDialog.index] === 1 ? 'عنصر' : 'عناصر' }} بقيمة {{ orderDetails?.order_details.quantity_selected[deleteProducteDialog.index]! * deleteProducteDialog.product.price }} د.ل من هذه الطلبية.
         لا يمكن التراجع عن هذه العملية.
       </v-card-text>
 
@@ -62,7 +64,7 @@
           class="grid grid-cols-[1fr_1fr_30%_1fr] gap-2 items-start py-3"
         >
           <p class="border-b-2 border-neutral-600 pb-1 w-fit">
-            {{ product.name }}
+            {{ product.name }} <br> {{ product.product_code }}
           </p>
 
           <div>
@@ -85,12 +87,10 @@
             </p>
           </div>
 
-          
-
           <div class="flex gap-4 items-center">
             <div class="flex flex-wrap gap-2 max-w-60">
               <div
-                v-for="(hexColor, colorIndex) in convertToObject(color_selected[index])"
+                v-for="(hexColor, colorIndex) in color_selected[index]"
                 :key="colorIndex"
                 class="w-8 h-8 rounded-[50%] shadow-full-white flex items-end border"
                 :style="{ 'background-color': hexColor }"
@@ -103,7 +103,7 @@
               density="comfortable"
               icon
               color="black"
-              @click="openColorsDialog(convertToObject(color_selected[index]), index)"
+              @click="openColorsDialog(color_selected[index], index, convertToObject(product.hex_codes))"
             >
               <v-icon :icon="mdiPencil" />
               <v-tooltip
@@ -148,37 +148,45 @@
           v-model="addProducteDialog.open"
           class="w-3/5"
         >
-          <div class="bg-white rounded-lg p-4">
+          <div class="bg-white rounded-lg p-6">
             <v-card-title>إضافة منتج للطلب</v-card-title>
 
-            <v-card-text>
-              <v-autocomplete
-                v-model="selectedProduct"
-                :hide-no-data="false"
-                item-title="name"
-                item-value="id"
-                :return-object="true"
-                :items="productsOptions"
-                :loading="isPending"
-                hide-selected
-                label="المنتجات"
-                placeholder="المنتجات"
-                variant="outlined"
-                color="primary"
-                auto-select-first
-              >
-                <template #no-data>
-                  <v-list-item>
-                    <v-list-item-title>
-                      لا توجد نتائج
-                    </v-list-item-title>
-                  </v-list-item>
-                </template>
-              </v-autocomplete>
-            </v-card-text>
+            <v-autocomplete
+              v-model="selectedProduct"
+              :hide-no-data="false"
+              item-title="name"
+              item-value="id"
+              :return-object="true"
+              :items="productsOptions"
+              :loading="isPending"
+              hide-selected
+              label="المنتجات"
+              placeholder="المنتجات"
+              variant="outlined"
+              color="primary"
+              auto-select-first
+            >
+              <template #no-data>
+                <v-list-item>
+                  <v-list-item-title>
+                    لا توجد نتائج
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+            </v-autocomplete>
 
-            <div class="mb-3 flex flex-col items-center">
-              <ColorPicker v-model="addProducteDialog.colors" />
+            <div class="mb-3">
+              <!-- <ColorPicker
+                v-if="selectedProduct"
+                v-model="addProducteDialog.colors"
+                :colors-list="convertToObject(selectedProduct.hex_codes)"
+              /> -->
+              <ColorPicker
+                v-if="selectedProduct"
+                :colors-list="convertToObject(selectedProduct.hex_codes)"
+                :hex-codes-prop="addProducteDialog.colors"
+                @passHexcodes="passHexCodes"
+              />
             </div>
 
             <v-card-actions>
@@ -298,7 +306,7 @@ import { useField, useForm } from "vee-validate";
 import type { Product } from "@/products/models/product";
 import { getProducts } from "@/products/products-service";
 import ColorPickerDialog from "../components/ColorPickerDialog.vue";
-import ColorPicker from "../components/ColorsPicker.vue";
+import ColorPicker from "@/products/components/ColorPicker copy.vue";
 
 const quantityInputs = ref<any[]>([]);
 const quantityInputsErrors = ref<boolean[]>([]);
@@ -313,20 +321,24 @@ const selectedProduct = ref<Product>()
 
 const addProducteDialog = ref<{
   open: boolean,
-  colors: string []
+  colors: string [],
+  productColors: string [] | null
 }>({
   open: false,
-  colors: []
+  colors: [],
+  productColors: null
 })
 
 const updateColorsDialog = ref<{
   open: boolean,
   colors: string [],
-  index: number
+  index: number,
+  productColors: string [] | null
 }>({
   open: false,
   colors: [],
-  index: 0
+  index: 0,
+  productColors: null
 })
 
 const deleteProducteDialog = ref<{
@@ -399,7 +411,7 @@ watchEffect(() => {
     })
 
     products.value = [...orderDetails.value.products];
-    color_selected.value = JSON.parse(orderDetails.value.order_details.color_selected) as string[][]
+    color_selected.value = [...orderDetails.value.order_details.color_selected]
 
     quantityInputs.value = [...orderDetails.value.order_details.quantity_selected]
 
@@ -440,9 +452,9 @@ const submit  = handleSubmit(values => {
       product_codes: productCodes.value,
       quantity_selected: quantityInputs.value,
       total_price: total.value,
-      color_selected: JSON.stringify(color_selected.value)
+      color_selected: color_selected.value
     }
-
+    console.log(body);
     patchOrderMutation.mutate({ body, id })
 })
 
@@ -463,8 +475,7 @@ const onAddProductToOrder = (product: Product) => {
   quantityInputs.value.push(0)
 
   productCodes.value.push(product.product_code)
-  color_selected.value.push(JSON.stringify(addProducteDialog.value.colors) as any)
-  
+  color_selected.value.push(addProducteDialog.value.colors)
   products.value.push(product)
 
   addProducteDialog.value.colors = []
@@ -479,19 +490,25 @@ const openDeleteProductDialog = (product: Product, index: number) => {
 }
 
 const convertToObject = (hexCodesParam: any) => {
- return JSON.parse(hexCodesParam) as string[]
+  if (typeof JSON.parse(hexCodesParam) == 'string' ) {
+    return JSON.parse(JSON.parse(hexCodesParam)) as string[]   
+  } 
+  
+ return JSON.parse(hexCodesParam) as string[]   
 }
 
-const openColorsDialog = (colors: string [], index: number) => {
+const openColorsDialog = (colors: string [], index: number, productHexcodes: string []) => {
+  
   updateColorsDialog.value = {
     open: true,
     colors: colors,
-    index: index
+    index: index,
+    productColors: productHexcodes
   }
 }
 
 const onUpdateColors = (colors: string []) => {
-  color_selected.value[updateColorsDialog.value.index] = JSON.stringify(colors) as any
+  color_selected.value[updateColorsDialog.value.index] = colors
 }
 
 watchEffect(() => {
@@ -503,11 +520,9 @@ watchEffect(() => {
 
 const checkQuantitiesErrors = (): boolean => {
   let hasErrors = false
-  console.log(quantityInputs.value);
   
   quantityInputs.value.forEach((input, index) => {
     if (input == '' || input < 1) {
-      console.log(input);
       
       quantityInputsErrors.value[index] = true
       hasErrors = true
@@ -523,6 +538,10 @@ const checkQuantitiesErrors = (): boolean => {
 watchEffect(() => {
   checkQuantitiesErrors()
 })
+
+const passHexCodes = (hexColors: string []) => {
+  addProducteDialog.value.colors = hexColors
+}
   
 
 </script>

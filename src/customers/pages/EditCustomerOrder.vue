@@ -1,4 +1,12 @@
 <template>
+  <ColorPickerDialog
+    v-if="updateColorsDialog.productColors"
+    v-model="updateColorsDialog.open"
+    :colors="updateColorsDialog.colors"
+    :colors-list="updateColorsDialog.productColors!"
+    @update="onUpdateColors"
+  /> 
+
   <v-dialog
     v-if="deleteProducteDialog.product"
     v-model="deleteProducteDialog.open"
@@ -12,7 +20,7 @@
     >
       <v-card-text>
         سيتم حذف عدد {{ orderDetails?.order_details.quantity_selected[deleteProducteDialog.index] }} 
-        {{ orderDetails?.order_details.quantity_selected[deleteProducteDialog.index] === 1 ? 'عنصر' : 'عناصر' }} بقيمة {{ deleteProducteDialog.product.price }} د.ل من هذه الطلبية.
+        {{ orderDetails?.order_details.quantity_selected[deleteProducteDialog.index] === 1 ? 'عنصر' : 'عناصر' }} بقيمة {{ orderDetails?.order_details.quantity_selected[deleteProducteDialog.index]! * deleteProducteDialog.product.price }} د.ل من هذه الطلبية.
         لا يمكن التراجع عن هذه العملية.
       </v-card-text>
 
@@ -30,15 +38,15 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-
+            
   <v-btn
-    :to="{ name: 'view-customer-order', params: { customerId, orderId: orderId } }"
+    :to="{ name: 'view-customer-order', params: {customerId, orderId: orderId} }"
     variant="outlined"
     color="primary"
     size="large"
     :prepend-icon="mdiArrowRight"
   >
-    الرجوع الى عرض الطلب
+    الرجوع الى  عرض الطلب 
   </v-btn>
 
   <OrderDetails
@@ -53,30 +61,69 @@
         <div
           v-for="(product, index) in products"
           :key="product.id"
-          class="grid grid-cols-4 items-start"
+          class="grid grid-cols-[1fr_1fr_30%_1fr] gap-2 items-start py-3"
         >
           <p class="border-b-2 border-neutral-600 pb-1 w-fit">
-            {{ product.name }}
+            {{ product.name }} <br> {{ product.product_code }}
           </p>
-          <v-text-field
-            v-model="quantityInputs[index]"
-            class="w-32"
-            label="الكمية"
-            type="number"
-            variant="outlined"
-            color="primary"
-            placeholder="الكمية"
-            @input="convertQuantityToNumber(index)"
-          />
 
-          <div />
+          <div>
+            <v-text-field
+              v-model="quantityInputs[index]"
+              class="w-32"
+              label="الكمية"
+              type="number"
+              variant="outlined"
+              color="primary"
+              placeholder="الكمية"
+              @input="convertQuantityToNumber(index)"
+            />
 
+            <p
+              v-if="quantityInputsErrors[index]"
+              class="text-red-500 text-sm -mt-4"
+            >
+              الكمية مطلوبة
+            </p>
+          </div>
+
+          <div class="flex gap-4 items-center">
+            <div class="flex flex-wrap gap-2 max-w-60">
+              <div
+                v-for="(hexColor, colorIndex) in color_selected[index]"
+                :key="colorIndex"
+                class="w-8 h-8 rounded-[50%] shadow-full-white flex items-end border"
+                :style="{ 'background-color': hexColor }"
+              />
+            </div>
+
+            <v-btn
+              variant="tonal"
+              class="mx-1"
+              density="comfortable"
+              icon
+              color="black"
+              @click="openColorsDialog(color_selected[index], index, convertToObject(product.hex_codes))"
+            >
+              <v-icon :icon="mdiPencil" />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                تعديل الألوان
+              </v-tooltip>
+            </v-btn>
+          </div>
+          
           <div class="flex items-start gap-6">
             <p>
               {{ product.price }}
             </p>
 
-            <v-btn @click="onDeleteProduct(product, index)">
+            <v-btn
+              v-if="products.length > 1"
+              @click="openDeleteProductDialog(product, index)"
+            >
               <DeleteIcon
                 fill="fill-black"
                 custom-style="w-7 h-7 cursor-pointer"
@@ -87,60 +134,62 @@
 
         <div class="flex justify-end">
           <v-btn
-            size="small"
+            :prepend-icon="mdiPlusCircle"
             rounded="xl"
             variant="elevated"
-            color="#004C6B"
+            color="#CCEDA4"
             @click="addProducteDialog.open = true"
           >
-            إضافة منتج
+            إضافة منتج  
           </v-btn>
         </div>
 
         <v-dialog
           v-model="addProducteDialog.open"
-          class="w-3/4 p-6"
+          class="w-3/5"
         >
-          <v-card>
+          <div class="bg-white rounded-lg p-6">
             <v-card-title>إضافة منتج للطلب</v-card-title>
 
-            <v-card-text>
-              <v-autocomplete
-                v-model="selectedProduct"
-                :hide-no-data="false"
-                item-title="name"
-                item-value="id"
-                :return-object="true"
-                :items="productsList?.data"
-                :loading="isPending"
-                hide-selected
-                label="المنتجات"
-                placeholder="المنتجات"
-                variant="outlined"
-                color="primary"
-                auto-select-first
-              >
-                <template #no-data>
-                  <v-list-item>
-                    <v-list-item-title> لا توجد نتائج </v-list-item-title>
-                  </v-list-item>
-                </template>
-              </v-autocomplete>
-            </v-card-text>
+            <v-autocomplete
+              v-model="selectedProduct"
+              :hide-no-data="false"
+              item-title="name"
+              item-value="id"
+              :return-object="true"
+              :items="productsOptions"
+              :loading="isPending"
+              hide-selected
+              label="المنتجات"
+              placeholder="المنتجات"
+              variant="outlined"
+              color="primary"
+              auto-select-first
+            >
+              <template #no-data>
+                <v-list-item>
+                  <v-list-item-title>
+                    لا توجد نتائج
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+            </v-autocomplete>
+
+            <div class="mb-3">
+              <!-- <ColorPicker
+                v-if="selectedProduct"
+                v-model="addProducteDialog.colors"
+                :colors-list="convertToObject(selectedProduct.hex_codes)"
+              /> -->
+              <ColorPicker
+                v-if="selectedProduct"
+                :colors-list="convertToObject(selectedProduct.hex_codes)"
+                :hex-codes-prop="addProducteDialog.colors"
+                @passHexcodes="passHexCodes"
+              />
+            </div>
 
             <v-card-actions>
-              <v-btn
-                color="primary"
-                type="submit"
-                variant="tonal"
-                @click="
-                  onAddProductToOrder(selectedProduct as Product);
-                  addProducteDialog.open = false
-                "
-              >
-                إضافة
-              </v-btn>
-
               <v-btn
                 color="error"
                 type="button"
@@ -148,33 +197,45 @@
               >
                 الغاء
               </v-btn>
+
+              <v-btn
+                color="primary"
+                type="submit"
+                variant="tonal"
+                :disabled="!selectedProduct || addProducteDialog.colors.length < 1"
+                @click="onAddProductToOrder(selectedProduct as Product)"
+              >
+                إضافة
+              </v-btn>
             </v-card-actions>
-          </v-card>
+          </div>
         </v-dialog>
 
-        <div class="mt-2 w-3/4 rounded-tl-lg bg-white shadow-md p-3 mb-6 text-xl">
-          <div class="flex gap-8 mb-2">
+        <div class="mt-2 md:w-3/4 lg:w-2/5 rounded-l-xl bg-primary py-3 px-5 mb-6 text-xl">
+          <div class="flex justify-between mb-2">
             <p>الإجمالي :</p>
-            <p>{{ total }} د.ل</p>
+            <p> {{ total }} د.ل</p>
           </div>
 
-          <div class="flex gap-8 mt-3">
+          <div class="flex justify-between mt-3">
             <p>تاريخ الدفع :</p>
-            <p>{{ formatDate(orderDetails.order_details.due_date) }}</p>
+            <p> {{ formatDate(orderDetails.order_details.due_date) }}</p>
           </div>
 
           <div v-if="orderDetails.order_details.payment_method == 'installments'">
-            <div class="flex gap-8 mt-3">
-              <p>الإجمالي بعد الكوبون :</p>
-              <p>{{ orderDetails.order_details.total_price_with_copupon }}</p>
+            <div class="flex justify-between mt-3">
+              <p> الإجمالي بعد الكوبون :</p>
+              <p> {{ orderDetails.order_details.total_price_with_copupon }}</p>
             </div>
 
-            <div class="flex gap-8 mt-3">
+            <div class="flex justify-between mt-3">
               <p>معدل الفائدة :</p>
-              <p>{{ orderDetails.order_details.debt_ratio }}</p>
+              <p> {{ orderDetails.order_details.debt_ratio }}</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mt-8">
+            <div
+              class="grid gap-4 mt-8"
+            >
               <div class="flex gap-3 justify-between mt-1">
                 <v-text-field
                   v-model="debt_arrears"
@@ -221,7 +282,7 @@
           type="submit"
           :loading="patchOrderMutation.isPending.value"
         >
-          تحديث
+          تحديث 
         </v-btn>
       </form>
     </template>
@@ -237,25 +298,47 @@ import router from '@/router'
 import { useQueryClient, useMutation, useQuery } from '@tanstack/vue-query'
 import { patchOrder, getOrder } from '@/orders/orders-service'
 import type { PatchOrderRequest } from '@/orders/models/order'
-import { mdiArrowRight } from '@mdi/js'
+import { mdiArrowRight, mdiPencil, mdiPlusCircle } from '@mdi/js'
 import { toTypedSchema } from '@vee-validate/zod'
 import { number, object, string } from 'zod'
 import { formatDate } from '@/core/helpers/format-date'
 import { useField, useForm } from 'vee-validate'
 import type { Product } from '@/products/models/product'
 import { getProducts } from '@/products/products-service'
+import ColorPickerDialog from '@/orders/components/ColorPickerDialog.vue'
+import ColorPicker from "@/products/components/ColorPicker copy.vue";
 
-const quantityInputs = ref<any[]>([])
-const priceInputs = ref<number[]>([])
-const productCodes = ref<string[]>([])
-const color_selected = ref<string[]>([])
+const quantityInputs = ref<any[]>([]);
+const quantityInputsErrors = ref<boolean[]>([]);
+
+const priceInputs = ref<number[]>([]);
+const productCodes = ref<string[]>([]);
+const color_selected = ref<string[][]>([]);
 
 const products = ref<Product[]>([])
+const productsOptions = ref<Product[]>([])
 const selectedProduct = ref<Product>()
 
-const addProducteDialog = ref({
+const addProducteDialog = ref<{
+  open: boolean,
+  colors: string [],
+  productColors: string [] | null
+}>({
   open: false,
-  productId: 0
+  colors: [],
+  productColors: null
+})
+
+const updateColorsDialog = ref<{
+  open: boolean,
+  colors: string [],
+  index: number,
+  productColors: string [] | null
+}>({
+  open: false,
+  colors: [],
+  index: 0,
+  productColors: null
 })
 
 const deleteProducteDialog = ref<{
@@ -329,7 +412,7 @@ watchEffect(() => {
     })
   
     products.value = [...orderDetails.value.products]
-    color_selected.value = JSON.parse(orderDetails.value.order_details.color_selected) as string[]
+    color_selected.value = orderDetails.value.order_details.color_selected
     quantityInputs.value = [...orderDetails.value.order_details.quantity_selected]
 
     orderDetails.value.products.forEach((product) => {
@@ -344,26 +427,35 @@ const dialogQuestion = (title: string, productCode: string) => {
 }
 
 const onRemoveProduct = (index: number, id: number) => {
-  products.value = products.value!.filter((item) => item.id !== id)
+  products.value = products.value!.filter(item => item.id !== id)
   quantityInputs.value.splice(index, 1)
   priceInputs.value.splice(index, 1)
   productCodes.value.splice(index, 1)
+
+  color_selected.value.splice(index, 1)
+
+  deleteProducteDialog.value.open = false
 }
 
 const total = computed(() => {
    return products.value.reduce((acc, product, currentIndex) => acc + (product.price * (quantityInputs.value[currentIndex] ?? 0)), 0)
 })
 
-const submit = handleSubmit((values) => {
-  const body: PatchOrderRequest = {
-    ...values,
-    product_codes: productCodes.value,
-    quantity_selected: quantityInputs.value,
-    total_price: total.value,
-    color_selected: JSON.stringify(color_selected.value)
-  }
+const submit  = handleSubmit(values => {
 
-  patchOrderMutation.mutate({ body, orderId })
+  if (checkQuantitiesErrors()) {
+    return
+  }
+ 
+    const body: PatchOrderRequest = {
+      ...values,
+      product_codes: productCodes.value,
+      quantity_selected: quantityInputs.value,
+      total_price: total.value,
+      color_selected: color_selected.value
+    }
+    console.log(body);
+    patchOrderMutation.mutate({ body, orderId })
 })
 
 const convertToNumber = () => {
@@ -379,14 +471,76 @@ const convertQuantityToNumber = (index: number) => {
 }
 
 const onAddProductToOrder = (product: Product) => {
+
+  quantityInputs.value.push(0)
+
   productCodes.value.push(product.product_code)
+  color_selected.value.push(addProducteDialog.value.colors)
   products.value.push(product)
+
+  addProducteDialog.value.colors = []
+  selectedProduct.value = undefined
+  addProducteDialog.value.open = false
 }
 
-const onDeleteProduct = (product: Product, index: number) => {
+const openDeleteProductDialog = (product: Product, index: number) => {
   deleteProducteDialog.value.open = true
   deleteProducteDialog.value.index = index
   deleteProducteDialog.value.product = product
+}
+
+const convertToObject = (hexCodesParam: any) => {
+  if (typeof JSON.parse(hexCodesParam) == 'string' ) {
+    return JSON.parse(JSON.parse(hexCodesParam)) as string[]   
+  } 
+  
+ return JSON.parse(hexCodesParam) as string[]   
+}
+
+const openColorsDialog = (colors: string [], index: number, productHexcodes: string []) => {
+  
+  updateColorsDialog.value = {
+    open: true,
+    colors: colors,
+    index: index,
+    productColors: productHexcodes
+  }
+}
+
+const onUpdateColors = (colors: string []) => {
+  color_selected.value[updateColorsDialog.value.index] = colors
+}
+
+watchEffect(() => {
+  if (productsList.value) {
+    productsOptions.value = productsList.value.data.filter((item) => !products.value.some((s) => s.id === item.id));
+  }
+})
+
+
+const checkQuantitiesErrors = (): boolean => {
+  let hasErrors = false
+  
+  quantityInputs.value.forEach((input, index) => {
+    if (input == '' || input < 1) {
+      
+      quantityInputsErrors.value[index] = true
+      hasErrors = true
+    } else {
+      quantityInputsErrors.value[index] = false
+      hasErrors = false
+    }
+  })
+
+  return hasErrors
+}
+ 
+watchEffect(() => {
+  checkQuantitiesErrors()
+})
+
+const passHexCodes = (hexColors: string []) => {
+  addProducteDialog.value.colors = hexColors
 }
 
 </script>

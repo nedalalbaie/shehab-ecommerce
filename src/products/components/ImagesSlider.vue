@@ -5,19 +5,19 @@
       hide-delimiters
     >
       <v-carousel-item
-        :src="`${storage}${product.image1_path}`"
+        :src="product.image1_path"
         cover
       />
       <v-carousel-item
-        :src="`${storage}${product.image2_path}`"
+        :src="product.image2_path"
         cover
       />
       <v-carousel-item
-        :src="`${storage}${product.image3_path}`"
+        :src="product.image3_path"
         cover
       />
       <v-carousel-item
-        :src="`${storage}${product.image4_path}`"
+        :src="product.image4_path"
         cover
       />
     </v-carousel>
@@ -25,22 +25,22 @@
     <div class="custom-navigation">
       <img
         :class="styleSelectedImage(0)"
-        :src="`${storage}${product.image1_path}`"
+        :src="product.image1_path"
         @click="goToSlide(0)"
       >
       <img
         :class="styleSelectedImage(1)"
-        :src="`${storage}${product.image2_path}`"
+        :src="product.image2_path"
         @click="goToSlide(1)"
       >
       <img
         :class="styleSelectedImage(2)"
-        :src="`${storage}${product.image3_path}`"
+        :src="product.image3_path"
         @click="goToSlide(2)"
       >
       <img
         :class="styleSelectedImage(3)"
-        :src="`${storage}${product.image4_path}`"
+        :src="product.image4_path"
         @click="goToSlide(3)"
       >
     </div>
@@ -56,7 +56,6 @@ defineProps<{
 }>()
 
 const carousel = ref(0)
-const storage = import.meta.env.VITE_API_Storage
 
 const goToSlide = (index: number) => {
   carousel.value = index

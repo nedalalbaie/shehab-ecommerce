@@ -77,7 +77,7 @@
 
           <div>
             <img
-              :src="`${storage}/${ad.url}`"
+              :src="ad.url"
               alt=""
               class="w-60 h-full object-cover object-center rounded-l-md"
             >
@@ -131,8 +131,6 @@ import EmptyData from "@/core/components/EmptyData.vue";
 import { ref } from "vue";
 import type { Ad } from "../models/ads";
 import AddsStatusFilters from "../components/AddsStatusFilters.vue";
-
-const storage = import.meta.env.VITE_API_Storage
 
 const deleteAdDialog = ref<{
   open: boolean,

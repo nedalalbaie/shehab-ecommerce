@@ -87,7 +87,6 @@ import type { PostOrPatchAdRequest, Ad } from "../models/ads";
 import { computed, ref, watchEffect } from "vue";
 import AdImageUpload from "../components/AdImageUpload.vue"
 import { formatToDatePicker, fromatDatePickerToDate } from '@/core/helpers/format-date';
-import { pathToFile } from '@/core/helpers/pathToFile';
 
 const props = defineProps<{
   isLoading: boolean,
@@ -96,8 +95,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   submit: [value: PostOrPatchAdRequest]
 }>()
-
-const storage = import.meta.env.VITE_API_Storage
 
 const selectedImageState = ref<"filled" | "empty">("empty")
 const imageFile = ref<File>()
@@ -141,14 +138,14 @@ watchEffect(() => {
 
     selectedImageState.value = props.ad.url ? "filled" : "empty"
 
-    const imageUrl = `${storage}/${props.ad.url}`
-    pathToFile(imageUrl, imageUrl.substring(imageUrl.lastIndexOf("/") + 1))
-      .then((file: File) => {
-        imageFile.value = file
-      })
-      .catch((error: Error) => {
-        console.error(error);
-      });
+    // const imageUrl = `${storage}/${props.ad.url}`
+    // pathToFile(imageUrl, imageUrl.substring(imageUrl.lastIndexOf("/") + 1))
+    //   .then((file: File) => {
+    //     imageFile.value = file
+    //   })
+    //   .catch((error: Error) => {
+    //     console.error(error);
+    //   });
   }
 })
 

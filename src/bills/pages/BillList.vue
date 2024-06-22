@@ -191,7 +191,7 @@ const onCancelOrder = (billNumber: string, billStatus: BillStatus) => {
 }
 
 const dialogQuestion = (billNumber: string) => {
-  return `إلغاء الفاتورة ${billNumber}# ?`
+  return `إلغاء الفاتورة ${billNumber} ؟`
 }
 
 const formatToDate = (date: string) => {

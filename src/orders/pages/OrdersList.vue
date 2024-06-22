@@ -12,12 +12,28 @@
       <orders-search-filter v-model="listParams" />
     </div>
 
-    <div v-if="!orders.data.value">
-      <LoadingOrders />
+    <div
+      v-if="orders.isPending.value"
+      class="w-full h-96 flex items-center justify-center"
+    >
+      <v-progress-circular
+        size="50"
+        width="4"
+        indeterminate
+        color="primary"
+      />
     </div>
 
+    <v-alert
+      v-else-if="orders.isError.value"
+      type="error"
+      class="my-6"
+      title="خطأ في الوصول الى بيانات الطلب"
+      text="الرجاء اعادة المحاولة مرة أخرى."
+    />
+
     <div
-      v-if="orders.data.value"
+      v-else-if="orders.data.value"
       class="mt-6 flex-grow flex flex-col justify-center"
     >
       <EmptyData v-if="orders.data.value.data.length === 0" />
@@ -169,7 +185,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
 import ViewIconVue from "@/core/components/icons/ViewIcon.vue";
 import { checkStatus } from "@/core/helpers/check-status"
-import LoadingOrders from "../components/LoadingOrders.vue";
 import EmptyData from "@/core/components/EmptyData.vue";
 import OrdersSearchFilter from "../components/OrdersSearchFilter.vue";
 

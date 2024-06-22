@@ -396,7 +396,8 @@ const handleImage = (imageFile: File | null, state: "filled" | "empty", index?: 
     base64Images[index - 1] = imageFile
   }
 
-  selectedImagesState.value = base64Images.every(item => item) ? "filled" : "empty"
+  // selectedImagesState.value = base64Images.every(item => item) ? "filled" : "empty"
+  selectedImagesState.value = base64Images[0] ? "filled" : "empty"
 
 }
 

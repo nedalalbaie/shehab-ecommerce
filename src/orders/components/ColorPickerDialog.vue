@@ -5,7 +5,11 @@
   >
     <div class="bg-white rounded-lg p-8">
       <div class="mb-6 flex flex-col items-center">
-        <ColorPicker v-model="hexCodes" />
+        <ColorPicker
+          :colors-list="colorsList"
+          :hex-codes-prop="hexCodes"
+          @passHexcodes="passHexCodes"
+        />
       </div>
 
       <v-card-actions>
@@ -31,13 +35,14 @@
 </template>
 
 <script setup lang="ts">
-import ColorPicker from '../components/ColorsPicker.vue';
+import ColorPicker from '@/products/components/ColorPicker copy.vue';
 import { ref, watchEffect } from 'vue';
 
 const hexCodes = ref<string []>([])
 
 const props = defineProps<{
-  colors: string []
+  colors: string [],
+  colorsList: string []
 }>()
 const emits = defineEmits<{
   update: [colors: string[]]
@@ -49,6 +54,11 @@ const onUpdateColors = () => {
   open.value = false
   emits('update', hexCodes.value)
 }
+
+const passHexCodes = (hexColors: string []) => {
+  hexCodes.value = hexColors
+}
+
 
 watchEffect(() => {
   if (props.colors) {

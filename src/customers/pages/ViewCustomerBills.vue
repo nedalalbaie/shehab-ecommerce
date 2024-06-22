@@ -19,20 +19,6 @@
           bills?.length
         }}</span>
       </h1>
-      <div class="flex gap-4">
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          قيد المعالجة
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          قيد التوصيل
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          تم التوصيل
-        </button>
-        <button class="bg-sky-200 py-1 px-2 rounded-md">
-          ملغية
-        </button>
-      </div>
     </div>
 
     <div v-if="!bills">
@@ -121,7 +107,7 @@
               variant="elevated"
               color="primary"
               type="submit"
-              :to="{ name: 'view-bill', params: { id: bill.id } }"
+              :to="{ name: 'view-customer-bill', params: { billId: bill.id } }"
             >
               عرض
               <template #prepend>
@@ -138,7 +124,7 @@
                   v-bind="props"
                   rounded="xl"
                   variant="elevated"
-                  color="#004C6B"
+                  color="error"
                   type="submit"
                 >
                   إلغاء
@@ -223,7 +209,7 @@ const onCancelOrder = (billNumber: string, billStatus: BillStatus) => {
 }
 
 const dialogQuestion = (billNumber: string) => {
-  return `إلغاء الفاتورة ${billNumber}# ?`
+  return `إلغاء الفاتورة ${billNumber} ؟`
 }
 
 const formatToDate = (date: string) => {
