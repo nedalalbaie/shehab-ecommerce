@@ -4,7 +4,8 @@
       ref="fileUpload"
       class="hidden"
       type="file"
-      accept="image/*"
+      accept="image/jpeg, image/jpg, image/png"
+      max="10240"
       @change="handleFileUpload"
     >
     <div

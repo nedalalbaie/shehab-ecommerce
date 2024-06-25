@@ -113,11 +113,7 @@ watchEffect(() => {
   if (values.expire_date) {
     
     const currentDate = new Date();
-  //   const day = currentDate.getDate();
-  //   const month = currentDate.getMonth() + 1; 
-  //   const year = currentDate.getFullYear();
-  
-  //  const expireDate = `${values.expire_date!.getDate()}/${values.expire_date!.getMonth() + 1}/${values.expire_date!.getFullYear()}`
+    currentDate.setHours(0, 0, 0, 0)
     
     if (values.expire_date < currentDate) {
        startDateErrorMessage.value = 'لا يمكن إختيار تاريخ أقل من تاريخ اليوم'

@@ -116,11 +116,11 @@
 
       <v-text-field
         v-model="price"
-        label="السعر"
+        label="سعر البيع"
         type="number"
         variant="outlined"
         color="primary"
-        placeholder="السعر"
+        placeholder="سعر البيع"
         :error-messages="errors.price"
         @input="convertPriceToNumber"
       />
@@ -224,11 +224,11 @@
 
       <v-text-field
         v-model="saller_price"
-        label="سعر البيع"
+        label="سعر الشراء"
         type="number"
         variant="outlined"
         color="primary"
-        placeholder="سعر البيع"
+        placeholder="سعر الشراء"
         :error-messages="errors.saller_price"
         @input="convertMinimumQuantityToNumber"
       />
@@ -381,6 +381,10 @@ const convertMinimumQuantityToNumber = () => {
 }
 
 const submit = handleSubmit(values => {
+  console.log(base64Images[0])
+  console.log(base64Images[1])
+  console.log(base64Images[3])
+  console.log(base64Images[4])
   emit("submit", {
     ...values,
     image1_path: base64Images[0] as File,

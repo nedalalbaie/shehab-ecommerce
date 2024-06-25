@@ -134,6 +134,7 @@ watchEffect(() => {
   if (values.start_date) {
     
     const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0)
     
     if (values.start_date < currentDate) {
        startDateErrorMessage.value = 'لا يمكن إختيار تاريخ أقل من تاريخ اليوم'

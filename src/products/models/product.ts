@@ -1,4 +1,4 @@
-import type { Discount } from "@/discounts/models/discount"
+import type { Discount } from "../discounts/models/discount"
 
 type Product = {
   id: number

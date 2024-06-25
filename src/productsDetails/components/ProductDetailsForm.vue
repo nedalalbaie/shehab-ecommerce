@@ -61,23 +61,22 @@
 
       <v-text-field
         v-model="saller_price"
-        label="سعر البيع *"
+        label="سعر الشراء *"
         type="number"
         variant="outlined"
         color="primary"
-        placeholder="سعر البيع *"
+        placeholder="سعر الشراء *"
         :error-messages="errors.saller_price"
         @input="convertMinimumQuantityToNumber"
       />
 
       <v-text-field
-        v-if="editMode"
         v-model="price"
-        label="*السعر"
+        label=" سعر البيع*"
         type="number"
         variant="outlined"
         color="primary"
-        placeholder="*السعر"
+        placeholder="*سعر البيع"
         :error-messages="errors.price"
         @input="convertPriceToNumber"
       />
@@ -137,7 +136,7 @@ const validationSchema = toTypedSchema(
     inventory: number().min(1, 'يجب إدخال الكمية'), // inventory must not be greater than 1000
     market_id: number().min(1, 'يجب إختيار المحل'),
     product_id: number().min(1, 'يجب إختيار المنتج'),
-    price: !props.editMode ? number().optional() : number().min(1, 'يجب إدخال السعر')
+    price: number().min(1, 'يجب إدخال السعر')
   })
 );
 
@@ -156,7 +155,8 @@ watchEffect(() => {
     inventory.value = props.productDetail.inventory
     saller_price.value = props.productDetail.saller_price
     product_id.value = props.productDetail.product_info.id
-    market_id.value = props.productDetail.market_info.id
+    market_id.value = props.productDetail.market_info.id,
+    price.value = props.productDetail.product_info.price
   }
 })
 

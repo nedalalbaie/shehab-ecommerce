@@ -8,19 +8,19 @@
     <p class="text-2xl">
       لا توجد بيانات
     </p>
-    <v-btn
+    <!-- <v-btn
       color="#424242"
       variant="elevated"
       @click="refetch"
     >
       إعادة المحاولة
-    </v-btn>
+    </v-btn> -->
   </div>
 </template>
 <script setup lang="ts">
-const emit = defineEmits<{
-  refetch: []
-}>()
+// const emit = defineEmits<{
+//   refetch: []
+// }>()
 
-const refetch = () => emit("refetch")
+// const refetch = () => emit("refetch")
 </script>

@@ -23,38 +23,38 @@
     />
   </div>
 
-  <div v-if="marketProducts.data.value?.length === 0 && !isLoading ">
+  <!-- <div v-if="marketProducts.length === 0 && !isLoading ">
     <EmptyData @refetch="onRefetch" />
-  </div>
+  </div> -->
   
   <div
-    v-if="marketProducts.data.value && marketProducts.data.value.length > 0 "
+    v-if="marketProducts"
     class="rounded-md p-6"
   >
     <h1 class="text-3xl">
-      {{ marketProducts.data.value[0].market_info.name }}
+      {{ marketProducts.market_info.name }}
     </h1>
     <div class="flex items-start gap-6">
       <div class="w-48 shadow-md rounded-md p-4 mt-6 text-center">
         <p class="font-medium mb-2">
           إسم مالك المحل
         </p>
-        <p>{{ marketProducts.data.value[0].market_info.owner_name }}</p>
+        <p>{{ marketProducts.market_info.owner_name }}</p>
       </div>
 
       <div class="w-48 shadow-md rounded-md p-4 mt-6 text-center">
         <p class="font-medium mb-2">
           رقم الهاتف
         </p>
-        <p>{{ marketProducts.data.value[0].market_info.phone_number }}</p>
+        <p>{{ marketProducts.market_info.phone_number }}</p>
       </div>
 
       <div class="w-48 shadow-md rounded-md p-4 mt-6 text-center">
         <p class="font-medium mb-2">
           الحالة
         </p>
-        <v-chip :color="getStatusColor(marketProducts.data.value[0].market_info.active_market as BaseStatus)">
-          {{ getStatusLabel(marketProducts.data.value[0].market_info.active_market as BaseStatus) }}
+        <v-chip :color="getStatusColor(marketProducts.market_info.active_market as BaseStatus)">
+          {{ getStatusLabel(marketProducts.market_info.active_market as BaseStatus) }}
         </v-chip>
       </div>
 
@@ -79,73 +79,100 @@
 
     <div>
       <p class="text-2xl">
-        المنتجات التابعة ل{{ marketProducts.data.value[0].market_info.name }}
+        المنتجات التابعة ل{{ marketProducts.market_info.name }}
       </p>
 
-      <div v-if="!marketProducts.data.value[0].product_info">
-        <LoadingProducts />
-      </div>
+      <p
+        v-if="!marketProducts.products"
+        class="mt-6 text-center"
+      >
+        لا توجد منتجات مرتبطة بالمحل .
+      </p>
 
       <div
-        v-if="marketProducts.data.value[0].product_info"
+        v-else-if="marketProducts.products"
         class="mt-6 flex-grow flex flex-col justify-center"
       >
         <div class="grid grid-cols-productsCards gap-x-6 gap-y-8">
           <div
-            v-for="product in marketProducts.data.value"
-            :key="product.product_info.id"
+            v-for="product in marketProducts.products"
+            :key="product.id"
             class="bg-white shadow-lg rounded-lg p-4"
           >
             <p class="text-xl text-center">
-              {{ product.product_info.name }}
+              {{ product.name }}
             </p>
             <div
               class="relative h-64 bg-cover bg-center mt-2"
-              :style="getBackgroundImage(product.product_info.image1_path)"
+              :style="getBackgroundImage(product.image1_path)"
             >
-              <p class="absolute top-0 left-0 bg-red-600 rounded-br-xl text-white px-3">
-                20%
+              <p
+                v-if="product.discount"
+                class="absolute top-0 left-0 bg-red-600 rounded-br-xl text-white px-3"
+              >
+                {{ product.discount.discount_value }}
               </p>
               <p class="absolute bottom-0 right-0 bg-gray-600 rounded-tl-xl text-white px-3 py-2">
-                {{ product.product_info.price }} دل
+                {{ product.price }} دل
               </p>
             </div>
   
             <div class="mt-4 flex items-center border-b border-gray-700 pb-1">
               <p class="w-1/2">
-                الوصف
+                الكود
               </p>
               <p class="w-1/2 text-center">
-                {{ product.product_info.description }}
-              </p>
-            </div>
-            <div class="mt-4 py-1 flex items-center border-b border-gray-700">
-              <p class="w-1/5">
-                {{ product.product_info.hex_codes.length > 1 ? 'الألوان' : 'اللون' }}
-              </p>
-              <div class="w-4/5 flex flex-wrap justify-end gap-1">
-                <div
-                  v-for="(color, index) in convertToObject(product.product_info.hex_codes)"
-                  :key="index"
-                  class="w-8 h-8 rounded-[50%] shadow-full-white border-2  flex items-end"
-                  :style="{ 'background-color': `${color}` }"
-                />
-              </div>
-            </div>
-            <div class="mt-4 flex items-center border-b border-gray-700">
-              <p class="w-1/2">
-                الكمية
-              </p>
-              <p class="w-1/2 text-center">
-                {{ product.inventory }}
+                {{ product.product_code }}
               </p>
             </div>
             <div class="mt-4 flex items-center border-b border-gray-700 pb-1">
               <p class="w-1/2">
-                الكمية الأدني للبيع
+                الوصف
               </p>
               <p class="w-1/2 text-center">
-                {{ product.product_info.minimum_quantity }}
+                {{ product.description }}
+              </p>
+            </div>
+            <div class="mt-4 flex items-center border-b border-gray-700">
+              <p class="w-1/2">
+                طريقة البيع
+              </p>
+              <p class="w-1/2 text-center">
+                {{ product.selling_method == 'package' ? 'بالحزمة' : 'بالقطعة الواحدة' }}
+              </p>
+            </div>
+            <div class="mt-4 flex items-center border-b border-gray-700">
+              <p class="w-1/2">
+                القيمة الأدني
+              </p>
+              <p class="w-1/2 text-center">
+                {{ product.minimum_quantity }}
+              </p>
+            </div>
+            <div class="mt-4 py-1 flex items-center border-b border-gray-700">
+              <p class="w-1/5">
+                {{ product.hex_codes.length > 1 ? 'الألوان' : 'اللون' }}
+              </p>
+              <div class="w-4/5 flex justify-end gap-1 flex-wrap">
+                <div
+                  v-for="(color, colorIndex) in convertToObject(product.hex_codes)"
+                  :key="colorIndex"
+                  class="w-8 h-8 rounded-[50%]  border-2  flex items-end"
+                  :style="{ 'background-color': `${color}` }"
+                />
+              </div>
+            </div>
+            <div class="mt-4 py-1 flex items-center border-b border-gray-700">
+              <p class="w-1/2">
+                الحالة
+              </p>
+              <p class="w-1/2 text-center">
+                <v-chip
+                  size="large"
+                  :color="getStatusColor(product.active_product as BaseStatus)"
+                >
+                  {{ getStatusLabel(product.active_product as BaseStatus) }}
+                </v-chip>
               </p>
             </div>
           </div>
@@ -161,22 +188,21 @@ import { useQuery } from '@tanstack/vue-query'
 import {  getMarketProducts } from '../markets-service'
 import { useRoute } from 'vue-router'
 import { BASE_STATUS, type BaseStatus } from '@/core/models/base-status'
-import LoadingProducts from "@/products/components/LoadingProducts.vue";
 import EmptyData from "@/core/components/EmptyData.vue";
 import { computed } from 'vue'
 
 const route = useRoute()
 const id = Number(route.params.id)
 
-const isLoading = computed(() => marketProducts.isPending.value || marketProducts.isRefetching.value)
+const isLoading = computed(() => isPending.value || isRefetching.value)
 
-const marketProducts = useQuery({
+const {data: marketProducts, isPending, isRefetching } = useQuery({
   queryKey: ['market'],
   queryFn: () => getMarketProducts(id)
 })
 
 const getStatusColor = (status: BaseStatus) => {
-  return status === BASE_STATUS.Activated ? 'success' : 'error'
+  return status === BASE_STATUS.Activated ? 'green-darken-4' : 'error'
 }
 
 const getStatusLabel = (status: BaseStatus) => {
@@ -187,10 +213,6 @@ const getBackgroundImage = (url: string) => {
   return {
     backgroundImage: `url(${url})`,
   }
-}
-
-const onRefetch = () => {
-  marketProducts.refetch()
 }
 
 const convertToObject = (hexCodesParam: string) => {

@@ -10,7 +10,7 @@
       size="large"
       :append-icon="mdiArrowLeft"
     >
-      الرجوع الى المتجات
+      الرجوع الى المنتجات
     </v-btn>
   </div>
 

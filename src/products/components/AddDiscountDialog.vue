@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import { addProductDiscount } from '../products-service';
-import { getDiscounts } from '@/discounts/discounts-service';
+import { getDiscounts } from '../discounts/discounts-service';
 import { ref } from 'vue';
 
 const props = defineProps<{

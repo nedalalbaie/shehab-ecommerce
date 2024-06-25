@@ -31,20 +31,23 @@
     logout();
   };
 
-  const navRoutes = [
+  const navRoutesTop = [
+    { title: 'لوحة التحكم', icon: Statistics, alt: 'dashboard',  route: '/' },
     { title: 'التصنيفات', icon: CategoryIcon, alt: 'Categories',  route: '/categories' },
-    { title: 'إدارة الأقساط', icon: intallmentIcon, alt: 'Installment', route: '/installments' },
+]
+
+const productCatalogRoutes = [
+      { title: 'المحلات', icon: mdiShoppingOutline, alt: 'Products', route: '/markets' },
+      { title: 'المنتجات', icon: ProductIcon, alt: 'Products', route: '/products' },
+      { title: 'تفاصيل المنتجات', icon: ProductIcon, alt: 'Products Details', route: '/productsDetails' }
+  ]
+
+  const navRoutes = [
     { title: 'الطلبات', icon: OrderSvg, alt: 'Orders', route: '/orders' },
     { title: 'الفواتير', icon: mdiTicketPercentOutline, alt: 'bills', route: '/bills' },
     { title: 'الزبائن', icon: mdiAccountMultiple, alt: 'Users', route: '/customers' },
     { title: 'الإعلانات', icon: AdsIcon, alt: 'Ads', route: '/ads' },
 ]
-
-  const productCatalogRoutes = [
-      { title: 'المحلات', icon: mdiShoppingOutline, alt: 'Products', route: '/markets' },
-      { title: 'المنتجات', icon: ProductIcon, alt: 'Products', route: '/products' },
-      { title: 'تفاصيل المنتجات', icon: ProductIcon, alt: 'Products Details', route: '/productsDetails' }
-  ]
 
 </script>
 
@@ -84,19 +87,26 @@
       location="start"
     >
       <v-list nav>
-        <v-list-item
-          color="primary"
-          link
-          exact
-          :to="{name: 'dashboard'}"
+        <div
+          v-for="(item, i) in navRoutesTop" 
+          :key="i"
+          class="mt-1"
         >
-          <template #prepend>
-            <v-icon :icon="Statistics" />
-          </template>
+          <v-list-item
+            :value="item"
+            color="primary"
+            link
+            exact
+            :to="item.route"
+          >
+            <template #prepend>
+              <v-icon :icon="item.icon" />
+            </template>
 
-          <v-list-item-title>الإحصائيات</v-list-item-title>
-        </v-list-item>
-      
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item>
+        </div>
+        
         <v-list-group>
           <template #activator="{ props }">
             <v-list-item
@@ -122,34 +132,6 @@
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
         </v-list-group>
-
-        <!-- <v-list-group>
-          <template #activator="{ props }">
-            <v-list-item
-              v-bind="props"
-              :prepend-icon="mdiArchiveOutline"
-              title="التصنيفات"
-            />
-          </template>
-
-          <v-list-item
-            v-for="(item, i) in categoriesRoutes"
-            :key="i"
-            :value="item"
-            color="primary"
-            link
-            exact
-            
-            :to="item.route"
-          >
-            <template #prepend>
-              <v-icon :icon="item.icon" />
-            </template>
-            <div class="flex">
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </div>
-          </v-list-item>
-        </v-list-group> -->
 
         <div
           v-for="(item, i) in navRoutes" 

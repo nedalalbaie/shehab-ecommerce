@@ -72,7 +72,7 @@ const emit = defineEmits<{
 const validationSchema = toTypedSchema(
   object({
     days_late: number().min(1, 'يجب إدخال الأيام المطلوبة'),
-    percentage: number().min(1, 'يجب إدخال النسبة'), // percentage must not be greater than 1000
+    percentage: number(), // percentage must not be greater than 1000
     show: number()
   })
 )

@@ -43,6 +43,10 @@ const editProductDetails = (id: number, body: PatchProductDetails): Promise<void
       _method: 'patch'
     })
     .json((res) => {
+      alertStore.show({
+        message: 'تم التعديل بنجاح',
+        type: 'success'
+      })
       return res
     })
 }

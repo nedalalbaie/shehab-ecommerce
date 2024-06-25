@@ -1,4 +1,12 @@
 <template>
+  <cancel-order-dialog-component
+    v-if="cancelOrderDialog.order"
+    v-model="cancelOrderDialog.open"
+    :order="cancelOrderDialog.order"
+    :is-loading="cancelOrderMutation.isPending.value"
+    @cancel-order="onCancelOrder"
+  />
+
   <div>
     <div class="flex items-center justify-between mt-6">
       <h1 class="text-3xl font-medium">
@@ -62,14 +70,6 @@
               {{ checkStatus(order.status) }}
             </p>
           </div>
-          <!-- <div class="mt-4 flex items-center border-b border-gray-700">
-          <p class="w-1/2">
-            الزبون
-          </p>
-          <p class="w-1/2 text-center">
-            عبدالرحمن
-          </p>
-        </div> -->
           <div class="mt-4 flex items-center border-b border-gray-700">
             <p class="w-1/2">
               التاريخ
@@ -124,52 +124,18 @@
               </template>
             </v-btn>
 
-            <v-dialog
-              v-if="order.status != STATUS.CANCELD"
-              width="500"
+            <v-btn
+              rounded="xl"
+              variant="elevated"
+              color="error"
+              type="submit"
+              @click="openCancelDialog(order)"
             >
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-  
-                  rounded="xl"
-                  variant="elevated"
-                  color="error"
-                  type="submit"
-                >
-                  إلغاء
-                  <template #prepend>
-                    <DeleteIcon fill="fill-white" />
-                  </template>
-                </v-btn>
+              إلغاء
+              <template #prepend>
+                <DeleteIcon fill="fill-white" />
               </template>
-
-              <template #default="{ isActive }">
-                <v-card
-                  :title="dialogQuestion(order.order_number)"
-                  rounded="lg"
-                  color="#EFE9F5"
-                  style="padding-block: 1.75rem !important ;"
-                >
-                  <v-card-text>
-                    سيتم الغاء هذه الطلبية بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الطلبية تم الغاؤها.
-                  </v-card-text>
-
-                  <v-card-actions>
-                    <v-spacer />
-
-                    <v-btn
-                      text="لا"
-                      @click="isActive.value = false"
-                    />
-                    <v-btn
-                      text="نعم"
-                      @click="isActive.value = false; onCancelOrder(order.id)"
-                    />
-                  </v-card-actions>
-                </v-card>
-              </template>
-            </v-dialog>
+            </v-btn>
           </div>
         </div>
       </div>
@@ -187,6 +153,16 @@ import ViewIconVue from "@/core/components/icons/ViewIcon.vue";
 import { checkStatus } from "@/core/helpers/check-status"
 import EmptyData from "@/core/components/EmptyData.vue";
 import OrdersSearchFilter from "../components/OrdersSearchFilter.vue";
+import type { Order } from "../models/order";
+import CancelOrderDialogComponent from "../components/CancelOrderDialog.vue";
+
+const cancelOrderDialog = ref<{
+  open: boolean,
+  order: Order | null
+}>({
+  open: false,
+  order: null
+})
 
 const listParams = ref<PaginationParams>({
   page: 1,
@@ -202,6 +178,7 @@ const queryClient = useQueryClient()
 const cancelOrderMutation = useMutation({
   mutationFn: cancelOrder,
   onSuccess: () => {
+    cancelOrderDialog.value.open = false
     queryClient.invalidateQueries({ queryKey: ['orders'] })
   },
   onError: (error) => {
@@ -209,12 +186,14 @@ const cancelOrderMutation = useMutation({
   }
 })
 
-const onCancelOrder = (id: number) => {
-  cancelOrderMutation.mutate(id)
+const openCancelDialog = (order: Order) => {
+  cancelOrderDialog.value.open = true
+  cancelOrderDialog.value.order = order
 }
 
-const dialogQuestion = (orderCode: string) => {
-  return `إلغاء الطلبية ${orderCode}# ?`
+const onCancelOrder = () => {
+  const id = cancelOrderDialog.value.order!.id
+  cancelOrderMutation.mutate(id)
 }
 
 const formatToDate = (date: string) => {

@@ -15,18 +15,31 @@
     <div class="flex items-center justify-between mt-8">
       <h1 class="text-3xl">
         الإعلانات
-        <span>(3)</span>
+        <span
+          v-if="ads.data.value?.data.length! > 0"
+          class="bg-gray-200 px-2 rounded-lg text-2xl"
+        > {{ ads.data.value?.total }}</span>
       </h1>
       
       <AddsStatusFilters v-model="show" />
     </div>
 
-    <div v-if="!ads.data.value">
+    <div
+      v-if="ads.isPending.value"
+    >
       <LoadingAds />
     </div>
 
+    <v-alert
+      v-else-if="ads.isError.value"
+      type="error"
+      class="my-6"
+      title="خطأ في الوصول الى بيانات الإعلانات"
+      text="الرجاء اعادة المحاولة مرة أخرى."
+    />
+
     <div
-      v-if="ads.data.value"
+      v-else-if="ads.data.value"
       class="mt-8"
     >
       <EmptyData v-if="ads.data.value.data.length === 0" />
@@ -89,12 +102,11 @@
 
   <v-dialog
     v-model="deleteAdDialog.open"
-    width="500"
+    class="w-3/5"
   >
     <v-card
       :title="dialogQuestion()"
       rounded="lg"
-      color="#EFE9F5"
       style="padding-block: 1.75rem !important ;"
     >
       <v-card-text>
@@ -106,9 +118,13 @@
 
         <v-btn
           text="لا"
+          color="error"
+          type="button"
           @click="deleteAdDialog.open = false"
         />
         <v-btn
+          color="primary"
+          variant="tonal"
           :loading="cancelAdMutation.isPending.value"
           text="نعم"
           @click=" onCancelAd()"
@@ -122,7 +138,6 @@ import { getAds, deleteAd } from "../ads-service"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import EditIcon from "@/core/components/icons/EditIcon.vue";
 import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
-import CheckIcon from "@/core/components/icons/CheckIcon.vue";
 import {
     mdiPlus
 } from '@mdi/js'

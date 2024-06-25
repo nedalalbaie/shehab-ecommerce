@@ -2,35 +2,11 @@
   <h2 class="text-3xl font-medium">
     ربط المنتجات بمحل
     <span
-      v-if="details.data.value?.total! > 0"
+      v-if="details?.total! > 0"
       class="bg-gray-200 px-2 rounded-lg text-2xl"
-    > {{ details.data.value?.total }}</span>
+    > {{ details?.total }}</span>
   </h2>
   <div class="flex justify-end mt-8">
-    <!-- <div class="w-72">
-      <v-text-field
-        v-model="searchValue"
-        label="البحث"
-        variant="outlined"
-        color="primary"
-        clearable
-        placeholder="البحث"
-        density="compact"
-        @input="handleSearch"
-      />
-    </div> -->
-    <!-- <div
-      class="flex justify-between items-center bg-[#FCF2EA] border  rounded-xl py-1 px-4"
-    >
-      <input
-        v-model="searchValue"
-        placeholder="إبحث عن تفاصيل"
-        type="text"
-        class="w-56 border-none p-2 rounded-lg outline-none transition-all duration-100 placeholder:text-gray-700"
-        @input="handleSearch"
-      >
-      <SearchIcon custom-style="w-6 h-6" />
-    </div> -->
     <v-btn
       :append-icon="mdiPlus"
       :to="{ name: 'add-products-details' }"
@@ -43,10 +19,28 @@
     </v-btn>
   </div>
 
-  <LoadingSkeleton v-if="details.isPending.value" />
+  <div
+    v-if="isPending"
+    class="w-full h-96 flex items-center justify-center"
+  >
+    <v-progress-circular
+      size="50"
+      width="4"
+      indeterminate
+      color="primary"
+    />
+  </div>
+
+  <v-alert
+    v-else-if="isError"
+    type="error"
+    class="my-6"
+    title="خطأ في الوصول الى تفاصيل المنتجات"
+    text="الرجاء اعادة المحاولة مرة أخرى."
+  />
 
   <div
-    v-if="details.data.value"
+    v-else-if="details"
     class="shadow-lg rounded-lg mt-6 border border-gray-200"
   >
     <v-data-table-server
@@ -54,17 +48,19 @@
       :items-per-page="listParams.limit"
       :page="listParams.page"
       :headers="headers"
-      :items-length="details.data.value.total"
-      :items="details.data.value.data"
-      :loading="details.isPending.value"
+      :items-length="details.total"
+      :items="details.data"
+      :loading="isPending"
       @update:options="onTableOptionsChange({ page: $event.page, limit: $event.itemsPerPage })"
     >
-      <template #[`item.status`]="{ value }">
-        <v-chip
-          :color="getStatusColor(value)"
-        >
-          {{ getStatusLabel(value) }}
-        </v-chip>
+      <template #[`item.image`]="{ item }">
+        <div class="border-2 border-gray-200 my-2 rounded-lg">
+          <img
+            class="rounded-lg  h-20 w-full object-cover object-center shadow-md "
+            :src="item.product_info.image1_path"
+            alt="uploaded image"
+          >
+        </div>
       </template>
 
       <template #[`item.actions`]="{ item }">
@@ -95,24 +91,21 @@ import { mdiPencil, mdiPlus } from '@mdi/js'
 import { ref } from 'vue'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import { useQuery } from '@tanstack/vue-query'
-// import debounce from 'lodash.debounce'
-import LoadingSkeleton from '@/core/components/LoadingSkeleton.vue'
-import { BASE_STATUS, type BaseStatus } from '@/core/models/base-status'
 import { getProductDetails } from '../productDetails-service'
 
-// const searchValue = ref('')
 const listParams = ref<PaginationParams & { search_value: string }>({
   page: 1,
   limit: 10,
   search_value: ''
 })
 
-const details = useQuery({
+const { data:details , isPending, isError} = useQuery({
   queryKey: ['details', listParams],
   queryFn: () => getProductDetails(listParams.value)
 })
 
 const headers = [
+  { title: 'صورة المنتج', key:'image', width: '230px', sortable: false },
   { title: 'رمز المنتج', value: 'product_info.product_code', width: '300px', sortable: false },
   { title: 'إسم المنتج', value: 'product_info.name', width: '300px', sortable: false },
   { title: 'سعر الشراء', value: 'saller_price', width: '300px', sortable: false },
@@ -123,22 +116,6 @@ const headers = [
   { title: '', key: 'actions', width: '250px', sortable: false },
 ]
 
-
-// const onStatusChange = (marketId: number, status: BaseStatus, index: number) => {
-//   isStatusLoading.value[index] = true
-//   changeStatus({id: marketId, active_market: status})
-//    .then(() => queryClient.invalidateQueries({ queryKey: ['details'] }))
-//    .finally(() => isStatusLoading.value[index] = false)
-// }
-
-const getStatusColor = (status: BaseStatus) => {
-  return status === BASE_STATUS.Activated ? 'success' : 'error'
-}
-
-const getStatusLabel = (status: BaseStatus) => {
-  return status === BASE_STATUS.Activated ? 'مفعل' : 'غير مفعل'
-}
-
 const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   listParams.value = {
     ...listParams.value,
@@ -147,26 +124,5 @@ const onTableOptionsChange = ({ page, limit }: PaginationParams) => {
   }
 }
 
-// const handleSearch = debounce(() => {
-//   listParams.value.search_value = searchValue.value
-// }, 300)
-
-// const deleteMarketMutation = useMutation({
-//   mutationFn: deleteMarket,
-//   onSuccess: () => {
-//     queryClient.invalidateQueries({ queryKey: ['details'] })
-//   },
-//   onError: (error) => {
-//     console.log(error)
-//   }
-// })
-
-// const onDeleteMarket = (id: number) => {
-//   deleteMarketMutation.mutate(id)
-// }
-
-// const dialogQuestion = (productCode: string) => {
-//   return `حذف المحل ${productCode}# ؟`
-// }
 
 </script>

@@ -3,7 +3,7 @@ import type { Market } from "./market"
 
 export type MarketProducts = {
     market_info: Market;
-    product_info: Product;
+    products: Product [];
     saller_price: number;
     inventory: number
 }

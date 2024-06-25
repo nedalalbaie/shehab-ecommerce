@@ -7,15 +7,30 @@
     @update="onUpdateColors"
   /> 
 
-  <v-dialog
+  <!-- <AddProductDialog
+    v-model:addProductDialog="addProducteDialog"
+    v-model:selectedProduct="selectedProduct"
+    :products-options="productsOptions"
+    :is-pending="isPending"
+    @add-product="onAddProductToOrder"
+    @passHexCodes="passHexCodes"
+  /> -->
+
+  <DeleteProductDialog
+    v-if="orderDetails"
+    v-model="deleteProducteDialog"
+    :order-details="orderDetails"
+    @remove-product="onRemoveProduct"
+  />
+
+  <!-- <v-dialog
     v-if="deleteProducteDialog.product"
     v-model="deleteProducteDialog.open"
-    width="500"
+    class="w-3/5"
   >
     <v-card
       :title="dialogQuestion(deleteProducteDialog.product.name, deleteProducteDialog.product.product_code)"
       rounded="lg"
-      color="#EFE9F5"
       style="padding-block: 1.75rem !important ;"
     >
       <v-card-text>
@@ -28,16 +43,20 @@
         <v-spacer />
 
         <v-btn
+          color="error"
+          type="button"
           text="لا"
           @click="deleteProducteDialog.open = false"
         />
         <v-btn
+          color="primary"
+          variant="tonal"
           text="نعم"
-          @click="onRemoveProduct(deleteProducteDialog.index, deleteProducteDialog.product.id)"
+          @click="onRemoveProduct()"
         />
       </v-card-actions>
     </v-card>
-  </v-dialog>
+  </v-dialog> -->
             
   <v-btn
     :to="{ name: 'order-details', params: { id: id} }"
@@ -128,6 +147,12 @@
                 fill="fill-black"
                 custom-style="w-7 h-7 cursor-pointer"
               />
+              <v-tooltip
+                activator="parent"
+                location="bottom"
+              >
+                حذف المنتج
+              </v-tooltip>
             </v-btn>
           </div>
         </div>
@@ -176,11 +201,6 @@
             </v-autocomplete>
 
             <div class="mb-3">
-              <!-- <ColorPicker
-                v-if="selectedProduct"
-                v-model="addProducteDialog.colors"
-                :colors-list="convertToObject(selectedProduct.hex_codes)"
-              /> -->
               <ColorPicker
                 v-if="selectedProduct"
                 :colors-list="convertToObject(selectedProduct.hex_codes)"
@@ -308,6 +328,8 @@ import { getProducts } from "@/products/products-service";
 import ColorPickerDialog from "../components/ColorPickerDialog.vue";
 import ColorPicker from "@/products/components/ColorPicker copy.vue";
 
+import DeleteProductDialog from "../components/DeleteProductDialog.vue";
+
 const quantityInputs = ref<any[]>([]);
 const quantityInputsErrors = ref<boolean[]>([]);
 
@@ -411,7 +433,9 @@ watchEffect(() => {
     })
 
     products.value = [...orderDetails.value.products];
+    console.log(color_selected.value);
     color_selected.value = [...orderDetails.value.order_details.color_selected]
+    console.log(color_selected.value);
 
     quantityInputs.value = [...orderDetails.value.order_details.quantity_selected]
 
@@ -422,11 +446,14 @@ watchEffect(() => {
   }
 })
 
-const dialogQuestion = (title: string, id: string) => {
-    return `هل تريد حذف  ${title} من الطلبية  ${id} ؟`
-}
+// const dialogQuestion = (title: string, id: string) => {
+//     return `هل تريد حذف  ${title} من الطلبية  ${id} ؟`
+// }
 
-const onRemoveProduct = (index: number, id: number) => {
+const onRemoveProduct = () => {
+  const index = deleteProducteDialog.value.index
+  const id = deleteProducteDialog.value.product?.id
+
   products.value = products.value!.filter(item => item.id !== id)
   quantityInputs.value.splice(index, 1)
   priceInputs.value.splice(index, 1)
@@ -454,7 +481,6 @@ const submit  = handleSubmit(values => {
       total_price: total.value,
       color_selected: color_selected.value
     }
-    console.log(body);
     patchOrderMutation.mutate({ body, id })
 })
 
@@ -475,7 +501,10 @@ const onAddProductToOrder = (product: Product) => {
   quantityInputs.value.push(0)
 
   productCodes.value.push(product.product_code)
+  console.log(color_selected.value);
+  
   color_selected.value.push(addProducteDialog.value.colors)
+  console.log(color_selected.value);
   products.value.push(product)
 
   addProducteDialog.value.colors = []

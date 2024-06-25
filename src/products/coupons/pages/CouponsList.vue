@@ -97,7 +97,7 @@
             </v-tooltip>
           </v-btn>
 
-          <v-btn
+          <!-- <v-btn
             variant="text"
             class="mx-1"
             density="comfortable"
@@ -112,7 +112,7 @@
             >
               حذف
             </v-tooltip>
-          </v-btn>
+          </v-btn> -->
         </div>
       </template>
     </v-data-table-server>

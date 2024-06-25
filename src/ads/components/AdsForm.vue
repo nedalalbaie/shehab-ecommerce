@@ -13,7 +13,7 @@
     </div>
 
     <p>
-      ملاحطة: تاريخ بداية الإعلان يجب أن يكون أصغر من تاريخ النهاية
+      ملاحطة: تاريخ بداية الإعلان يجب أن يكون أصغر من تاريخ النهاية .
     </p>
 
     <div class="flex gap-14 mt-6">
@@ -166,14 +166,10 @@ const handleImage = (imageFileParam: File | null, state: "filled" | "empty") => 
 watchEffect(() => {
   if (values.start_date) {
 
-  const currentDate = new Date();
-    const day = currentDate.getDate();
-    const month = currentDate.getMonth() + 1; 
-    const year = currentDate.getFullYear();
-  
-   const start = `${values.start_date!.getDate()}/${values.start_date!.getMonth() + 1}/${values.start_date!.getFullYear()}`
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0)
     
-    if (start < `${day}/${month}/${year}`) {
+    if (values.start_date! < currentDate) {
        startDateErrorMessage.value = 'لا يمكن إختيار تاريخ أقل من تاريخ اليوم'
     }
     

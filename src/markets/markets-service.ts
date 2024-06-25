@@ -30,7 +30,7 @@ const getMarket = (id: number): Promise<Market> => {
   return apiClient.url(`/markets/${id}`).get().json()
 }
 
-const getMarketProducts = (id: number): Promise<MarketProducts[]> => {
+const getMarketProducts = (id: number): Promise<MarketProducts> => {
   return apiClient
     .url(`/show-items-details/${id}`)
     .get()

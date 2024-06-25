@@ -33,7 +33,7 @@
         class="border-2 border-solid py-1 px-3 rounded-md transition-all duration-150"
         @click="ordersPaginationParams.status = STATUS.CONFIRMED"
       >
-        تم التوصيل
+        تم القبول
       </button>
 
       <button

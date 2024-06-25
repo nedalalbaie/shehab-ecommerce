@@ -412,7 +412,7 @@ watchEffect(() => {
     })
   
     products.value = [...orderDetails.value.products]
-    color_selected.value = orderDetails.value.order_details.color_selected
+    color_selected.value = [...orderDetails.value.order_details.color_selected]
     quantityInputs.value = [...orderDetails.value.order_details.quantity_selected]
 
     orderDetails.value.products.forEach((product) => {
@@ -454,7 +454,6 @@ const submit  = handleSubmit(values => {
       total_price: total.value,
       color_selected: color_selected.value
     }
-    console.log(body);
     patchOrderMutation.mutate({ body, orderId })
 })
 

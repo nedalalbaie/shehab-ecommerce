@@ -4,7 +4,8 @@
       ref="fileUpload"
       class="hidden"
       type="file"
-      accept="image/*"
+      accept="image/jpeg, image/jpg, image/png"
+      max="10240"
       @change="handleFileUpload"
     >
     <div
@@ -16,7 +17,7 @@
     </div>
     <div
       v-if="base64Image"
-      class="relative rounded-lg h-64"
+      class="relative rounded-lg h-64 "
     >
       <img
         class="rounded-lg border-4 border-gray-200 h-64 w-full object-cover object-center shadow-md"

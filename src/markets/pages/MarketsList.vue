@@ -4,7 +4,7 @@
     <span
       v-if="markets.data.value?.data.length! > 0"
       class="bg-gray-200 px-2 rounded-lg text-2xl"
-    > {{ markets.data.value?.data.length }}</span>
+    > {{ markets.data.value?.total }}</span>
   </h2>
   <div class="flex justify-between mt-8">
     <div class="w-72">
@@ -161,7 +161,6 @@ import { getMarkets, changeStatus } from '../markets-service'
 import type { PaginationParams } from '@/core/models/pagination-params'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import debounce from 'lodash.debounce'
-import LoadingSkeleton from '@/core/components/LoadingSkeleton.vue'
 import { BASE_STATUS, type BaseStatus } from '@/core/models/base-status'
 
 const isStatusLoading = ref<boolean []>([])

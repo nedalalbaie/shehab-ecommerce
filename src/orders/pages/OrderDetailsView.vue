@@ -1,4 +1,12 @@
 <template>
+  <cancel-order-dialog-component
+    v-if="orderDetails"
+    v-model="cancelOrderDialog.open"
+    :order="orderDetails.order_details"
+    :is-loading="cancelOrderMutation.isPending.value"
+    @cancel-order="onCancelOrder"
+  />
+
   <v-btn
     :to="{ name: 'orders' }"
     variant="outlined"
@@ -101,38 +109,6 @@
           <DeleteIcon fill="fill-white" />
         </template>
       </v-btn>
-
-      <v-dialog
-        v-model="cancelOrderDialog.open"
-        width="500"
-      >
-        <v-card
-          :title="dialogQuestion()"
-          rounded="lg"
-          color="#EFE9F5"
-          style="padding-block: 1.75rem !important "
-        >
-          <v-card-text>
-            سيتم الغاء هذه الطلبية بشكل نهائي، سيتلقى الزبون اشعارا يوضح ان الطلبية تم الغاؤها.
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer />
-
-            <v-btn
-              text="لا"
-              @click="cancelOrderDialog.open = false"
-            />
-            <v-btn
-              :loading="cancelOrderMutation.isPending.value"
-              text="نعم"
-              @click="
-                onCancelOrder(orderDetails.order_details.id as number)
-              "
-            />
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
     </div>
   </div>
 
@@ -211,15 +187,18 @@ import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
 import { ref, watch, watchEffect } from 'vue'
 import BillIcon from '../components/icons/BillIcon.vue'
 import { postBill } from '@/bills/bill-service'
+import CancelOrderDialogComponent from "../components/CancelOrderDialog.vue";
+
+const cancelOrderDialog = ref<{
+  open: boolean
+}>({
+  open: false
+})
 
 const status = ref<OrderStatus>()
 let statusCounter = 0
 
 const selectedColors = ref<string [][]>([])
-
-const cancelOrderDialog = ref({
-  open: false
-})
 
 const route = useRoute()
 const id = Number(route.params.id)
@@ -232,10 +211,6 @@ const {
   queryKey: ['orderDetails'],
   queryFn: () => getOrder(id)
 })
-
-const dialogQuestion = () => {
-  return `إلغاء الطلبية ${orderDetails.value?.order_details.order_number} ؟`
-}
 
 const queryClient = useQueryClient()
 const cancelOrderMutation = useMutation({
@@ -270,20 +245,15 @@ const onchangeOrderStatus = (order_number: string, new_status: OrderStatus) => {
   changeOrderStatusMutation.mutate({ order_number: order_number, new_status: new_status })
 }
 
-const onCancelOrder = (id: number) => {
+const onCancelOrder = () => {
   cancelOrderMutation.mutate(id)
 }
-
 
 const onMakeBill = () => {
   if (orderDetails.value) {
     makeBillMutation.mutate(orderDetails.value.order_details.order_number)
   }
 }
-
-// const convertToObject = (hexCodesParam: string) => {
-//  return JSON.parse(hexCodesParam) as string[]
-// }
 
 watchEffect(() => {
   if (orderDetails.value) {
