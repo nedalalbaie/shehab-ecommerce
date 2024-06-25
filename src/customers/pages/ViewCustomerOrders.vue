@@ -19,12 +19,28 @@
       </h1>
     </div>
   
-    <div v-if="!orders">
-      <LoadingOrders />
+    <div
+      v-if="isPending"
+      class="w-full h-96 flex items-center justify-center"
+    >
+      <v-progress-circular
+        size="50"
+        width="4"
+        indeterminate
+        color="primary"
+      />
     </div>
+
+    <v-alert
+      v-else-if="isError"
+      type="error"
+      class="my-6"
+      title="خطأ في الوصول الى بيانات الطلبات"
+      text="الرجاء اعادة المحاولة مرة أخرى."
+    />
   
     <div
-      v-if="orders"
+      v-else-if="orders"
       class="mt-6 flex-grow flex flex-col justify-center"
     >
       <EmptyData v-if="orders.length === 0" />
@@ -175,7 +191,6 @@
   import ViewIconVue from "@/core/components/icons/ViewIcon.vue";
   import router from "@/router";
   import { checkStatus } from "@/core/helpers/check-status"
-  import LoadingOrders from "@/orders/components/LoadingOrders.vue";
   import EmptyData from "@/core/components/EmptyData.vue";
   import { mdiArrowRight } from "@mdi/js";
   import { useRoute } from "vue-router";
@@ -187,7 +202,7 @@
   const route = useRoute();
   const customerId = Number(route.params.customerId);
 
-  const { data: orders} = useQuery({
+  const { data: orders, isPending, isError } = useQuery({
     queryKey: ['orders', customerId],
     queryFn: () => getOrderByCustomerId(customerId)
   })

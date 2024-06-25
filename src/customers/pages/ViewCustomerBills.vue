@@ -21,12 +21,28 @@
       </h1>
     </div>
 
-    <div v-if="!bills">
-      <LoadingOrders />
+    <div
+      v-if="isPending"
+      class="w-full h-96 flex items-center justify-center"
+    >
+      <v-progress-circular
+        size="50"
+        width="4"
+        indeterminate
+        color="primary"
+      />
     </div>
 
+    <v-alert
+      v-else-if="isError"
+      type="error"
+      class="my-6"
+      title="خطأ في الوصول الى بيانات الفواتير"
+      text="الرجاء اعادة المحاولة مرة أخرى."
+    />
+
     <div
-      v-if="bills"
+      v-else-if="bills"
       class="mt-6 flex-grow flex flex-col justify-center"
     >
       <EmptyData v-if="bills.length === 0" />
@@ -177,7 +193,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import DeleteIcon from '@/core/components/icons/DeleteIcon.vue'
 import ViewIconVue from '@/core/components/icons/ViewIcon.vue'
 import { checkStatus } from '@/core/helpers/check-status'
-import LoadingOrders from '@/orders/components/LoadingOrders.vue'
 import EmptyData from '@/core/components/EmptyData.vue'
 import { useRoute } from 'vue-router'
 import { mdiArrowRight } from '@mdi/js'
@@ -185,7 +200,7 @@ import { mdiArrowRight } from '@mdi/js'
 const route = useRoute()
 const customerId = Number(route.params.customerId)
 
-  const { data: bills } = useQuery({
+  const { data: bills, isPending, isError } = useQuery({
   queryKey: ['customer-bills', customerId],
   queryFn: () => getBillByCustomerId(customerId)
 })

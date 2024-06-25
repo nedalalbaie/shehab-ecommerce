@@ -12,12 +12,28 @@
       <bills-search-filter v-model="listParams" />
     </div>
 
-    <div v-if="!bills">
-      <LoadingOrders />
+    <div
+      v-if="isPending"
+      class="w-full h-96 flex items-center justify-center"
+    >
+      <v-progress-circular
+        size="50"
+        width="4"
+        indeterminate
+        color="primary"
+      />
     </div>
 
+    <v-alert
+      v-else-if="isError"
+      type="error"
+      class="my-6"
+      title="خطأ في الوصول الى بيانات الفواتير"
+      text="الرجاء اعادة المحاولة مرة أخرى."
+    />
+
     <div
-      v-if="bills"
+      v-else-if="bills"
       class="mt-6 flex-grow flex flex-col justify-center"
     >
       <EmptyData v-if="bills.total === 0" />
@@ -157,7 +173,6 @@ import { STATUS, type BillStatus } from "../models/status"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import DeleteIcon from "@/core/components/icons/DeleteIcon.vue";
 import ViewIconVue from "@/core/components/icons/ViewIcon.vue";
-import LoadingOrders from "@/orders/components/LoadingOrders.vue";
 import EmptyData from "@/core/components/EmptyData.vue";
 import BillsSearchFilter from "../components/BillsSearchFilter.vue";
 import type { BillsPaginationParamas } from "../models/bills-pagination-params";
@@ -167,7 +182,7 @@ const listParams = ref<BillsPaginationParamas>({
   limit: 10
 })
 
-const { data: bills} = useQuery({
+const { data: bills, isPending, isError } = useQuery({
   queryKey: ['bills', listParams],
   queryFn: () => getBills(listParams.value)
 })
