@@ -7,6 +7,7 @@
     <v-color-picker
       v-model="color"
       mode="hex"
+      hide-inputs
     />
 
     <div class="flex flex-col items-center gap-3 self-start shadow-md border p-4 rounded-md">
@@ -32,10 +33,14 @@
 
   <div
     v-if="hexCodes.length > 0"
-    class="self-start shadow-md border p-4 rounded-md relative mt-4 w-1/2"
+    class="self-start shadow-md border p-4 rounded-md relative mt-4 w-[70%]"
   >
-    <p>
-      الألوان المختارة للمنتج
+    <p class="text-xl">
+      الألوان المختارة للمنتج 
+      <span
+        v-if="hexCodes.length > 0"
+        class="bg-gray-200 px-2 rounded-lg "
+      >{{ hexCodes.length }} </span>
     </p>
     <div class="flex flex-wrap gap-6 mt-4">
       <div
@@ -74,6 +79,14 @@ const addColor = () => {
   if (hexCodes.value.some(code => code == color.value)) {
     alertStore.show({
         message: 'لقد قمت بإدخال هذا اللون مسبقا',
+        type: 'error'
+      })
+      return
+  }
+
+  if (hexCodes.value.length >= 20) {
+    alertStore.show({
+        message: 'لا يمكنك إدخال أكثر من 20 لون',
         type: 'error'
       })
       return

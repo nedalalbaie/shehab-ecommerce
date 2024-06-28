@@ -8,7 +8,7 @@ type Ad = {
 }
 
 type PostOrPatchAdRequest = Omit<Ad, 'id' | 'url'> & {
-  url: File
+  url: File | string
 }
 
 export type { Ad, PostOrPatchAdRequest }

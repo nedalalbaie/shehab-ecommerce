@@ -3,9 +3,9 @@
     <h1 class="text-3xl font-medium">
       المنتجات
       <span
-        v-if="products.data.value?.data.length! > 0"
+        v-if="products && products.total > 0"
         class="bg-gray-200 px-2 rounded-lg text-2xl"
-      >{{ products.data.value?.data.length }} </span>
+      >{{ products.total }} </span>
     </h1>
     <div
       class="flex justify-between mt-6"
@@ -59,19 +59,25 @@
       </v-btn>
     </div>
 
-    <div v-if="!products.data.value">
-      <LoadingProducts />
-    </div>
+    <LoadingProducts v-if="isPending" />
+
+    <v-alert
+      v-else-if="isError"
+      type="error"
+      class="my-6"
+      title="خطأ في الوصول الى المنتجات"
+      text="الرجاء اعادة المحاولة مرة أخرى."
+    />
 
     <div
-      v-if="products.data.value"
+      v-else-if="products"
       class="mt-6 flex-grow flex flex-col justify-center"
     >
-      <EmptyData v-if="products.data.value.data.length === 0" />
+      <EmptyData v-if="products.data.length === 0" />
     
       <div class="grid grid-cols-productsCards gap-x-6 gap-y-8">
         <div
-          v-for="(product, index) in products.data.value.data"
+          v-for="(product, index) in products.data"
           :key="product.id"
           class="bg-white shadow-lg rounded-lg p-4"
         >
@@ -206,13 +212,6 @@
               color="primary"
               @click="onStatusChange(product.id, BASE_STATUS.Activated, index)"
             >
-              <!-- <v-icon :icon="mdiCheck" />
-              <v-tooltip
-                activator="parent"
-                location="bottom"
-              >
-                إعادة التفعيل
-              </v-tooltip> -->
               إعادة التفعيل
             </v-btn>
           </div>
@@ -263,10 +262,10 @@ const addDiscountDialog = ref<{
 const search= ref('');
 const listParams = ref<PaginationParams & {productName?: string}>({
   page: 1,
-  limit: 10,
+  limit: 1000,
 })
 
-const products = useQuery({
+const { data: products, isPending, isError } = useQuery({
   queryKey: ['products', listParams],
   queryFn: () => getProducts(listParams.value)
 })
@@ -308,9 +307,11 @@ const getStatusLabel = (status: BaseStatus) => {
 }
 
 const openAddDiscountDialog = (productId: number, productName: string) => {
-  addDiscountDialog.value.isOpen = true
-  addDiscountDialog.value.productId = productId
-  addDiscountDialog.value.productName = productName
+  addDiscountDialog.value = {
+    isOpen: true,
+    productId: productId,
+    productName: productName
+  }
 }
 
 </script>

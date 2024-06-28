@@ -16,6 +16,7 @@
     "@mdi/js": "^7.4.47",
     "@tanstack/vue-query": "^5.8.7",
     "@vee-validate/zod": "^4.12.0",
+    "axios": "^1.7.2",
     "chart.js": "^4.4.3",
     "date-fns": "^3.6.0",
     "filepond": "^4.31.1",

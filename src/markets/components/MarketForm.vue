@@ -22,12 +22,11 @@
       <v-text-field
         v-model="phone_number"
         label="رقم الهاتف"
-        type="number"
         variant="outlined"
         color="primary"
         placeholder="نسبة الهاتف"
         :error-messages="errors.phone_number"
-        @input="convertPhoneToNumber"
+        @keydown="validatePositiveNumbers"
       />
     </div>
 
@@ -64,6 +63,7 @@ import { useForm, useField } from 'vee-validate';
 import { object, string, number } from 'zod';
 import type { Market, MarketFormRequest } from "../models/market";
 import { computed, watchEffect } from "vue";
+import { validatePositiveNumbers } from '@/core/helpers/onlyPositiveNumbersRegex';
 
 const props = defineProps<{
     isLoading: boolean,
@@ -79,7 +79,12 @@ const validationSchema = toTypedSchema(
     object({
         name: string().min(1, 'يجب إدخال  إسم المحل '),
         owner_name: string().min(1, 'يجب إدخال إسم مالك المحل  '),
-        phone_number: number().min(1, 'يجب إدخال رقم الهاتف  '),
+        phone_number: string()
+        .min(1, 'يحب إدخال رقم الهاتف')
+        .max(10, "يجب أن لا يكون أكثر من 10 أرقام")
+        .startsWith('09', "يجب أن يكون بهذه الصيغة 09xxxxxxxx")
+        .length(10, "يجب أن يكون بهذه الصيغة 09xxxxxxxx"),
+
         active_market: number(),
         location_link: string()
     })
@@ -101,19 +106,16 @@ watchEffect(() => {
     if (props.market) {
         setValues({
             ...props.market,
-            phone_number: Number(props.market.phone_number)
+            phone_number: String(props.market.phone_number)
         })
     }
 })
 
-const convertPhoneToNumber = () => {
-  phone_number.value = Number(phone_number.value)
-}
-
 const submit = handleSubmit(values => {
-   console.log(values);
-   
-    emit("submit", values)
+    emit("submit", {
+      ...values,
+      phone_number: Number(values.phone_number)
+    })
 })
 
 </script>

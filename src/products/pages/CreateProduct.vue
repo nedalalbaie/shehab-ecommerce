@@ -28,6 +28,8 @@ import type { AddProductRequest } from '../models/product'
 import { postProductDetails } from '@/productsDetails/productDetails-service'
 import { ref } from 'vue'
 import type { CreateProductDetails } from '@/productsDetails/models/productDetails'
+import type { AxiosError } from 'axios'
+import { alertStore } from '@/core/stores/alert.store'
 
 const productDetails = ref<Omit<CreateProductDetails, 'product_id'>>()
 const queryClient = useQueryClient()
@@ -35,8 +37,6 @@ const queryClient = useQueryClient()
 const addProduct = useMutation({
   mutationFn: postProduct,
   onSuccess: async (product) => {
-    console.log(product);
-    
     if (productDetails.value) {
      await addProductDetails.mutateAsync({
         ...productDetails.value,
@@ -46,8 +46,15 @@ const addProduct = useMutation({
     router.replace({ name: 'products' })
     queryClient.invalidateQueries({ queryKey: ['products'] })
   },
-  onError: (error) => {
-    console.log(error)
+  onError: (error: AxiosError<{ errors: {product_code: string []}}>) => {
+    if (error.response?.status == 422) {
+        if ( error.response.data.errors.product_code[0] == 'The product code has already been taken.') {
+          alertStore.show({
+            message: 'كود المنتج مستعمل مسبقا .',
+            type: 'error'
+          })
+        }
+      }
   }
 })
 

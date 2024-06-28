@@ -1,14 +1,46 @@
 <template>
   <form @submit.prevent="submit">
-    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-2 mt-6">
+    <div class="grid md:grid-cols-2 xl:grid-cols-3 items-start gap-x-8 gap-y-3 mt-6">
       <v-text-field
         v-model="name"
-        label="إسم المنتج"
+        label="اسم المنتج"
         variant="outlined"
         color="primary"
-        placeholder="إسم المنتج"
+        placeholder="اسم المنتج"
         :error-messages="errors.name"
       />
+
+      <v-text-field
+        v-model="product_code"
+        label="رمز المنتج"
+        variant="outlined"
+        color="primary"
+        placeholder="رمز المنتج"
+        :error-messages="errors.product_code"
+      />
+
+      <v-autocomplete
+        v-model="selling_method"
+        :hide-no-data="false"
+        item-title="label"
+        item-value="value"
+        :items="sellingMethods"
+        hide-selected
+        label="طريقة الدفع"
+        placeholder="طريقة الدفع"
+        variant="outlined"
+        color="primary"
+        auto-select-first
+        :error-messages="errors.selling_method"
+      >
+        <template #no-data>
+          <v-list-item>
+            <v-list-item-title>
+              لا توجد نتائج
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+      </v-autocomplete>
 
       <v-autocomplete
         v-model="mainCategoryId"
@@ -82,38 +114,6 @@
         </template>
       </v-autocomplete>
 
-      <v-autocomplete
-        v-model="selling_method"
-        :hide-no-data="false"
-        item-title="label"
-        item-value="value"
-        :items="sellingMethods"
-        hide-selected
-        label="طريقة الدفع"
-        placeholder="طريقة الدفع"
-        variant="outlined"
-        color="primary"
-        auto-select-first
-        :error-messages="errors.selling_method"
-      >
-        <template #no-data>
-          <v-list-item>
-            <v-list-item-title>
-              لا توجد نتائج
-            </v-list-item-title>
-          </v-list-item>
-        </template>
-      </v-autocomplete>
-
-      <v-text-field
-        v-model="product_code"
-        label="رمز المنتج"
-        variant="outlined"
-        color="primary"
-        placeholder="رمز المنتج"
-        :error-messages="errors.product_code"
-      />
-
       <v-text-field
         v-model="price"
         label="سعر البيع"
@@ -137,16 +137,6 @@
       />
 
       <v-text-field
-        v-model="description"
-        label="التفاصيل"
-        type="text"
-        variant="outlined"
-        color="primary"
-        placeholder="التفاصيل"
-        :error-messages="errors.description"
-      />
-
-      <v-text-field
         v-model="minimum_quantity"
         label="القيمة الأدني"
         type="number"
@@ -155,6 +145,16 @@
         placeholder="القيمة الأدني"
         :error-messages="errors.minimum_quantity"
         @input="convertMinimalquantityToNumber"
+      />
+
+      <v-textarea
+        v-model="description"
+        clearable
+        variant="outlined"
+        color="primary"
+        label="التفاصيل"
+        placeholder="التفاصيل"
+        :error-messages="errors.description"
       />
     </div>
 
@@ -283,7 +283,7 @@ const hexCodes = ref<string[]>([])
 const selectedImagesState = ref<"filled" | "empty">("empty")
 
 const editMode = computed(() => !!props.product)
-const isDisabled = computed(() => !meta.value.valid || selectedImagesState.value == "empty")
+const isDisabled = computed(() => !meta.value.valid || selectedImagesState.value == "empty" || hexCodes.value.length < 1)
 const listParams = ref({
   page: 1,
   limit: 200,
@@ -381,18 +381,24 @@ const convertMinimumQuantityToNumber = () => {
 }
 
 const submit = handleSubmit(values => {
-  console.log(base64Images[0])
-  console.log(base64Images[1])
-  console.log(base64Images[3])
-  console.log(base64Images[4])
-  emit("submit", {
+  
+  const body: ProductForm = {
     ...values,
+    hex_codes: JSON.stringify(hexCodes.value),
     image1_path: base64Images[0] as File,
-    image2_path: base64Images[1] as File,
-    image3_path: base64Images[2] as File,
-    image4_path: base64Images[3] as File,
-    hex_codes: JSON.stringify(hexCodes.value)
-  })
+  }
+
+  if (base64Images[1]) {
+    body.image2_path = base64Images[1]
+  }
+  if (base64Images[2]) {
+    body.image3_path = base64Images[2]
+  }
+  if (base64Images[3]) {
+    body.image4_path = base64Images[3]
+  }
+
+  emit("submit", body)
 })
 
 const handleImage = (imageFile: File | null, state: "filled" | "empty", index?: number) => {

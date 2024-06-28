@@ -14,6 +14,7 @@
     </v-btn>
   </div>
   <AdsForm
+    :edit-mode="true"
     :ad="ad.data.value"
     :is-loading="patchAdMutation.isPending.value"
     @submit="handleSubmit"

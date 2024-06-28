@@ -140,7 +140,7 @@
       <div
         v-for="(product, index) in orderDetails.products"
         :key="product.id"
-        class="grid grid-cols-[1fr_1fr_30%_1fr] px-8 py-3"
+        class="grid grid-cols-[1fr_1fr_30%_1fr] items-start px-8 py-3"
       >
         <p class="border-b-2 border-neutral-600 pb-1 w-fit">
           {{ product.name }}

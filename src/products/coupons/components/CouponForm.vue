@@ -13,11 +13,11 @@
       <v-text-field
         v-model="limit"
         label="الحد الأعلي"
-        type="number"
         variant="outlined"
         color="primary"
         placeholder="الحد الأعلي"
         :error-messages="errors.limit"
+        @keydown="validatePositiveNumbers"
       />
 
       <v-text-field
@@ -66,10 +66,11 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm, useField } from 'vee-validate';
-import { object, string, number, date } from 'zod';
+import { object, string, date } from 'zod';
 import type { Coupon, CouponFormRequest } from "../models/coupon";
 import { computed, ref, watchEffect } from "vue";
 import { formatToDatePicker, fromatDatePickerToDate } from '@/core/helpers/format-date';
+import { validatePositiveNumbers } from '@/core/helpers/onlyPositiveNumbersRegex';
 
 const props = defineProps<{
     isLoading: boolean,
@@ -85,8 +86,13 @@ const startDateErrorMessage = ref<string | null>(null)
 const validationSchema = toTypedSchema(
     object({
         coupon_code: string().min(1, 'يجب إدخال كود الكوبون '),
-        limit: string().min(1, 'يجب إدخال  الحد الأعلي  ').or(number().min(1, 'يجب إدخال  الحد الأعلي  ')),
-        discount_percentage: string().min(1, 'يجب إدخال نسبة التخفيض  ').or(number().min(1, 'يجب إدخال نسبة التخفيض  ')),
+        limit: string().min(1, 'يجب إدخال  الحد الأعلي  ')
+        .max(4, "يجب أن لا يكون أكثر من 10 ألاف"),
+        discount_percentage: string()
+        .min(1, 'يجب إدخال نسبة التخفيض  ')
+        .max(3, "يجب أن لا يكون أكثر من 3 أرقام")
+        
+        ,
         expire_date: date()
     })
 );
@@ -104,6 +110,7 @@ watchEffect(() => {
     if (props.coupon) {
         setValues({
             ...props.coupon,
+           limit: String(props.coupon.limit),
            expire_date: formatToDatePicker(props.coupon.expire_date)
         })
     }
@@ -121,12 +128,12 @@ watchEffect(() => {
       startDateErrorMessage.value = null
     }
   }
-
 })
 
 const submit = handleSubmit(values => {
     emit("submit", {
       ...values,
+      limit: Number(values.limit), 
       expire_date: fromatDatePickerToDate(values.expire_date)
     })
 })

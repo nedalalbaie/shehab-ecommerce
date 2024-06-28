@@ -105,7 +105,7 @@ const startDateErrorMessage = ref<string | null>(null)
 const validationSchema = toTypedSchema(
   object({
     discount_type: literal('percentage').or(literal('fixed')),
-    discount_value: string().min(1, 'يجب إدخال قيمة التخفيض  '),
+    discount_value: string().min(1, 'يجب إدخال قيمة التخفيض  ').max(4, "يجب أن لا يكون أكثر من 10 ألاف"),
     start_date: date(),
     end_date: date()
   })

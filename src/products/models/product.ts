@@ -26,9 +26,9 @@ type AddProductRequest = {
   description: string
   hex_codes: string
   image1_path: File
-  image2_path: File
-  image3_path: File
-  image4_path: File
+  image2_path?: File
+  image3_path?: File
+  image4_path?: File
   selling_method: string
   minimum_quantity: number
 }

@@ -1,8 +1,8 @@
 type Coupon = {
     id: number;
     coupon_code: string;
-    limit: string | number;
-    discount_percentage: string | number;
+    limit: number;
+    discount_percentage: string;
     expire_date: string;
 }
 

@@ -1,8 +1,9 @@
 import apiClient from '@/core/helpers/api-client'
-import formData from 'wretch/addons/formData'
 import type { Ad, PostOrPatchAdRequest } from './models/ads'
 import type { List } from '@/core/models/list'
 import { alertStore } from '@/core/stores/alert.store'
+import { axiosApiClient } from '@/core/helpers/axios-configrations'
+import { objectToFormData } from '@/core/helpers/objectToFormdata'
 
 const getAds = (show : 1 | 0): Promise<List<Ad[]>> => {
   // let url = ''
@@ -26,13 +27,10 @@ const getAd = (id: number): Promise<Ad> => {
   return apiClient.url(`/ads/${id}`).get().json()
 }
 
-const postAd = (body: PostOrPatchAdRequest): Promise<Ad> => {
-  return apiClient
-    .addon(formData)
-    .url('/ads')
-    .formData(body)
-    .post()
-    .json((res) => {
+const postAd = (body: PostOrPatchAdRequest) => {
+  return axiosApiClient
+    .post<Ad>('/ads', objectToFormData(body))
+    .then((res) => {
       alertStore.show({
         message: 'تم إضافة الإعلان بنجاح',
         type: 'success'
@@ -40,17 +38,28 @@ const postAd = (body: PostOrPatchAdRequest): Promise<Ad> => {
       return res
     })
 }
+// const postAd = (body: PostOrPatchAdRequest): Promise<Ad> => {
+//   return apiClient
+//     .addon(formData)
+//     .url('/ads')
+//     .formData(body)
+//     .post()
+//     .json((res) => {
+//       alertStore.show({
+//         message: 'تم إضافة الإعلان بنجاح',
+//         type: 'success'
+//       })
+//       return res
+//     })
+// }
 
-const patchAd = (id: number, body: Partial<PostOrPatchAdRequest>): Promise<Ad> => {
-  return apiClient
-    .addon(formData)
-    .url(`/ads/${id}`)
-    .formData({
+const patchAd = (id: number, body: Partial<PostOrPatchAdRequest>) => {
+  return axiosApiClient
+    .post<Ad>(`/ads/${id}`, objectToFormData({
       ...body,
       _method: 'put'
-    })
-    .post()
-    .json((res) => {
+    }))
+    .then((res) => {
       alertStore.show({
         message: 'تم تحديث الإعلان بنجاح',
         type: 'success'

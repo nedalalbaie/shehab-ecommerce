@@ -60,7 +60,10 @@
       </p>
     </div>
 
-    <div class="mt-8 lg:w-1/4">
+    <div
+      v-if="!editMode"
+      class="mt-8 lg:w-1/4"
+    >
       <AdImageUpload @handle-image="handleImage" />
     </div>
 
@@ -73,7 +76,7 @@
         type="submit"
         :loading="props.isLoading"
       >
-        {{ editMode ? 'نحديث ' : 'إضافة' }}
+        {{ editMode ? 'تحديث ' : 'إضافة' }}
       </v-btn>
     </div>
   </form>
@@ -90,7 +93,8 @@ import { formatToDatePicker, fromatDatePickerToDate } from '@/core/helpers/forma
 
 const props = defineProps<{
   isLoading: boolean,
-  ad?: Ad
+  ad?: Ad,
+  editMode?: boolean
 }>()
 const emit = defineEmits<{
   submit: [value: PostOrPatchAdRequest]
@@ -98,7 +102,6 @@ const emit = defineEmits<{
 
 const selectedImageState = ref<"filled" | "empty">("empty")
 const imageFile = ref<File>()
-const editMode = computed(() => !!props.ad)
 const isDisabled = computed(() => !meta.value.valid || selectedImageState.value == "empty")
 
 const startDateErrorMessage = ref<string | null>(null)
@@ -137,22 +140,13 @@ watchEffect(() => {
     })
 
     selectedImageState.value = props.ad.url ? "filled" : "empty"
-
-    // const imageUrl = `${storage}/${props.ad.url}`
-    // pathToFile(imageUrl, imageUrl.substring(imageUrl.lastIndexOf("/") + 1))
-    //   .then((file: File) => {
-    //     imageFile.value = file
-    //   })
-    //   .catch((error: Error) => {
-    //     console.error(error);
-    //   });
   }
 })
 
 const submit = handleSubmit(values => {
   emit("submit", {
     ...values,
-    url: imageFile.value as File,
+    url:  props.editMode ? props.ad!.url : imageFile.value as File,
     start_date: fromatDatePickerToDate(values.start_date),
     end_date: fromatDatePickerToDate(values.end_date)
   })
@@ -165,6 +159,10 @@ const handleImage = (imageFileParam: File | null, state: "filled" | "empty") => 
 
 watchEffect(() => {
   if (values.start_date) {
+
+    // if (editMode.value) {
+
+    // }
 
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0)

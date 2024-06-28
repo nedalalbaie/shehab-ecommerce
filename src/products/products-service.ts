@@ -6,6 +6,9 @@ import type { PaginationParams } from '@/core/models/pagination-params'
 import type { List } from '@/core/models/list'
 import type { ProductStatusChangeBody } from './models/product-status-body'
 import { alertStore } from '@/core/stores/alert.store'
+import { axiosApiClient } from '@/core/helpers/axios-configrations'
+import { objectToFormData } from '@/core/helpers/objectToFormdata'
+
 
 const getProducts = (params: PaginationParams): Promise<List<Product[]>> => {
   return apiClient
@@ -24,20 +27,18 @@ const getProduct = (id: number): Promise<Omit<Product , "sub_category_id"> & {ca
   return apiClient.url(`/products/${id}`).get().json()
 }
 
-const postProduct = (body: AddProductRequest): Promise<{
-  date: Product
-}> => {
-  return apiClient
-    .addon(formData)
-    .url('/products')
-    .formData(body)
-    .post()
-    .json((res) => {
+const postProduct = (body: AddProductRequest) => {
+  return axiosApiClient.post<{
+    date: Product
+  }>('/products', objectToFormData(body) , { headers: {
+    'Content-Type': 'multipart/form-data', 
+  }})
+    .then((res) => {
       alertStore.show({
         message: 'تم إضافة المنتج بنجاح',
         type: 'success'
       })
-      return res
+      return res.data
     })
 }
 

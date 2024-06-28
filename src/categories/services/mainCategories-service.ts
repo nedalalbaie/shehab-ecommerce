@@ -45,6 +45,10 @@ const editMainCategory = (id: number, body: PostMainCategoryRequest): Promise<Ma
     })
     .post()
     .json((res) => {
+      alertStore.show({
+        message: 'تم تعديل التصنيف الأساسي بنجاح',
+        type: 'success'
+      })
       return res
     })
 }

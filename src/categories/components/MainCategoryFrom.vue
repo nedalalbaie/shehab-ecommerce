@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="submit">
-    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-2 mt-7">
+    <div class="grid md:grid-cols-2 xl:grid-cols-3 items-start gap-x-8 gap-y-2 mt-7">
       <v-text-field
         v-model="name"
         label="إسم التصنيف"
@@ -10,12 +10,12 @@
         :error-messages="errors.name"
       />
     
-      <v-text-field
+      <v-textarea
         v-model="description"
-        label="التفاصيل"
-        type="text"
+        clearable
         variant="outlined"
         color="primary"
+        label="التفاصيل"
         placeholder="التفاصيل"
         :error-messages="errors.description"
       />
